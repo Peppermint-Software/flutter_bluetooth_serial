@@ -10,6 +10,11 @@
             "request": "attach"
         },
         {
+            "name": "Flutter: Attach to Device",
+            "type": "dart",
+            "request": "attach"
+        },
+        {
             "name": "remote_control",
             "request": "launch",
             "type": "dart"

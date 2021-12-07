@@ -1,4 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,30 +12,22 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     return MaterialApp(
-      title: 'Flutter Demo',
+      darkTheme: ThemeData.dark(),
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.cyan,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Remote Control'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -39,68 +36,120 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+        appBar: AppBar(
+          title: Text(
+            widget.title,
+            textAlign: TextAlign.center,
+          ),
         ),
+        body: Center(
+          child: Stack(
+            children: [
+              TextButton(onPressed: () {}, child: const Text("Machines1")),
+              const Divider(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const <Widget>[Widget1(), Widget3(), Widget2()],
+              ),
+            ],
+          ),
+        ));
+  }
+}
+
+class Widget1 extends StatefulWidget {
+  const Widget1({Key? key}) : super(key: key);
+
+  @override
+  _Widget1State createState() => _Widget1State();
+}
+
+class _Widget1State extends State<Widget1> {
+  @override
+  Widget build(BuildContext context) {
+    return Stack(children: [
+      Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Container(
+              padding: const EdgeInsets.all(2),
+              child: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.add_circle,
+                    size: 50,
+                  ))),
+          const Divider(),
+          const Text('display contents here'),
+          Container(
+              padding: const EdgeInsets.all(2),
+              child: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.remove_circle,
+                    size: 50,
+                  ))),
+        ],
+      )
+    ]);
+  }
+}
+
+class Widget2 extends StatefulWidget {
+  const Widget2({Key? key}) : super(key: key);
+
+  @override
+  _Widget2State createState() => _Widget2State();
+}
+
+class _Widget2State extends State<Widget2> {
+  @override
+  Widget build(BuildContext context) {
+    return RotatedBox(
+        quarterTurns: 1,
+        child: ToggleSwitch(
+          minWidth: 90.0,
+          cornerRadius: 20.0,
+          activeBgColors: [
+            [Colors.green[800]!],
+            [Colors.red[800]!]
+          ],
+          activeFgColor: Colors.white,
+          inactiveBgColor: Colors.grey,
+          inactiveFgColor: Colors.white,
+          initialLabelIndex: 1,
+          totalSwitches: 2,
+          labels: const ['F', 'B'],
+          radiusStyle: true,
+          onToggle: (index) {
+            print('switched to: $index');
+          },
+        ));
+  }
+}
+
+class Widget3 extends StatefulWidget {
+  const Widget3({Key? key}) : super(key: key);
+
+  @override
+  _Widget3State createState() => _Widget3State();
+}
+
+class _Widget3State extends State<Widget3> {
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+          shape: const CircleBorder(), padding: const EdgeInsets.all(30)),
+      child: const Icon(
+        Icons.add,
+        size: 50,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      onPressed: () {},
     );
   }
 }
