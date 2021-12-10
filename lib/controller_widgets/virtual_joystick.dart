@@ -113,7 +113,8 @@ class JoystickModeDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Center(
+        child: SizedBox(
       height: double.minPositive,
       width: double.minPositive,
       child: Padding(
@@ -138,6 +139,6 @@ class JoystickModeDropdown extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }

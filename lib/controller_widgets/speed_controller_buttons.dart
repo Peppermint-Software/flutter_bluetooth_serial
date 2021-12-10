@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class MyApp1 extends StatelessWidget {
+  const MyApp1({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +164,9 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                       Actions.invoke(context, ModifyIntent(--count));
                     },
                   ),
-                  SaveButton(model.isDirty),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [SaveButton(model.isDirty)]),
                 ],
               ),
 

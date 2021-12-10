@@ -6,7 +6,7 @@ import 'package:remote_control/controller_widgets/speed_controller_buttons.dart'
 import 'package:remote_control/controller_widgets/virtual_joystick.dart';
 import 'package:sliding_switch/sliding_switch.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-
+// import 'package:assets/icons/peppermint_icon_icons.dart';
 import 'detail_widgets/robot_list.dart';
 
 void main() {
@@ -29,7 +29,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.cyan,
       ),
-      home: const MyHomePage(title: 'Add icon here'),
+      home: const MyHomePage(
+        title: '',
+      ),
     );
   }
 }
@@ -47,12 +49,18 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            widget.title,
-            textAlign: TextAlign.center,
-          ),
-        ),
+        appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(30),
+            child: AppBar(
+              actions: const <Widget>[
+                Icon(Icons.ac_unit),
+              ],
+              elevation: 9,
+              title: Text(
+                widget.title,
+                textAlign: TextAlign.center,
+              ),
+            )),
         body: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -65,9 +73,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                       Container(
+                          margin: const EdgeInsets.all(10),
                           height: 50,
                           width: 160,
-                          padding: const EdgeInsets.all(2),
+                          padding: const EdgeInsets.all(8),
                           child: OutlinedButton(
                               style: OutlinedButton.styleFrom(
                                   fixedSize: const Size(100, 50),
@@ -75,7 +84,13 @@ class _MyHomePageState extends State<MyHomePage> {
                               onPressed: () {
                                 _showRobotList(context);
                               },
-                              child: const Text("Machines")))
+                              child: const Text(
+                                "Machines",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                                textAlign: TextAlign.start,
+                              )))
                     ])),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -89,7 +104,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 const OnOffButton()
               ],
             ),
-            //Joystick components here
             const Align(
                 child:
                     AspectRatio(aspectRatio: 0.6, child: JoystickAreaExample()),
@@ -148,19 +162,20 @@ class Obstacle extends StatefulWidget {
 class _ObstacleState extends State<Obstacle> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-        padding: const EdgeInsets.all(30),
-        child:
-            // ElevatedButton(
-            //   style: ElevatedButton.styleFrom(
-            //       shape: const CircleBorder(), padding: const EdgeInsets.all(30)),
-            //   child: const Icon(
-            //     Icons.add,
-            //     size: 50,
-            //   ),
-            //   onPressed: () {},
-            // )
-            Ink(
+    var model;
+    return Column(
+      // padding: const EdgeInsets.all(30),
+      children: [
+        // ElevatedButton(
+        //   style: ElevatedButton.styleFrom(
+        //       shape: const CircleBorder(), padding: const EdgeInsets.all(30)),
+        //   child: const Icon(
+        //     Icons.add,
+        //     size: 50,
+        //   ),
+        //   onPressed: () {},
+        // )
+        Ink(
           decoration: const ShapeDecoration(
             color: Colors.blue,
             shape: CircleBorder(),
@@ -178,7 +193,9 @@ class _ObstacleState extends State<Obstacle> {
               });
             },
           ),
-        ));
+        ),
+      ],
+    );
   }
 }
 
@@ -295,3 +312,6 @@ _showRobotList(BuildContext context) {
     },
   );
 }
+
+// void main() => runApp(const MyApp());
+
