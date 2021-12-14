@@ -1,44 +1,42 @@
-{
-    "robots": [
-        {
-            "name": "SD45001",
-            "dep": "JSW Tarapur"
-        },
-        {
-            "name": "Date and Time",
-            "dep": "21/03/2021"
-        },
-        {
-            "name": "Area Name",
-            "dep": "mall"
-        },
-        {
-            "name": "Fresh Water Level",
-            "dep": "45"
-        },
-        {
-            "name": "Battery Level",
-            "dep": "45"
-        },
-        {
-            "name": "internet Connectivity",
-            "dep": "23"
-        },
-        {
-            "name": "Operation Mode",
-            "dep": "automatic"
-        },
-        {
-            "name": "Scrubber RPM",
-            "dep": "19"
-        },
-        {
-            "name": "Water Flow Rate",
-            "dep": "78"
-        },
-        {
-            "name": "Robot Linear Velocity",
-            "dep": "567"
-        }
-    ]
-}
+[
+    {
+        "name": "SD45001",
+        "dep": "JSW Tarapur"
+    },
+    {
+        "name": "SD45002",
+        "dep": "JSW Tarapur"
+    },
+    {
+        "name": "SD40003",
+        "dep": "JSW Tarapur"
+    },
+    {
+        "name": "SD40004",
+        "dep": "JSW Tarapur"
+    },
+    {
+        "name": "SD40005",
+        "dep": "JSW Tarapur"
+    },
+    {
+        "name": "SD40006",
+        "dep": "JSW Tarapur"
+    },
+    {
+        "name": "SD40007",
+        "dep": "JSW Tarapur"
+    },
+    {
+        "name": "SD40008",
+        "dep": "JSW Tarapur"
+    },
+    {
+        "name": "SD40009",
+        "dep": "JSW Tarapur"
+    },
+    {
+        "name": "SD40010",
+        "dep": "JSW Tarapur"
+    }
+]

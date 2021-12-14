@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 
@@ -9,12 +8,21 @@ class JoystickAreaExample extends StatefulWidget {
   _JoystickAreaExampleState createState() => _JoystickAreaExampleState();
 }
 
+enum Status { connected, disconnected }
+
 class _JoystickAreaExampleState extends State<JoystickAreaExample> {
   static const ballSize = 20.0;
   static const step = 10.0;
   double _x = 100;
   double _y = 100;
   JoystickMode _joystickMode = JoystickMode.all;
+  double _signalStrength = 0.0;
+
+  void _changeValue(double value) {
+    setState(() {
+      _signalStrength = value;
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -22,18 +30,29 @@ class _JoystickAreaExampleState extends State<JoystickAreaExample> {
     super.didChangeDependencies();
   }
 
+  String dropdownValue = 'SD40001';
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: const EdgeInsets.all(2),
+        padding: const EdgeInsets.all(4),
         child: Scaffold(
           appBar: AppBar(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(360)),
+            leading: const Positioned.fill(
+                child: Icon(
+              Icons.circle,
+              color: Colors.green,
+              size: 15,
+            )),
             elevation: 1,
             backgroundColor: Colors.white10,
-            title: const Text(
-              'Connection',
-              textAlign: TextAlign.left,
-            ),
+            title: Text('Connection :   $dropdownValue',
+                textAlign: TextAlign.left,
+                style: const TextStyle(
+                  fontSize: 15,
+                )),
+            titleSpacing: 00.0,
             actions: [
               JoystickModeDropdown(
                 mode: _joystickMode,
@@ -49,59 +68,18 @@ class _JoystickAreaExampleState extends State<JoystickAreaExample> {
             maintainBottomViewPadding: true,
             child: JoystickArea(
               mode: _joystickMode,
-              initialJoystickAlignment: const Alignment(0, 0.8),
+              initialJoystickAlignment: Alignment.center,
               listener: (details) {
                 setState(() {
                   _x = _x + step * details.x;
                   _y = _y + step * details.y;
                 });
               },
-              // child: Stack(
-              //   children: [
-              //     Container(
-              //       color: Colors.blueGrey,
-              //     ),
-              //     Ball(_x, _y),
-              //   ],
-              // ),
             ),
           ),
         ));
   }
 }
-
-// class Ball extends StatelessWidget {
-//   static const ballSize = 20.0;
-//   static const step = 10.0;
-//   final double x;
-//   final double y;
-
-//   const Ball(this.x, this.y, {Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Positioned(
-//       left: x,
-//       top: y,
-//       child: Container(
-//         width: ballSize,
-//         height: ballSize,
-//         decoration: const BoxDecoration(
-//           shape: BoxShape.circle,
-//           color: Colors.redAccent,
-//           boxShadow: [
-//             BoxShadow(
-//               color: Colors.black12,
-//               spreadRadius: 2,
-//               blurRadius: 3,
-//               offset: Offset(0, 3),
-//             )
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 class JoystickModeDropdown extends StatelessWidget {
   final JoystickMode mode;
@@ -118,7 +96,7 @@ class JoystickModeDropdown extends StatelessWidget {
       height: double.minPositive,
       width: double.minPositive,
       child: Padding(
-        padding: const EdgeInsets.only(left: 8.0),
+        padding: const EdgeInsets.all(7.0),
         child: FittedBox(
           child: DropdownButton(
             value: mode,

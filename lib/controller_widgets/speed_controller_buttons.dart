@@ -123,7 +123,6 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              // const Spacer(),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -131,11 +130,11 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                     style: ElevatedButton.styleFrom(
                       shape: const CircleBorder(),
                       padding: const EdgeInsets.all(10),
-                      primary: Colors.blue[50],
-                      onPrimary: Colors.green[10],
+                      primary: Colors.white,
+                      onPrimary: Colors.green[50],
                     ),
                     child: const Icon(
-                      Icons.add_circle,
+                      Icons.add_outlined,
                       size: 40,
                       color: Colors.grey,
                     ),
@@ -147,30 +146,28 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                       animation: model.data,
                       builder: (BuildContext context, Widget? child) {
                         return Padding(
-                          padding: const EdgeInsets.all(2),
-                          child: Text('${model.data.value}',
-                              style: Theme.of(context).textTheme.headline4),
-                        );
+                            padding: const EdgeInsets.all(2),
+                            child: Text('${model.data.value}',
+                                style: Theme.of(context).textTheme.headline4));
                       }),
+                  const Text('m/sec'),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         shape: const CircleBorder(),
                         padding: const EdgeInsets.all(10),
-                        primary: Colors.blue[50],
-                        onPrimary: Colors.green[10]),
-                    child: const Icon(Icons.remove_circle,
+                        primary: Colors.white,
+                        onPrimary: Colors.green[50]),
+                    child: const Icon(Icons.remove_outlined,
                         size: 40, color: Colors.grey),
                     onPressed: () {
                       Actions.invoke(context, ModifyIntent(--count));
                     },
                   ),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [SaveButton(model.isDirty)]),
+                  // Row(
+                  //     mainAxisAlignment: MainAxisAlignment.end,
+                  //     children: [SaveButton(model.isDirty)]),
                 ],
               ),
-
-              // const Spacer(),
             ],
           );
         },

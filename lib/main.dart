@@ -18,13 +18,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-//Limitations of setPrefferedOrientation
-// This setting will only be respected on iPad if multitasking is disabled.You can decide to opt out of multitasking on iPad,
-//then setPreferredOrientations will work but your app will not support Slide Over and Split View multitasking anymore.
-// Should you decide to opt out of multitasking you can do this by setting "Requires full screen" to true in the Xcode Deployment Info.
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       darkTheme: ThemeData.dark(),
       theme: ThemeData(
         primarySwatch: Colors.cyan,
@@ -52,9 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: PreferredSize(
             preferredSize: const Size.fromHeight(30),
             child: AppBar(
-              actions: const <Widget>[
-                Icon(Icons.ac_unit),
-              ],
+              actions: const <Widget>[],
               elevation: 9,
               title: Text(
                 widget.title,
@@ -74,12 +69,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                       Container(
                           margin: const EdgeInsets.all(10),
-                          height: 50,
+                          height: 60,
                           width: 160,
                           padding: const EdgeInsets.all(8),
                           child: OutlinedButton(
                               style: OutlinedButton.styleFrom(
-                                  fixedSize: const Size(100, 50),
+                                  fixedSize: const Size(100, 40),
                                   textStyle: const TextStyle(fontSize: 15)),
                               onPressed: () {
                                 _showRobotList(context);
@@ -93,11 +88,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               )))
                     ])),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: const <Widget>[
                     SpeedControllerWidget(),
-                    Obstacle(),
+                    Padding(padding: EdgeInsets.all(20), child: Obstacle()),
                     ForwardReverseButton(),
                   ],
                 ),
@@ -106,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const Align(
                 child:
-                    AspectRatio(aspectRatio: 0.6, child: JoystickAreaExample()),
+                    AspectRatio(aspectRatio: 0.7, child: JoystickAreaExample()),
                 alignment: Alignment.center)
           ],
         ));
@@ -164,20 +159,10 @@ class _ObstacleState extends State<Obstacle> {
   Widget build(BuildContext context) {
     var model;
     return Column(
-      // padding: const EdgeInsets.all(30),
       children: [
-        // ElevatedButton(
-        //   style: ElevatedButton.styleFrom(
-        //       shape: const CircleBorder(), padding: const EdgeInsets.all(30)),
-        //   child: const Icon(
-        //     Icons.add,
-        //     size: 50,
-        //   ),
-        //   onPressed: () {},
-        // )
         Ink(
           decoration: const ShapeDecoration(
-            color: Colors.blue,
+            color: Colors.yellow,
             shape: CircleBorder(),
           ),
           child: IconButton(
@@ -188,9 +173,7 @@ class _ObstacleState extends State<Obstacle> {
             iconSize: 80,
             color: Colors.white,
             onPressed: () {
-              setState(() {
-                // _isBluetoothOn = !_isBluetoothOn;
-              });
+              setState(() {});
             },
           ),
         ),
@@ -211,29 +194,20 @@ class _OnOffButtonState extends State<OnOffButton> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.bottomCenter,
-      // height: 50,
-      // width: 100,
       padding: const EdgeInsets.all(8),
-      child:
-          //  OutlinedButton(
-          //   child: const Text('ON/OFF'),
-          //   onPressed: () {},
-          // )
-          SlidingSwitch(
+      child: SlidingSwitch(
         value: false,
         width: 150,
-        onChanged: (bool value) {
-          print(value);
-        },
+        onChanged: (bool value) {},
         height: 40,
-        animationDuration: const Duration(milliseconds: 400),
+        animationDuration: const Duration(milliseconds: 100),
         onTap: () {},
         onDoubleTap: () {},
         onSwipe: () {},
         textOff: "OFF",
         textOn: "ON",
-        colorOn: const Color(0xffdc6c73),
-        colorOff: const Color(0xff6682c0),
+        colorOn: const Color(0xff64dd17),
+        colorOff: const Color(0xffdd2c00),
         background: const Color(0xffe4e5eb),
         buttonColor: const Color(0xfff7f5f7),
         inactiveColor: const Color(0xff636f7b),
@@ -254,31 +228,25 @@ class _ForwardReverseButtonState extends State<ForwardReverseButton> {
   Widget build(BuildContext context) {
     return Container(
         alignment: Alignment.bottomCenter,
-        // height: 50,
-        // width: 100,
+        width: 100,
         padding: const EdgeInsets.all(15),
-        child:
-            //  OutlinedButton(
-            //   child: const Text('ON/OFF'),
-            //   onPressed: () {},
-            // )
-            RotatedBox(
+        child: RotatedBox(
           quarterTurns: 1,
           child: SlidingSwitch(
             value: false,
-            width: 150,
+            width: 180,
             onChanged: (bool value) {
               print(value);
             },
-            height: 55,
-            animationDuration: const Duration(milliseconds: 400),
+            height: 50,
+            animationDuration: const Duration(milliseconds: 100),
             onTap: () {},
             onDoubleTap: () {},
             onSwipe: () {},
-            textOff: "<-",
-            textOn: "->",
-            colorOn: const Color(0xffdc6c73),
-            colorOff: const Color(0xff6682c0),
+            textOff: "<",
+            textOn: ">",
+            colorOn: const Color(0xffdd2c00),
+            colorOff: const Color(0xff64dd17),
             background: const Color(0xffe4e5eb),
             buttonColor: const Color(0xfff7f5f7),
             inactiveColor: const Color(0xff636f7b),
@@ -292,26 +260,14 @@ _showRobotList(BuildContext context) {
     barrierDismissible: true,
     context: context,
     builder: (BuildContext context) {
-      return SizedBox(
+      return const SizedBox(
           child: AlertDialog(
-              insetPadding: const EdgeInsets.all(5),
-              actions: [
-                OutlinedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("CANCEL"),
-                )
-              ],
-              title: const Text(
+              insetPadding: EdgeInsets.all(2),
+              title: Text(
                 "Robots List",
                 textAlign: TextAlign.center,
               ),
-              content:
-                  const SizedBox(height: 100, width: 350, child: RobotList())));
+              content: SizedBox(height: 320, width: 200, child: RobotList())));
     },
   );
 }
-
-// void main() => runApp(const MyApp());
-
