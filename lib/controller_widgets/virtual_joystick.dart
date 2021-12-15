@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 
-class JoystickAreaExample extends StatefulWidget {
-  const JoystickAreaExample({Key? key}) : super(key: key);
+class JoystickWorkingArea extends StatefulWidget {
+  const JoystickWorkingArea({Key? key}) : super(key: key);
 
   @override
-  _JoystickAreaExampleState createState() => _JoystickAreaExampleState();
+  _JoystickWorkingAreaState createState() => _JoystickWorkingAreaState();
 }
 
 enum Status { connected, disconnected }
 
-class _JoystickAreaExampleState extends State<JoystickAreaExample> {
+class _JoystickWorkingAreaState extends State<JoystickWorkingArea> {
   static const ballSize = 20.0;
   static const step = 10.0;
   double _x = 100;

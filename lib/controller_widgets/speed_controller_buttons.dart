@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class MyApp1 extends StatelessWidget {
-  const MyApp1({Key? key}) : super(key: key);
+class SpeedController extends StatelessWidget {
+  const SpeedController({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +150,7 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                             child: Text('${model.data.value}',
                                 style: Theme.of(context).textTheme.headline4));
                       }),
-                  const Text('m/sec'),
+                  const Text('m/s'),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         shape: const CircleBorder(),
