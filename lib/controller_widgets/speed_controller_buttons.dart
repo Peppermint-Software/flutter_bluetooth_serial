@@ -16,7 +16,6 @@ class Model {
 
   int save() {
     if (isDirty.value) {
-      debugPrint('Saved Data: ${data.value}');
       isDirty.value = false;
     }
     return data.value;

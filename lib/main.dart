@@ -9,10 +9,10 @@ import 'package:remote_control/detail_widgets/obstacle_indication.dart';
 
 import 'detail_widgets/robot_list.dart';
 
-void main() => runApp(const BTAppVersionPointTwo());
+void main() => runApp(const BTRemote());
 
-class BTAppVersionPointTwo extends StatelessWidget {
-  const BTAppVersionPointTwo({Key? key}) : super(key: key);
+class BTRemote extends StatelessWidget {
+  const BTRemote({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,23 +23,23 @@ class BTAppVersionPointTwo extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.cyan,
       ),
-      home: const BtRemoteControl(
+      home: const RemoteControl(
         title: '',
       ),
     );
   }
 }
 
-class BtRemoteControl extends StatefulWidget {
-  const BtRemoteControl({Key? key, required this.title}) : super(key: key);
+class RemoteControl extends StatefulWidget {
+  const RemoteControl({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
-  State<BtRemoteControl> createState() => _BtRemoteControlState();
+  State<RemoteControl> createState() => _RemoteControlState();
 }
 
-class _BtRemoteControlState extends State<BtRemoteControl> {
+class _RemoteControlState extends State<RemoteControl> {
   bool _lights = false;
 
   @override
