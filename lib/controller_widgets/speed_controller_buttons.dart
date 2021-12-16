@@ -163,9 +163,6 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                       Actions.invoke(context, ModifyIntent(--count));
                     },
                   ),
-                  // Row(
-                  //     mainAxisAlignment: MainAxisAlignment.end,
-                  //     children: [SaveButton(model.isDirty)]),
                 ],
               ),
             ],

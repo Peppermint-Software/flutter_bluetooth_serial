@@ -19,7 +19,7 @@ class _OnOffButtonState extends State<OnOffButton> {
         width: 150,
         onChanged: (bool value) {},
         height: 40,
-        animationDuration: const Duration(milliseconds: 100),
+        animationDuration: const Duration(milliseconds: 40),
         onTap: () {},
         onDoubleTap: () {},
         onSwipe: () {},

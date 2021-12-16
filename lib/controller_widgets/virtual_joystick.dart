@@ -33,51 +33,51 @@ class _JoystickWorkingAreaState extends State<JoystickWorkingArea> {
   String dropdownValue = 'SD40001';
   @override
   Widget build(BuildContext context) {
-    return Container(
-        padding: const EdgeInsets.all(4),
-        child: Scaffold(
-          appBar: AppBar(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(360)),
-            leading: const Positioned.fill(
-                child: Icon(
-              Icons.circle,
-              color: Colors.green,
-              size: 15,
+    return Scaffold(
+      appBar: AppBar(
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(30),
+        )),
+        leading: const Positioned.fill(
+            child: Icon(
+          Icons.circle,
+          color: Colors.green,
+          size: 20,
+        )),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: Text('Connection :   $dropdownValue',
+            textAlign: TextAlign.left,
+            style: const TextStyle(
+              fontSize: 15,
             )),
-            elevation: 1,
-            backgroundColor: Colors.white10,
-            title: Text('Connection :   $dropdownValue',
-                textAlign: TextAlign.left,
-                style: const TextStyle(
-                  fontSize: 15,
-                )),
-            titleSpacing: 00.0,
-            actions: [
-              JoystickModeDropdown(
-                mode: _joystickMode,
-                onChanged: (JoystickMode value) {
-                  setState(() {
-                    _joystickMode = value;
-                  });
-                },
-              ),
-            ],
+        titleSpacing: 5,
+        actions: [
+          JoystickModeDropdown(
+            mode: _joystickMode,
+            onChanged: (JoystickMode value) {
+              setState(() {
+                _joystickMode = value;
+              });
+            },
           ),
-          body: SafeArea(
-            maintainBottomViewPadding: true,
-            child: JoystickArea(
-              mode: _joystickMode,
-              initialJoystickAlignment: Alignment.center,
-              listener: (details) {
-                setState(() {
-                  _x = _x + step * details.x;
-                  _y = _y + step * details.y;
-                });
-              },
-            ),
-          ),
-        ));
+        ],
+      ),
+      body: SafeArea(
+        maintainBottomViewPadding: true,
+        child: JoystickArea(
+          mode: _joystickMode,
+          initialJoystickAlignment: Alignment.center,
+          listener: (details) {
+            setState(() {
+              _x = _x + step * details.x;
+              _y = _y + step * details.y;
+            });
+          },
+        ),
+      ),
+    );
   }
 }
 
