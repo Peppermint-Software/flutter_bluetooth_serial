@@ -6,7 +6,7 @@ import 'package:remote_control/controller_widgets/on_off_button.dart';
 import 'package:remote_control/controller_widgets/speed_controller_buttons.dart';
 import 'package:remote_control/controller_widgets/virtual_joystick.dart';
 import 'package:remote_control/detail_widgets/obstacle_indication.dart';
-// import 'package:assets/icons/peppermint_icon_icons.dart';
+
 import 'detail_widgets/robot_list.dart';
 
 void main() => runApp(const BTAppVersionPointTwo());
