@@ -9,10 +9,10 @@ import 'package:remote_control/detail_widgets/obstacle_indication.dart';
 
 import 'detail_widgets/robot_list.dart';
 
-void main() => runApp(const BTRemote());
+void main() => runApp(const PeppermintRemote());
 
-class BTRemote extends StatelessWidget {
-  const BTRemote({Key? key}) : super(key: key);
+class PeppermintRemote extends StatelessWidget {
+  const PeppermintRemote({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
