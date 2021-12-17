@@ -117,7 +117,13 @@ _showRobotList(BuildContext context) {
             'Robot List',
             textAlign: TextAlign.center,
           ),
-          children: [SizedBox(height: 320, width: 150, child: RobotList())]);
+          children: [
+            SizedBox(
+              height: 320,
+              width: 150,
+              child: RobotList(),
+            )
+          ]);
     },
   );
 }
