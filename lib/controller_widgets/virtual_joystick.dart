@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_unnecessary_containers
+
 import 'package:flutter/material.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 
@@ -39,20 +41,21 @@ class _JoystickWorkingAreaState extends State<JoystickWorkingArea> {
             borderRadius: BorderRadius.vertical(
           bottom: Radius.circular(30),
         )),
-        leading: const Positioned.fill(
-            child: Icon(
-          Icons.circle,
-          color: Colors.green,
-          size: 20,
-        )),
+        // leading: const Positioned.fill(
+        //     child: Icon(
+        //   Icons.circle,
+        //   color: Colors.green,
+        //   size: 20,
+        // )),
         elevation: 0,
         backgroundColor: Colors.transparent,
-        title: Text('Connection :   $dropdownValue',
-            textAlign: TextAlign.left,
-            style: const TextStyle(
-              fontSize: 15,
-            )),
-        titleSpacing: 5,
+        // title:
+        //  Text('Connection :   $dropdownValue',
+        //     textAlign: TextAlign.left,
+        //     style: const TextStyle(
+        //       fontSize: 15,
+        //     )),
+        // titleSpacing: 5,
         actions: [
           JoystickModeDropdown(
             mode: _joystickMode,
@@ -91,32 +94,33 @@ class JoystickModeDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: SizedBox(
-      height: double.minPositive,
-      width: double.minPositive,
-      child: Padding(
-        padding: const EdgeInsets.all(7.0),
-        child: FittedBox(
-          child: DropdownButton(
-            value: mode,
-            onChanged: (v) {
-              onChanged(v as JoystickMode);
-            },
-            items: const [
-              DropdownMenuItem(
-                  child: Text('All Directions'), value: JoystickMode.all),
-              DropdownMenuItem(
-                  child: Text('Vertical And Horizontal'),
-                  value: JoystickMode.horizontalAndVertical),
-              DropdownMenuItem(
-                  child: Text('Horizontal'), value: JoystickMode.horizontal),
-              DropdownMenuItem(
-                  child: Text('Vertical'), value: JoystickMode.vertical),
-            ],
-          ),
-        ),
-      ),
-    ));
+    return Container(
+        height: double.minPositive,
+        width: double.minPositive,
+
+        //   child: Padding(
+        //     padding: const EdgeInsets.all(7.0),
+        //     child: FittedBox(
+        //       child: DropdownButton(
+        //         value: mode,
+        //         onChanged: (v) {
+        //           onChanged(v as JoystickMode);
+        //         },
+        //         items: const [
+        //           DropdownMenuItem(
+        //               child: Text('All Directions'), value: JoystickMode.all),
+        //           DropdownMenuItem(
+        //               child: Text('Vertical And Horizontal'),
+        //               value: JoystickMode.horizontalAndVertical),
+        //           DropdownMenuItem(
+        //               child: Text('Horizontal'), value: JoystickMode.horizontal),
+        //           DropdownMenuItem(
+        //               child: Text('Vertical'), value: JoystickMode.vertical),
+        //         ],
+        //       ),
+        //     ),
+        //   ),
+        // )
+        child: const Text('Hello!'));
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:remote_control/controller_widgets/forward_reverse_button.dart';
 import 'package:remote_control/controller_widgets/on_off_button.dart';
 import 'package:remote_control/controller_widgets/speed_controller_buttons.dart';
@@ -18,15 +19,13 @@ class PeppermintRemote extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-    return MaterialApp(
-      darkTheme: ThemeData.dark(),
-      theme: ThemeData(
-        primarySwatch: Colors.cyan,
-      ),
-      home: const RemoteControl(
-        title: '',
-      ),
-    );
+    return const MediaQuery(
+        data: MediaQueryData(),
+        child: MaterialApp(
+          home: RemoteControl(
+            title: '',
+          ),
+        ));
   }
 }
 
@@ -44,65 +43,70 @@ class _RemoteControlState extends State<RemoteControl> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Column(
+    return Container(
+        decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.red.shade900,
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(20))),
+        child: Scaffold(
+            body: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            //commented to be used in edge cases test of the UI
-
-            // mainAxisAlignment: MainAxisAlignment.center,
-            // crossAxisAlignment: CrossAxisAlignment.stretch,
-
-            Container(
-                margin:
-                    const EdgeInsets.symmetric(vertical: 23, horizontal: 10),
-                height: 60,
-                width: 160,
-                padding: const EdgeInsets.all(8),
-                child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                        fixedSize: const Size(100, 40),
-                        textStyle: const TextStyle(fontSize: 15)),
-                    onPressed: () {
-                      _showRobotList(context);
-                    },
-                    child: const Text(
-                      "Machines",
-                      style: TextStyle(
-                        fontSize: 20,
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 23, horizontal: 10),
+                    height: 60,
+                    width: 160,
+                    padding: const EdgeInsets.all(8),
+                    child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                            fixedSize: const Size(100, 40),
+                            textStyle: const TextStyle(fontSize: 15)),
+                        onPressed: () {
+                          _showRobotList(context);
+                        },
+                        child: const Text(
+                          "Machines",
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                          textAlign: TextAlign.start,
+                        ))),
+                Stack(
+                  // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  // crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const <Widget>[
+                    Padding(
+                        padding: EdgeInsets.all(15),
+                        child: SpeedControllerWidget()),
+                    Padding(padding: EdgeInsets.all(20), child: Obstacle()),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
                       ),
-                      textAlign: TextAlign.start,
-                    ))),
-            Row(
-              //commented to be used in edge cases test of the UI
-
-              // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              // crossAxisAlignment: CrossAxisAlignment.center,
-              children: const <Widget>[
-                Padding(
-                    padding: EdgeInsets.all(15),
-                    child: SpeedControllerWidget()),
-                Padding(padding: EdgeInsets.all(20), child: Obstacle()),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                  ),
-                  child: ForwardReverseButton(),
-                )
+                      child: ForwardReverseButton(),
+                    )
+                  ],
+                ),
+                const OnOffButton(),
               ],
             ),
-            const OnOffButton(),
+            Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const <Widget>[
+                  Align(
+                      child: AspectRatio(
+                          aspectRatio: 0.7, child: JoystickWorkingArea()),
+                      alignment: Alignment.topCenter)
+                ])
           ],
-        ),
-        const Expanded(
-            child: Align(
-                child:
-                    AspectRatio(aspectRatio: 0.7, child: JoystickWorkingArea()),
-                alignment: Alignment.topCenter))
-      ],
-    ));
+        )));
   }
 }
 
@@ -120,9 +124,9 @@ _showRobotList(BuildContext context) {
           children: [
             SizedBox(
               height: 320,
-              width: 150,
-              child: RobotList(),
-            )
+              width: 190,
+              child: BluetoothApp(),
+            ),
           ]);
     },
   );
