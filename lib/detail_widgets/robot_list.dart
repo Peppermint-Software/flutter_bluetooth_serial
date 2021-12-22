@@ -30,7 +30,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
     'neutralTextColor': Colors.blue,
   };
 
-  bool get isConnected => connection != null && connection.isConnected;
+  bool get isConnected => connection.isConnected;
 
   List<BluetoothDevice> _devicesList = [];
   late BluetoothDevice _device;
@@ -279,26 +279,6 @@ class _BluetoothAppState extends State<BluetoothApp> {
             ),
           ],
         ),
-        // Card(
-        //  child: Padding(
-        //     padding: const EdgeInsets.all(10),
-        //     child: Center(
-        //       child: Expanded(child:  Column(
-        //         mainAxisAlignment: MainAxisAlignment.center,
-        //         children: <Widget>[
-        //           const SizedBox(height: 5),
-        //           OutlinedButton(
-        //             child: const Text("Bluetooth Settings"),
-        //             onPressed: () {
-        //               FlutterBluetoothSerial.instance.openSettings();
-        //             },
-        //           ),
-        //         ],
-        //       ),
-        //     ),),
-        //   ),
-
-        // )
       ),
     );
   }

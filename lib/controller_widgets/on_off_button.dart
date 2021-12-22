@@ -13,7 +13,7 @@ class _OnOffButtonState extends State<OnOffButton> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(5),
       child: SlidingSwitch(
         value: false,
         width: 150,
