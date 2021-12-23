@@ -30,6 +30,8 @@ class _BluetoothAppState extends State<BluetoothApp> {
     'neutralTextColor': Colors.blue,
   };
 
+  int value = 2;
+
   bool get isConnected => connection.isConnected;
 
   List<BluetoothDevice> _devicesList = [];
@@ -105,6 +107,17 @@ class _BluetoothAppState extends State<BluetoothApp> {
     });
   }
 
+  _addItem() {
+    setState(() {
+      int? value = 2;
+      value = value + 1;
+    });
+  }
+
+  _buildRow(int index) {
+    return Text("Item " + index.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -119,139 +132,114 @@ class _BluetoothAppState extends State<BluetoothApp> {
         body: SizedBox(
           height: 300,
           width: 300,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Flexible(
-                  child: Visibility(
-                    visible: _isButtonUnavailable &&
-                        _bluetoothState == BluetoothState.STATE_ON,
-                    child: const LinearProgressIndicator(
-                      backgroundColor: Colors.yellow,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                    ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Flexible(
+                child: Visibility(
+                  visible: _isButtonUnavailable &&
+                      _bluetoothState == BluetoothState.STATE_ON,
+                  child: const LinearProgressIndicator(
+                    backgroundColor: Colors.yellow,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
                   ),
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[],
+              ),
+              Flexible(
+                child: Column(
                   children: <Widget>[
-                    const Expanded(
-                      child: Text(
-                        'Enable Bluetooth',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 10,
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          // DropdownButton(
+                          //   items: _getDeviceItems(),
+                          //   onChanged: (value) => setState(() => _device),
+                          //   value: _devicesList.isNotEmpty ? _device : null,
+                          // ),
+
+                          // ListView.builder(
+                          //     scrollDirection: Axis.vertical,
+                          //     shrinkWrap: true,
+                          //     itemCount: value,
+                          //     itemBuilder: (context, index) =>
+                          //         _buildRow(index)),
+                          // FloatingActionButton(
+                          //   onPressed: _addItem,
+                          //   child: const Icon(Icons.add),
+                          // ),
+                        ],
                       ),
                     ),
-                    Switch(
-                      value: _bluetoothState.isEnabled,
-                      onChanged: (bool value) {
-                        future() async {
-                          if (value) {
-                            await FlutterBluetoothSerial.instance
-                                .requestEnable();
-                          } else {
-                            await FlutterBluetoothSerial.instance
-                                .requestDisable();
-                          }
-
-                          await getPairedDevices();
-                          _isButtonUnavailable = false;
-
-                          if (_connected) {
-                            _disconnect();
-                          }
-                        }
-
-                        future().then((_) {
-                          setState(() {});
-                        });
-                      },
-                    )
+                    // Padding(
+                    //   padding: const EdgeInsets.all(5.0),
+                    //   child: Card(
+                    //     shape: RoundedRectangleBorder(
+                    //       side: const BorderSide(
+                    //         width: 3,
+                    //       ),
+                    //       borderRadius: BorderRadius.circular(4.0),
+                    //     ),
+                    //     elevation: _deviceState == 0 ? 4 : 0,
+                    //     child: Padding(
+                    //       padding: const EdgeInsets.all(8.0),
+                    //       child: Row(
+                    //         children: <Widget>[
+                    //           // Expanded(
+                    //           //   child: OutlinedButton(
+                    //           //     onPressed: _connected
+                    //           //         ? _sendOnMessageToBluetooth
+                    //           //         : null,
+                    //           //     child: const Text("ON"),
+                    //           //   ),
+                    //           // ),
+                    //           // Expanded(
+                    //           //   child: OutlinedButton(
+                    //           //     onPressed: _connected
+                    //           //         ? _sendOffMessageToBluetooth
+                    //           //         : null,
+                    //           //     child: const Text("OFF"),
+                    //           //   ),
+                    //           // ),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
-                Flexible(
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            DropdownButton(
-                              items: _getDeviceItems(),
-                              onChanged: (value) => setState(() => _device),
-                              value: _devicesList.isNotEmpty ? _device : null,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            side: const BorderSide(
-                              width: 3,
-                            ),
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          elevation: _deviceState == 0 ? 4 : 0,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: <Widget>[
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: _connected
-                                        ? _sendOnMessageToBluetooth
-                                        : null,
-                                    child: const Text("ON"),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed: _connected
-                                        ? _sendOffMessageToBluetooth
-                                        : null,
-                                    child: const Text("OFF"),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
-    List<DropdownMenuItem<BluetoothDevice>> items = [];
-    if (_devicesList.isEmpty) {
-      items.add(const DropdownMenuItem(
-        child: Text('NONE'),
-      ));
-    } else {
-      for (var device in _devicesList) {
-        items.add(DropdownMenuItem(
-          child: Text(device.name.toString()),
-          value: device,
-        ));
-      }
-    }
-    return items;
-  }
+  // List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
+  //   List<DropdownMenuItem<BluetoothDevice>> items = [];
+  //   if (_devicesList.isEmpty) {
+  //     items.add(const DropdownMenuItem(
+  //       child: Text('NONE'),
+  //     ));
+  //   } else {
+  //     for (var device in _devicesList) {
+  //       items.add(DropdownMenuItem(
+  //         child: Text(device.name.toString()),
+  //         value: device,
+  //       ));
+  //     }
+  //   }
+  //   return items;
+  // }
 
   void _connect() async {
     setState(() {
