@@ -1,5 +1,10 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sliding_switch/sliding_switch.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 class OnOffButton extends StatefulWidget {
   const OnOffButton({Key? key}) : super(key: key);
@@ -9,6 +14,21 @@ class OnOffButton extends StatefulWidget {
 }
 
 class _OnOffButtonState extends State<OnOffButton> {
+  void _sendOnMessageToBluetooth1() async {
+    var connection;
+    connection.output.add(ascii.encode("Z"));
+    await connection.output.allSent;
+    show('Device Turned On');
+    setState(() {});
+  }
+
+  Future show(
+    String message, {
+    Duration duration = const Duration(seconds: 3),
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(

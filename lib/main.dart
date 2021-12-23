@@ -48,18 +48,17 @@ class _RemoteControlState extends State<RemoteControl> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-                margin:
-                    const EdgeInsets.symmetric(vertical: 19, horizontal: 10),
+                margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
                 height: 60,
                 width: 160,
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(4),
                 child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                        fixedSize: const Size(100, 40),
+                        fixedSize: const Size(80, 60),
                         textStyle: const TextStyle(fontSize: 15)),
                     onPressed: () {
                       _showRobotList(context);
@@ -89,7 +88,7 @@ class _RemoteControlState extends State<RemoteControl> {
               ],
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 9),
+              padding: EdgeInsets.symmetric(vertical: 0, horizontal: 9),
               child: OnOffButton(),
             )
           ],
@@ -100,7 +99,7 @@ class _RemoteControlState extends State<RemoteControl> {
             children: const [
               SizedBox(
                 height: 300,
-                width: 250,
+                width: 240,
                 child: JoystickExampleApp(),
               )
             ])
@@ -111,22 +110,19 @@ class _RemoteControlState extends State<RemoteControl> {
 
 _showRobotList(BuildContext context) {
   return showDialog(
-    barrierDismissible: true,
-    context: context,
-    builder: (BuildContext context) {
-      return const SimpleDialog(
-          insetPadding: EdgeInsets.all(2),
-          title: Text(
-            'Robot List',
-            textAlign: TextAlign.center,
-          ),
-          children: [
-            SizedBox(
-              height: 100,
-              width: 100,
-              child: BluetoothApp(),
-            ),
-          ]);
-    },
-  );
+      barrierDismissible: true,
+      context: context,
+      builder: (BuildContext context) {
+        return const SizedBox(
+            child: AlertDialog(
+                insetPadding:
+                    EdgeInsets.only(left: 40, top: 20, right: 40, bottom: 20),
+                actions: [],
+                title: Text(
+                  "Robot List",
+                  textAlign: TextAlign.center,
+                ),
+                content:
+                    SizedBox(height: 400, width: 600, child: BluetoothApp())));
+      });
 }
