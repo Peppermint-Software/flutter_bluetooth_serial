@@ -17,6 +17,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   late BluetoothConnection connection;
 
+  //
   int? _deviceState;
 
   bool isDisconnecting = true;
@@ -118,6 +119,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
     return Text("Item " + index.toString());
   }
 
+// ##############################################################################################################################################################
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -159,7 +161,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
+                        children: const <Widget>[
                           // DropdownButton(
                           //   items: _getDeviceItems(),
                           //   onChanged: (value) => setState(() => _device),
@@ -223,7 +225,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
       ),
     );
   }
-
+// ####################################################################################################################################################
   // List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
   //   List<DropdownMenuItem<BluetoothDevice>> items = [];
   //   if (_devicesList.isEmpty) {
@@ -263,7 +265,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
             } else {
               print('Disconnected remotely!');
             }
-            if (this.mounted) {
+            if (mounted) {
               setState(() {});
             }
           });
