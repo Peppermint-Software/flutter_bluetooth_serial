@@ -12,10 +12,10 @@ class _ForwardReverseButtonState extends State<ForwardReverseButton> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      const Text(
-        'F',
-        style: TextStyle(fontStyle: FontStyle.normal, fontSize: 19),
-      ),
+      // const Text(
+      //   'F',
+      //   style: TextStyle(fontStyle: FontStyle.normal, fontSize: 19),
+      // ),
       RotatedBox(
         quarterTurns: 1,
         child: SlidingSwitch(
@@ -36,8 +36,8 @@ class _ForwardReverseButtonState extends State<ForwardReverseButton> {
           inactiveColor: const Color(0xff636f7b),
         ),
       ),
-      const Text('R',
-          style: TextStyle(fontStyle: FontStyle.normal, fontSize: 19)),
+      // const Text('R',
+      //     style: TextStyle(fontStyle: FontStyle.normal, fontSize: 19)),
     ]);
   }
 }

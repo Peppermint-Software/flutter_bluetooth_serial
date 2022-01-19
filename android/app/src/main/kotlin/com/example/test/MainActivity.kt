@@ -1,4 +1,4 @@
-package com.example.remote_control
+package com.example.test
 
 import io.flutter.embedding.android.FlutterActivity
 

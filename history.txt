@@ -1,0 +1,16 @@
+  573  export PATH=/home/vinit/snap/flutter/common/flutter/bin:$PATH
+  576  flutter clear
+  579  flutter pub get
+  581  flutter clean
+  585  clear
+  587  export ANDROID_HOME=/home/vinit/Android/Sdk
+  588  export PATH=/home/vinit/Android/Sdk/platform-tools:$PATH\n
+  589  export PATH=/home/vinit/Android/Sdk/tools:$PATH\n
+  590  export PATH=/home/vinit/Android/Sdk/ndk/23.1.7779620/ndk-build:$PATH\n
+  591  export PATH=/home/vinit/snap/flutter/common/flutter/bin:$PATH\n
+  593  adb start-server
+  596  flutter deamon-v
+  597  flutter daemon -v
+  599  flutter doctor
+  600  flutter devices
+  601  flutter run
