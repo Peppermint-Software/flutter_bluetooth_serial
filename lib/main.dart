@@ -11,8 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:sliding_switch/sliding_switch.dart';
-import 'package:test/controller_widgets/robot_list.dart';
 import 'controller_widgets/forward_reverse_button.dart';
+import 'controller_widgets/robot_list.dart';
 import 'controller_widgets/speed_controller_buttons.dart';
 import 'detail_widget/obsticle_indication.dart';
 
