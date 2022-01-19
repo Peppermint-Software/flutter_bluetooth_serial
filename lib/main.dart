@@ -95,16 +95,20 @@ class _RemoteControlState extends State<RemoteControl> {
     super.dispose();
   }
 
-  _command(String cmd1, String cmd2) {
-    const q = AsciiEncoder();
+  Future _command(String data) async {
+    const q = Utf8Encoder();
     var c = connection;
-    if (c != null) {
-      var x = cmd1.codeUnits;
-      var y = cmd2.codeUnits;
-      c.output.add(q.convert(cmd1 + cmd2));
-      // c.output.allSent;
-      print("flag");
-    }
+    var _8 = ascii.encode(data);
+    // var x = cmd1.codeUnits;
+    // var y = cmd2.codeUnits;
+    List<int> x = [104, 101, 108, 108, 111];
+
+    Uint8List qubec = Uint8List.fromList(x);
+
+    connection!.output.add(ascii.encoder.convert(qubec.toString()));
+
+    await connection!.output.allSent;
+    print(_8);
   }
 
   Future<void> enableBluetooth() async {
@@ -203,38 +207,45 @@ class _RemoteControlState extends State<RemoteControl> {
                         )
                       ],
                     ),
-                    // Padding(
-                    //     padding: const EdgeInsets.symmetric(
-                    //         vertical: 0, horizontal: 9),
-                    //     child: Container(
-                    //       alignment: Alignment.bottomCenter,
-                    //       padding: const EdgeInsets.all(5),
-                    //       child: SlidingSwitch(
-                    //         value: _value,
-                    //         width: 150,
-                    //         onChanged: (value) => setState(() {
-                    //           _value = value;
+                    Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 0, horizontal: 9),
+                        child: Container(
+                          alignment: Alignment.bottomCenter,
+                          padding: const EdgeInsets.all(5),
+                          child: SlidingSwitch(
+                            value: _value,
+                            width: 150,
+                            onChanged: (value) => setState(() {
+                              String s = "hello";
+                              var x = s.runes;
+                              print(x);
+                              List<int> charCodes = [104, 101, 108, 108, 111];
+                              var sr = String.fromCharCodes(charCodes);
+                              final List<int> codeUnits = s.codeUnits;
+                              final Uint8List uint8list =
+                                  Uint8List.fromList(codeUnits);
 
-                    //           const oneSec = Duration(seconds: 2);
-                    //           Timer.periodic(
-                    //               oneSec,
-                    //               (Timer t) =>
-                    //                   _command("MOONS+ON;", "MOONS+ME;"));
-                    //         }),
-                    //         height: 40,
-                    //         animationDuration: const Duration(milliseconds: 40),
-                    //         onTap: () {},
-                    //         onDoubleTap: () {},
-                    //         onSwipe: () {},
-                    //         textOff: "OFF",
-                    //         textOn: "ON",
-                    //         colorOn: const Color(0xff64dd17),
-                    //         colorOff: const Color(0xffdd2c00),
-                    //         background: const Color(0xffe4e5eb),
-                    //         buttonColor: const Color(0xfff7f5f7),
-                    //         inactiveColor: const Color(0xff636f7b),
-                    //       ),
-                    //     ))
+                              // String.fromCharCodes(charCodes);
+                              _value = value;
+
+                              const oneSec = Duration(seconds: 2);
+                              Timer.periodic(oneSec, (Timer t) => _command(s));
+                            }),
+                            height: 40,
+                            animationDuration: const Duration(milliseconds: 40),
+                            onTap: () {},
+                            onDoubleTap: () {},
+                            onSwipe: () {},
+                            textOff: "OFF",
+                            textOn: "ON",
+                            colorOn: const Color(0xff64dd17),
+                            colorOff: const Color(0xffdd2c00),
+                            background: const Color(0xffe4e5eb),
+                            buttonColor: const Color(0xfff7f5f7),
+                            inactiveColor: const Color(0xff636f7b),
+                          ),
+                        ))
                   ],
                 ),
                 Column(
@@ -246,43 +257,43 @@ class _RemoteControlState extends State<RemoteControl> {
                         width: 240,
                         child: Joystick(listener: (details) {
                           var c = connection;
-                          setState(() async {
-                            double _x = 100;
-                            double _y = 100;
-                            int step = 40;
+                          setState(() {
+//                             double _x = 100;
+//                             double _y = 100;
+//                             int step = 40;
 
-                            _x = step * details.x;
-                            _y = step * details.y;
-                            double r = sqrt(_x * _x + _y * _y);
-                            var s = r.toStringAsFixed(0);
-                            var theta = atan(_y / _x).abs();
-                            theta = (180 * (theta / pi));
-                            var stheta = theta.toStringAsFixed(0);
+//                             _x = step * details.x;
+//                             _y = step * details.y;
+//                             double r = sqrt(_x * _x + _y * _y);
+//                             var s = r.toStringAsFixed(0);
+//                             var theta = atan(_y / _x).abs();
+//                             theta = (180 * (theta / pi));
+//                             var stheta = theta.toStringAsFixed(0);
 
-                            final String text = "MOONS+JSR${s}A$stheta;";
-                            // List<String> qq = text as List<String>;
+//                             final String text = "MOONS+JSR${s}A$stheta;";
+//                             // List<String> qq = text as List<String>;
 
-//........................................................................
-                            for (int i = 0; i < text.length; i++) {
-                              print(text.codeUnitAt(i));
+// //........................................................................
 
-                              var bytes = ascii.encode(text);
-                              var bytes1 = ascii.decode(bytes);
+//                             for (int i = 0; i < text.length; i++) {
+//                               var bytes = ascii.encode(text);
+//                               var bytes1 = ascii.decode(bytes);
 
-                              Uint8List vini = Uint8List.fromList(bytes);
+//                               Uint8List vini = Uint8List.fromList(bytes);
 
-                              List<int> list = List.from(vini);
-                              var x = Uint8List.fromList(list);
-                              Uint8List cu = Uint8List.fromList(text.codeUnits);
+//                               List<int> list = List.from(vini);
+//                               var x = Uint8List.fromList(list);
+//                               Uint8List cu = Uint8List.fromList(text.codeUnits);
+//                               if (c != null) {
+//                                 var pow = ascii.encoder
+//                                     .convert(text.characters.string);
+// //.........................................................................
+//                                 c.output.add(pow);
+//                                 c.output.allSent;
+//                               }
+//                             }
 
-//.........................................................................
-                              if (c != null) {
-                                c.output.add(ascii.encoder.convert('HI'));
-                                await c.output.allSent;
-                              }
-                            }
-
-//.........................................................................
+// //.........................................................................
                           });
                         }),
                       ),
