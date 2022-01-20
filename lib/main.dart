@@ -96,19 +96,14 @@ class _RemoteControlState extends State<RemoteControl> {
   }
 
   Future _command(String data) async {
-    const q = Utf8Encoder();
-    var c = connection;
-    var _8 = ascii.encode(data);
-    // var x = cmd1.codeUnits;
-    // var y = cmd2.codeUnits;
-    List<int> x = [104, 101, 108, 108, 111];
+    List<int> x = List<int>.from(ascii.encode(data));
 
-    Uint8List qubec = Uint8List.fromList(x);
+    String result = const AsciiDecoder().convert(x);
+    if (connection != null) {
+      connection!.output.add(ascii.encoder.convert(result));
 
-    connection!.output.add(ascii.encoder.convert(qubec.toString()));
-
-    await connection!.output.allSent;
-    print(_8);
+      await connection!.output.allSent;
+    }
   }
 
   Future<void> enableBluetooth() async {
@@ -217,20 +212,18 @@ class _RemoteControlState extends State<RemoteControl> {
                             value: _value,
                             width: 150,
                             onChanged: (value) => setState(() {
-                              String s = "hello";
-                              var x = s.runes;
-                              print(x);
-                              List<int> charCodes = [104, 101, 108, 108, 111];
-                              var sr = String.fromCharCodes(charCodes);
-                              final List<int> codeUnits = s.codeUnits;
-                              final Uint8List uint8list =
-                                  Uint8List.fromList(codeUnits);
+                              String c1 = "MOONS+ON;";
+                              String c2 = "MOONS+ME;";
 
                               // String.fromCharCodes(charCodes);
                               _value = value;
 
-                              const oneSec = Duration(seconds: 2);
-                              Timer.periodic(oneSec, (Timer t) => _command(s));
+                              const powerOncmd = Duration(milliseconds: 333);
+                              Timer.periodic(
+                                  powerOncmd, (Timer t) => _command(c1));
+                              const driveOncmd = Duration(milliseconds: 100);
+                              Timer.periodic(
+                                  driveOncmd, (Timer t) => _command(c2));
                             }),
                             height: 40,
                             animationDuration: const Duration(milliseconds: 40),
@@ -258,42 +251,32 @@ class _RemoteControlState extends State<RemoteControl> {
                         child: Joystick(listener: (details) {
                           var c = connection;
                           setState(() {
-//                             double _x = 100;
-//                             double _y = 100;
-//                             int step = 40;
+                            double _x = 100;
+                            double _y = 100;
+                            int step = 40;
 
-//                             _x = step * details.x;
-//                             _y = step * details.y;
-//                             double r = sqrt(_x * _x + _y * _y);
-//                             var s = r.toStringAsFixed(0);
-//                             var theta = atan(_y / _x).abs();
-//                             theta = (180 * (theta / pi));
-//                             var stheta = theta.toStringAsFixed(0);
+                            _x = step * details.x;
+                            _y = step * details.y;
+                            double r = sqrt(_x * _x + _y * _y);
+                            var s = r.toStringAsFixed(0);
+                            var theta = atan(_y / _x).abs();
+                            theta = (180 * (theta / pi));
+                            var stheta = theta.toStringAsFixed(0);
 
-//                             final String text = "MOONS+JSR${s}A$stheta;";
-//                             // List<String> qq = text as List<String>;
+                            final String text = "MOONS+JSR${s}A$stheta;";
+                            // List<String> qq = text as List<String>;
+//........................................................................
 
-// //........................................................................
+                            List<int> list = List<int>.from(ascii.encode(text));
+                            String encoded = const AsciiDecoder().convert(list);
+                            if (c != null) {
+//.........................................................................
 
-//                             for (int i = 0; i < text.length; i++) {
-//                               var bytes = ascii.encode(text);
-//                               var bytes1 = ascii.decode(bytes);
+                              c.output.add(ascii.encoder.convert(encoded));
+                              c.output.allSent;
+                            }
 
-//                               Uint8List vini = Uint8List.fromList(bytes);
-
-//                               List<int> list = List.from(vini);
-//                               var x = Uint8List.fromList(list);
-//                               Uint8List cu = Uint8List.fromList(text.codeUnits);
-//                               if (c != null) {
-//                                 var pow = ascii.encoder
-//                                     .convert(text.characters.string);
-// //.........................................................................
-//                                 c.output.add(pow);
-//                                 c.output.allSent;
-//                               }
-//                             }
-
-// //.........................................................................
+//.........................................................................
                           });
                         }),
                       ),
