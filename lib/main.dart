@@ -1,8 +1,5 @@
 import 'dart:convert';
-import 'dart:convert';
-
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -36,8 +33,6 @@ class PeppermintRemote extends StatelessWidget {
 }
 
 class RemoteControl extends StatefulWidget {
-  var onClick;
-
   RemoteControl({Key? key, required this.title}) : super(key: key);
 
   final String title;
@@ -117,7 +112,6 @@ class _RemoteControlState extends State<RemoteControl> {
     }
   }
 
-  // in a list.
   Future<void> getPairedDevices() async {
     List<BluetoothDevice> devices = [];
 
@@ -215,15 +209,16 @@ class _RemoteControlState extends State<RemoteControl> {
                               String c1 = "MOONS+ON;";
                               String c2 = "MOONS+ME;";
 
-                              // String.fromCharCodes(charCodes);
                               _value = value;
-
-                              const powerOncmd = Duration(milliseconds: 333);
-                              Timer.periodic(
-                                  powerOncmd, (Timer t) => _command(c1));
-                              const driveOncmd = Duration(milliseconds: 100);
-                              Timer.periodic(
-                                  driveOncmd, (Timer t) => _command(c2));
+                              if (value = true) {
+                                HapticFeedback.heavyImpact();
+                                const _powerOncmd = Duration(milliseconds: 333);
+                                Timer.periodic(
+                                    _powerOncmd, (Timer t) => _command(c1));
+                                const _driveOncmd = Duration(milliseconds: 100);
+                                Timer.periodic(
+                                    _driveOncmd, (Timer t) => _command(c2));
+                              }
                             }),
                             height: 40,
                             animationDuration: const Duration(milliseconds: 40),
@@ -253,30 +248,25 @@ class _RemoteControlState extends State<RemoteControl> {
                           setState(() {
                             double _x = 100;
                             double _y = 100;
-                            int step = 40;
+                            int step = 60;
 
                             _x = step * details.x;
                             _y = step * details.y;
                             double r = sqrt(_x * _x + _y * _y);
+
                             var s = r.toStringAsFixed(0);
                             var theta = atan(_y / _x).abs();
                             theta = (180 * (theta / pi));
                             var stheta = theta.toStringAsFixed(0);
 
                             final String text = "MOONS+JSR${s}A$stheta;";
-                            // List<String> qq = text as List<String>;
-//........................................................................
 
                             List<int> list = List<int>.from(ascii.encode(text));
                             String encoded = const AsciiDecoder().convert(list);
                             if (c != null) {
-//.........................................................................
-
                               c.output.add(ascii.encoder.convert(encoded));
                               c.output.allSent;
                             }
-
-//.........................................................................
                           });
                         }),
                       ),
