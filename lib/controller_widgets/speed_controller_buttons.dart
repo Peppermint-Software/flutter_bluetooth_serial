@@ -9,7 +9,6 @@ class SpeedController extends StatelessWidget {
   }
 }
 
-// A simple model class that notifies listeners when it changes.
 class Model {
   ValueNotifier<bool> isDirty = ValueNotifier<bool>(false);
   ValueNotifier<int> data = ValueNotifier<int>(0);
@@ -33,8 +32,6 @@ class ModifyIntent extends Intent {
   final int value;
 }
 
-// An Action that modifies the model by setting it to the value that it gets
-// from the Intent passed to it when invoked.
 class ModifyAction extends Action<ModifyIntent> {
   ModifyAction(this.model);
 

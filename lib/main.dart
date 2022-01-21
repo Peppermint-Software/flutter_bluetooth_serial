@@ -9,7 +9,6 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:sliding_switch/sliding_switch.dart';
 import 'controller_widgets/forward_reverse_button.dart';
-import 'controller_widgets/robot_list.dart';
 import 'controller_widgets/speed_controller_buttons.dart';
 import 'detail_widget/obsticle_indication.dart';
 
@@ -23,7 +22,7 @@ class PeppermintRemote extends StatelessWidget {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     return MediaQuery(
-        data: MediaQueryData(),
+        data: const MediaQueryData(),
         child: MaterialApp(
           home: RemoteControl(
             title: '',
@@ -53,7 +52,6 @@ class _RemoteControlState extends State<RemoteControl> {
   BluetoothDevice? _device;
   bool _connected = false;
   bool _isButtonUnavailable = false;
-  int? _deviceState;
 
   @override
   void initState() {
@@ -64,7 +62,6 @@ class _RemoteControlState extends State<RemoteControl> {
         _bluetoothState = state;
       });
     });
-    _deviceState = 0;
     enableBluetooth();
 
     FlutterBluetoothSerial.instance
@@ -118,7 +115,7 @@ class _RemoteControlState extends State<RemoteControl> {
     try {
       devices = await _bluetooth.getBondedDevices();
     } on PlatformException {
-      print("Error");
+      null;
     }
 
     if (!mounted) {
@@ -218,6 +215,8 @@ class _RemoteControlState extends State<RemoteControl> {
                                 const _driveOncmd = Duration(milliseconds: 100);
                                 Timer.periodic(
                                     _driveOncmd, (Timer t) => _command(c2));
+                              } else {
+                                null;
                               }
                             }),
                             height: 40,
@@ -244,29 +243,22 @@ class _RemoteControlState extends State<RemoteControl> {
                         height: 300,
                         width: 240,
                         child: Joystick(listener: (details) {
-                          var c = connection;
                           setState(() {
-                            double _x = 100;
-                            double _y = 100;
-                            int step = 60;
+                            double _x = 50;
+                            double _y = 50;
+                            const step = 10;
 
-                            _x = step * details.x;
-                            _y = step * details.y;
+                            _x = _x + step * details.x;
+                            _y = _y + step * details.y;
                             double r = sqrt(_x * _x + _y * _y);
 
                             var s = r.toStringAsFixed(0);
-                            var theta = atan(_y / _x).abs();
+                            var theta = atan(_y / _x);
                             theta = (180 * (theta / pi));
                             var stheta = theta.toStringAsFixed(0);
 
                             final String text = "MOONS+JSR${s}A$stheta;";
-
-                            List<int> list = List<int>.from(ascii.encode(text));
-                            String encoded = const AsciiDecoder().convert(list);
-                            if (c != null) {
-                              c.output.add(ascii.encoder.convert(encoded));
-                              c.output.allSent;
-                            }
+                            _command(text);
                           });
                         }),
                       ),
@@ -279,7 +271,7 @@ class _RemoteControlState extends State<RemoteControl> {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
     if (_devicesList.isEmpty) {
       items.add(const DropdownMenuItem(
-        child: Text('NONE'),
+        child: Text('Choose Robot'),
       ));
     } else {
       for (var device in _devicesList) {
@@ -309,7 +301,7 @@ class _RemoteControlState extends State<RemoteControl> {
           connection!.input!.listen(null).onDone(() {
             if (isDisconnecting) {
             } else {}
-            if (this.mounted) {
+            if (mounted) {
               setState(() {});
             }
           });
@@ -326,7 +318,6 @@ class _RemoteControlState extends State<RemoteControl> {
     });
 
     await connection?.close();
-    print('Device disconnected');
     if (!connection!.isConnected) {
       setState(() {
         _connected = false;
@@ -334,42 +325,32 @@ class _RemoteControlState extends State<RemoteControl> {
       });
     }
   }
-
-  Future show(
-    String message, {
-    Duration duration = const Duration(seconds: 3),
-  }) async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    // ignore: deprecated_member_use
-    _scaffoldKey.currentState!.showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-        ),
-        duration: duration,
-      ),
-    );
-  }
 }
 
-_showRobotList(BuildContext context) {
-  return showDialog(
-      barrierDismissible: true,
-      context: context,
-      builder: (BuildContext context) {
-        return SizedBox(
-            child: AlertDialog(
-                insetPadding: const EdgeInsets.only(
-                    left: 40, top: 10, right: 40, bottom: 20),
-                title: const Text(
-                  "Robot List",
-                  textAlign: TextAlign.center,
-                ),
-                content: SizedBox(
-                    height: 400,
-                    width: 600,
-                    child:
-                        //  DiscoveryPage()
-                        BluetoothApp())));
-      });
-}
+
+
+
+/*  Dialogbox to be considered in v0.6 */
+
+
+// _showRobotList(BuildContext context) {
+//   return showDialog(
+//       barrierDismissible: true,
+//       context: context,
+//       builder: (BuildContext context) {
+//         return SizedBox(
+//             child: AlertDialog(
+//                 insetPadding: const EdgeInsets.only(
+//                     left: 40, top: 10, right: 40, bottom: 20),
+//                 title: const Text(
+//                   "Robot List",
+//                   textAlign: TextAlign.center,
+//                 ),
+//                 content: SizedBox(
+//                     height: 400,
+//                     width: 600,
+//                     child:
+//                         //  DiscoveryPage()
+//                         BluetoothApp())));
+//       });
+// }
