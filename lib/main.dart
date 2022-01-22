@@ -9,9 +9,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:sliding_switch/sliding_switch.dart';
-import 'controller_widgets/forward_reverse_button.dart';
-import 'controller_widgets/speed_controller_buttons.dart';
+
 import 'detail_widget/obsticle_indication.dart';
+import 'forward_reverse_button.dart';
+import 'speed_controller_buttons.dart';
 
 void main() => runApp(const PeppermintRemote());
 
@@ -88,7 +89,7 @@ class _RemoteControlState extends State<RemoteControl> {
     super.dispose();
   }
 
-  Future _command(String data) async {
+  Future command(String data) async {
     List<int> x = List<int>.from(ascii.encode(data));
 
     String result = const AsciiDecoder().convert(x);
@@ -180,17 +181,18 @@ class _RemoteControlState extends State<RemoteControl> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const <Widget>[
-                        Padding(
+                      children: <Widget>[
+                        const Padding(
                             padding: EdgeInsets.all(15),
                             child: SpeedControllerWidget()),
-                        Padding(padding: EdgeInsets.all(15), child: Obstacle()),
+                        const Padding(
+                            padding: EdgeInsets.all(15), child: Obstacle()),
                         Padding(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             vertical: 2,
                             horizontal: 15,
                           ),
-                          child: ForwardReverseButton(),
+                          child: ForwardReverseButton(context),
                         )
                       ],
                     ),
@@ -214,20 +216,20 @@ class _RemoteControlState extends State<RemoteControl> {
                                 HapticFeedback.heavyImpact();
                                 const _powerOncmd = Duration(milliseconds: 333);
                                 Timer.periodic(
-                                    _powerOncmd, (Timer t) => _command(c1));
+                                    _powerOncmd, (Timer t) => command(c1));
                                 const _driveOncmd = Duration(milliseconds: 100);
                                 Timer.periodic(
-                                    _driveOncmd, (Timer t) => _command(c2));
+                                    _driveOncmd, (Timer t) => command(c2));
                               } else {
                                 HapticFeedback.heavyImpact();
                                 const _powerOffCmd =
                                     Duration(milliseconds: 333);
                                 Timer.periodic(
-                                    _powerOffCmd, (Timer t) => _command(c3));
+                                    _powerOffCmd, (Timer t) => command(c3));
                                 const _driveOffcmd =
                                     Duration(milliseconds: 100);
                                 Timer.periodic(
-                                    _driveOffcmd, (Timer t) => _command(c4));
+                                    _driveOffcmd, (Timer t) => command(c4));
                               }
                             }),
                             height: 40,
@@ -253,35 +255,35 @@ class _RemoteControlState extends State<RemoteControl> {
                       SizedBox(
                         height: 300,
                         width: 240,
-                        child: Joystick(
-                            stickOffsetCalculator:
-                                const CircleStickOffsetCalculator(),
-                            listener: (details) {
-                              setState(() {
-                                double _x = 100;
-                                double _y = 100;
-                                const step = 10;
+                        child: Joystick(listener: (details) {
+                          setState(() {
+                            double _x = 1;
+                            double _y = 1;
+                            const step = 80;
+                            HapticFeedback.heavyImpact();
 
-                                _x = _x + step * details.x;
-                                _y = _y + step * details.y;
-                                double r = sqrt(_x * _x + _y * _y);
+                            _x = step * details.x;
+                            _y = step * details.y;
+                            double r = sqrt(_x * _x + _y * _y);
 
-                                var s = r.toStringAsFixed(0);
-                                var theta = _y / _x;
+                            var s = r.toStringAsFixed(0);
+                            int theta = atan2(_y, _x).toInt();
 
-                                var radians = (theta * pi) / 180;
-                                var radians1 = radians.toStringAsFixed(0);
-                                print('theta==>' + radians1.toString());
-                                print('Resul==>' + s);
-                                final String text = "MOONS+JSR${s}A$radians1;";
-                                _command(text);
-                              });
-                            }),
+                            var radians = (theta * pi) / 180;
+                            var radians1 = radians.toStringAsFixed(1);
+
+                            final String text = "MOONS+JSR${s}A$radians1;";
+                            const _send = Duration(milliseconds: 200);
+                            Timer.periodic(_send, (Timer t) => command(text));
+                          });
+                        }),
                       ),
                     ])
               ],
             )));
   }
+
+/* Functions Used */
 
   List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
