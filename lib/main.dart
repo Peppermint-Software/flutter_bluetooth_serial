@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:sliding_switch/sliding_switch.dart';
@@ -205,6 +206,8 @@ class _RemoteControlState extends State<RemoteControl> {
                             onChanged: (value) => setState(() {
                               String c1 = "MOONS+ON;";
                               String c2 = "MOONS+ME;";
+                              String c3 = "MOONS+OFF;";
+                              String c4 = "MOONS+MD";
 
                               _value = value;
                               if (value = true) {
@@ -216,7 +219,15 @@ class _RemoteControlState extends State<RemoteControl> {
                                 Timer.periodic(
                                     _driveOncmd, (Timer t) => _command(c2));
                               } else {
-                                null;
+                                HapticFeedback.heavyImpact();
+                                const _powerOffCmd =
+                                    Duration(milliseconds: 333);
+                                Timer.periodic(
+                                    _powerOffCmd, (Timer t) => _command(c3));
+                                const _driveOffcmd =
+                                    Duration(milliseconds: 100);
+                                Timer.periodic(
+                                    _driveOffcmd, (Timer t) => _command(c4));
                               }
                             }),
                             height: 40,
@@ -242,25 +253,30 @@ class _RemoteControlState extends State<RemoteControl> {
                       SizedBox(
                         height: 300,
                         width: 240,
-                        child: Joystick(listener: (details) {
-                          setState(() {
-                            double _x = 50;
-                            double _y = 50;
-                            const step = 10;
+                        child: Joystick(
+                            stickOffsetCalculator:
+                                const CircleStickOffsetCalculator(),
+                            listener: (details) {
+                              setState(() {
+                                double _x = 100;
+                                double _y = 100;
+                                const step = 10;
 
-                            _x = _x + step * details.x;
-                            _y = _y + step * details.y;
-                            double r = sqrt(_x * _x + _y * _y);
+                                _x = _x + step * details.x;
+                                _y = _y + step * details.y;
+                                double r = sqrt(_x * _x + _y * _y);
 
-                            var s = r.toStringAsFixed(0);
-                            var theta = atan(_y / _x);
-                            theta = (180 * (theta / pi));
-                            var stheta = theta.toStringAsFixed(0);
+                                var s = r.toStringAsFixed(0);
+                                var theta = _y / _x;
 
-                            final String text = "MOONS+JSR${s}A$stheta;";
-                            _command(text);
-                          });
-                        }),
+                                var radians = (theta * pi) / 180;
+                                var radians1 = radians.toStringAsFixed(0);
+                                print('theta==>' + radians1.toString());
+                                print('Resul==>' + s);
+                                final String text = "MOONS+JSR${s}A$radians1;";
+                                _command(text);
+                              });
+                            }),
                       ),
                     ])
               ],
