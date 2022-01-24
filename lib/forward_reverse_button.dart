@@ -17,8 +17,7 @@ class ForwardReverseButton extends StatefulWidget {
 class ForwardReverseButtonState extends State<ForwardReverseButton> {
   @override
   Widget build(BuildContext context) {
-    bool _value1 = true;
-    BluetoothConnection? connection;
+    bool _value1 = false;
     return Column(children: [
       RotatedBox(
         quarterTurns: 1,
@@ -30,10 +29,10 @@ class ForwardReverseButtonState extends State<ForwardReverseButton> {
             String c2 = "MOONS+R;";
             _value1 = value;
 
-            _value1 ? _repeatCmd(100, c2) : _repeatCmd(100, c1);
+            _value1 ? command(c2) : command(c1);
           }),
           height: 50,
-          animationDuration: const Duration(milliseconds: 40),
+          animationDuration: const Duration(milliseconds: 10),
           onTap: () {},
           onDoubleTap: () {},
           onSwipe: () {},

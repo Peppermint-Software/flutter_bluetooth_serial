@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:sliding_switch/sliding_switch.dart';
+import 'package:test/joystick.dart';
 
 import 'detail_widget/obsticle_indication.dart';
 import 'forward_reverse_button.dart';
@@ -23,8 +24,8 @@ class PeppermintRemote extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-    return MediaQuery(
-        data: const MediaQueryData(),
+    return const MediaQuery(
+        data: MediaQueryData(),
         child: MaterialApp(
           home: RemoteControl(
             title: '',
@@ -34,7 +35,7 @@ class PeppermintRemote extends StatelessWidget {
 }
 
 class RemoteControl extends StatefulWidget {
-  RemoteControl({Key? key, required this.title}) : super(key: key);
+  const RemoteControl({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -209,7 +210,7 @@ class _RemoteControlState extends State<RemoteControl> {
                               String c1 = "MOONS+ON;";
                               String c2 = "MOONS+ME;";
                               String c3 = "MOONS+OFF;";
-                              String c4 = "MOONS+MD";
+                              String c4 = "MOONS+MD;";
 
                               _value = value;
                               if (value = true) {
@@ -249,35 +250,73 @@ class _RemoteControlState extends State<RemoteControl> {
                   ],
                 ),
                 Column(
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: 300,
-                        width: 240,
-                        child: Joystick(listener: (details) {
-                          setState(() {
-                            double _x = 1;
-                            double _y = 1;
-                            const step = 80;
-                            HapticFeedback.heavyImpact();
+                      Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                                height: 350,
+                                width: 240,
+                                child: Scaffold(
+                                  appBar: AppBar(
+                                    elevation: 0,
+                                    backgroundColor: Colors.transparent,
+                                    title: connection != null &&
+                                            connection!.isConnected
+                                        ? const Text(
+                                            "Connected",
+                                            textAlign: TextAlign.justify,
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 15),
+                                          )
+                                        : const Text("Not Connected",
+                                            textAlign: TextAlign.justify,
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 15)),
+                                    actions: [
+                                      connection != null &&
+                                              connection!.isConnected
+                                          ? const Icon(Icons.circle,
+                                              color: Color(0xff64dd17))
+                                          : const Icon(Icons.circle,
+                                              color: Color(0xffdd2c00))
+                                    ],
+                                  ),
+                                  body: SizedBox(
+                                    height: 300,
+                                    width: 240,
+                                    child: Joystick(listener: (details) {
+                                      setState(() {
+                                        double _x = 1;
+                                        double _y = 1;
+                                        double step = 3;
+                                        HapticFeedback.heavyImpact();
 
-                            _x = step * details.x;
-                            _y = step * details.y;
-                            double r = sqrt(_x * _x + _y * _y);
+                                        _x += step * details.x;
+                                        _y += step * details.y;
+                                        double r = sqrt(pow(_x, 2).toInt() +
+                                            pow(_y, 2).toInt());
 
-                            var s = r.toStringAsFixed(0);
-                            int theta = atan2(_y, _x).toInt();
+                                        var s = r.toStringAsFixed(0);
+                                        double theta = atan(_y / _x);
+                                        theta =
+                                            theta > 180 ? theta -= 360 : theta;
 
-                            var radians = (theta * pi) / 180;
-                            var radians1 = radians.toStringAsFixed(1);
-
-                            final String text = "MOONS+JSR${s}A$radians1;";
-                            const _send = Duration(milliseconds: 200);
-                            Timer.periodic(_send, (Timer t) => command(text));
-                          });
-                        }),
-                      ),
+                                        double radians = theta * (pi / 180);
+                                        String text = "MOONS+JSR${s}A$radians;";
+                                        command(text);
+                                      });
+                                    }),
+                                  ),
+                                ))
+                          ])
                     ])
               ],
             )));

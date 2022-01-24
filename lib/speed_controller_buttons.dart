@@ -43,7 +43,6 @@ class ModifyAction extends Action<ModifyIntent> {
   }
 }
 
-// An intent for saving data.
 class SaveIntent extends Intent {
   const SaveIntent();
 }
