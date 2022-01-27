@@ -28,8 +28,11 @@ class ForwardReverseButtonState extends State<ForwardReverseButton> {
             String c1 = "MOONS+F;";
             String c2 = "MOONS+R;";
             _value1 = value;
+            HapticFeedback.heavyImpact();
 
-            _value1 ? command(c2) : command(c1);
+            _value1
+                ? {command(c2), command(c2), command(c2)}
+                : {command(c1), command(c1), command(c1)};
           }),
           height: 50,
           animationDuration: const Duration(milliseconds: 10),

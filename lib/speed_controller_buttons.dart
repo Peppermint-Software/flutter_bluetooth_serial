@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test/forward_reverse_button.dart';
 
 class SpeedController extends StatelessWidget {
   const SpeedController({Key? key}) : super(key: key);
@@ -135,6 +136,9 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                     ),
                     onPressed: () {
                       Actions.invoke(context, ModifyIntent(++count));
+                      model.data.value < 0
+                          ? null
+                          : command("MOONS+SL${model.data.value};");
                     },
                   ),
                   AnimatedBuilder(
@@ -142,22 +146,25 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                       builder: (BuildContext context, Widget? child) {
                         return Padding(
                             padding: const EdgeInsets.all(2),
-                            child: Text('${model.data.value}',
+                            child: Text(
+                                '${model.data.value < 0 ? model.data.value = 0 : model.data.value}',
                                 style: Theme.of(context).textTheme.headline4));
                       }),
                   const Text('m/s'),
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        shape: const CircleBorder(),
-                        padding: const EdgeInsets.all(10),
-                        primary: Colors.white,
-                        onPrimary: Colors.green[50]),
-                    child: const Icon(Icons.remove_outlined,
-                        size: 40, color: Colors.grey),
-                    onPressed: () {
-                      Actions.invoke(context, ModifyIntent(--count));
-                    },
-                  ),
+                      style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(10),
+                          primary: Colors.white,
+                          onPrimary: Colors.green[50]),
+                      child: const Icon(Icons.remove_outlined,
+                          size: 40, color: Colors.grey),
+                      onPressed: () {
+                        Actions.invoke(context, ModifyIntent(--count));
+                        model.data.value < 0
+                            ? null
+                            : command("MOONS+SL${model.data.value};");
+                      }),
                 ],
               ),
             ],

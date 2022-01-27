@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -90,15 +91,24 @@ class _RemoteControlState extends State<RemoteControl> {
     super.dispose();
   }
 
-  Future command(String data) async {
-    List<int> x = List<int>.from(ascii.encode(data));
+  Future command(String data1) async {
+    List<int> x = List<int>.from(ascii.encode(data1));
 
     String result = const AsciiDecoder().convert(x);
     if (connection != null) {
       connection!.output.add(ascii.encoder.convert(result));
-
       await connection!.output.allSent;
+      connection!.input!.listen(_onDataReceived).onData((data) {
+        print('object');
+      });
     }
+  }
+
+  List<_Message> messages = List<_Message>.empty(growable: true);
+  String _messageBuffer = '';
+  void _onDataReceived(Uint8List data) {
+    String s = String.fromCharCodes(data);
+    print(s);
   }
 
   Future<void> enableBluetooth() async {
@@ -134,6 +144,7 @@ class _RemoteControlState extends State<RemoteControl> {
 
   @override
   Widget build(BuildContext context) {
+    String batl;
     return Container(
         child: Scaffold(
             key: _scaffoldKey,
@@ -218,9 +229,9 @@ class _RemoteControlState extends State<RemoteControl> {
                                 const _powerOncmd = Duration(milliseconds: 333);
                                 Timer.periodic(
                                     _powerOncmd, (Timer t) => command(c1));
-                                const _driveOncmd = Duration(milliseconds: 100);
-                                Timer.periodic(
-                                    _driveOncmd, (Timer t) => command(c2));
+                                // const _driveOncmd = Duration(milliseconds: 100);
+                                // Timer.periodic(
+                                //     _driveOncmd, (Timer t) => command(c2));
                               } else {
                                 HapticFeedback.heavyImpact();
                                 const _powerOffCmd =
@@ -268,25 +279,24 @@ class _RemoteControlState extends State<RemoteControl> {
                                     backgroundColor: Colors.transparent,
                                     title: connection != null &&
                                             connection!.isConnected
-                                        ? const Text(
-                                            "Connected",
-                                            textAlign: TextAlign.justify,
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 15),
-                                          )
-                                        : const Text("Not Connected",
-                                            textAlign: TextAlign.justify,
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 15)),
-                                    actions: [
-                                      connection != null &&
-                                              connection!.isConnected
-                                          ? const Icon(Icons.circle,
-                                              color: Color(0xff64dd17))
-                                          : const Icon(Icons.circle,
-                                              color: Color(0xffdd2c00))
+                                        ? Text('${_device!.name}',
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 15,
+                                            ))
+                                        : const Icon(Icons.bluetooth_disabled,
+                                            color: Colors.red),
+                                    actions: <Widget>[
+                                      Icon(Icons.bluetooth_connected,
+                                          color: connection != null &&
+                                                  connection!.isConnected
+                                              ? Colors.green
+                                              : null),
+                                      Icon(Icons.battery_charging_full,
+                                          color: connection != null &&
+                                                  connection!.isConnected
+                                              ? Colors.green
+                                              : null),
                                     ],
                                   ),
                                   body: SizedBox(
@@ -305,12 +315,16 @@ class _RemoteControlState extends State<RemoteControl> {
                                             pow(_y, 2).toInt());
 
                                         var s = r.toStringAsFixed(0);
-                                        double theta = atan(_y / _x);
-                                        theta =
-                                            theta > 180 ? theta -= 360 : theta;
+                                        double theta =
+                                            atan(details.y / details.x);
 
-                                        double radians = theta * (pi / 180);
+                                        print('x =' + details.x.toString());
+                                        print('y =' + details.y.toString());
+
+                                        double radians =
+                                            (theta * (pi / 180)).abs();
                                         String text = "MOONS+JSR${s}A$radians;";
+                                        print(theta);
                                         command(text);
                                       });
                                     }),
@@ -382,6 +396,11 @@ class _RemoteControlState extends State<RemoteControl> {
       });
     }
   }
+}
+
+class _Message {
+  String text;
+  _Message(this.text);
 }
 
 
