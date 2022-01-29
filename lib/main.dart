@@ -10,7 +10,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:sliding_switch/sliding_switch.dart';
-import 'package:test/joystick.dart';
 
 import 'detail_widget/obsticle_indication.dart';
 import 'forward_reverse_button.dart';
@@ -44,6 +43,8 @@ class RemoteControl extends StatefulWidget {
   State<RemoteControl> createState() => _RemoteControlState();
 }
 
+BluetoothConnection? connection;
+
 class _RemoteControlState extends State<RemoteControl> {
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -55,7 +56,7 @@ class _RemoteControlState extends State<RemoteControl> {
   List<BluetoothDevice> _devicesList = [];
   BluetoothDevice? _device;
   bool _connected = false;
-  bool _isButtonUnavailable = false;
+  bool _isButtonUnavailable = true;
 
   @override
   void initState() {
@@ -98,17 +99,7 @@ class _RemoteControlState extends State<RemoteControl> {
     if (connection != null) {
       connection!.output.add(ascii.encoder.convert(result));
       await connection!.output.allSent;
-      connection!.input!.listen(_onDataReceived).onData((data) {
-        print('object');
-      });
     }
-  }
-
-  List<_Message> messages = List<_Message>.empty(growable: true);
-  String _messageBuffer = '';
-  void _onDataReceived(Uint8List data) {
-    String s = String.fromCharCodes(data);
-    print(s);
   }
 
   Future<void> enableBluetooth() async {
@@ -144,7 +135,6 @@ class _RemoteControlState extends State<RemoteControl> {
 
   @override
   Widget build(BuildContext context) {
-    String batl;
     return Container(
         child: Scaffold(
             key: _scaffoldKey,
@@ -227,11 +217,45 @@ class _RemoteControlState extends State<RemoteControl> {
                               if (value = true) {
                                 HapticFeedback.heavyImpact();
                                 const _powerOncmd = Duration(milliseconds: 333);
+
+                                if (connection != null) {
+                                  connection!.input!.map((event) =>
+                                      print(ascii.encode(event.toString())));
+                                }
+
                                 Timer.periodic(
                                     _powerOncmd, (Timer t) => command(c1));
-                                // const _driveOncmd = Duration(milliseconds: 100);
-                                // Timer.periodic(
-                                //     _driveOncmd, (Timer t) => command(c2));
+
+                                // String message = '';
+
+                                // StreamController<String> stringController =
+                                //     StreamController();
+
+                                // stringController.stream.listen((String event) {
+                                //   print("Datareceived:  " + event);
+                                // }, onDone: () {
+                                //   print("Task done");
+                                // }, onError: (error) {
+                                //   print("some error");
+                                // });
+                                // if (connection != null) {
+                                //   connection?.input?.any((Uint8List element) {
+                                //     String dataStr = ascii.decode(element);
+                                //     message += dataStr;
+                                //     if (dataStr.contains('\n')) {
+                                //       print(message);
+                                //     }
+                                //     stringController.add(message);
+
+                                //     return true;
+                                //   });
+                                // }
+                                // stringController.add('event');
+
+                                /*         const _driveOncmd = Duration(milliseconds: 100);
+                                Timer.periodic(
+                                    _driveOncmd, (Timer t) => command(c2));*/
+
                               } else {
                                 HapticFeedback.heavyImpact();
                                 const _powerOffCmd =
@@ -261,7 +285,7 @@ class _RemoteControlState extends State<RemoteControl> {
                   ],
                 ),
                 Column(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -277,22 +301,26 @@ class _RemoteControlState extends State<RemoteControl> {
                                   appBar: AppBar(
                                     elevation: 0,
                                     backgroundColor: Colors.transparent,
-                                    title: connection != null &&
-                                            connection!.isConnected
-                                        ? Text('${_device!.name}',
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 15,
-                                            ))
-                                        : const Icon(Icons.bluetooth_disabled,
-                                            color: Colors.red),
                                     actions: <Widget>[
                                       Icon(Icons.bluetooth_connected,
                                           color: connection != null &&
                                                   connection!.isConnected
                                               ? Colors.green
                                               : null),
+                                      const Spacer(),
                                       Icon(Icons.battery_charging_full,
+                                          color: connection != null &&
+                                                  connection!.isConnected
+                                              ? Colors.green
+                                              : null),
+                                      const Spacer(),
+                                      Icon(Icons.water,
+                                          color: connection != null &&
+                                                  connection!.isConnected
+                                              ? Colors.green
+                                              : null),
+                                      const Spacer(),
+                                      Icon(Icons.cleaning_services,
                                           color: connection != null &&
                                                   connection!.isConnected
                                               ? Colors.green
@@ -304,27 +332,23 @@ class _RemoteControlState extends State<RemoteControl> {
                                     width: 240,
                                     child: Joystick(listener: (details) {
                                       setState(() {
-                                        double _x = 1;
-                                        double _y = 1;
+                                        double _x = 0;
+                                        double _y = 0;
                                         double step = 3;
                                         HapticFeedback.heavyImpact();
 
-                                        _x += step * details.x;
-                                        _y += step * details.y;
+                                        _x = _x + step * details.x;
+                                        _y = _y + step * details.y;
+
                                         double r = sqrt(pow(_x, 2).toInt() +
                                             pow(_y, 2).toInt());
 
                                         var s = r.toStringAsFixed(0);
-                                        double theta =
-                                            atan(details.y / details.x);
-
-                                        print('x =' + details.x.toString());
-                                        print('y =' + details.y.toString());
+                                        double theta = atan(_y / _x);
 
                                         double radians =
                                             (theta * (pi / 180)).abs();
                                         String text = "MOONS+JSR${s}A$radians;";
-                                        print(theta);
                                         command(text);
                                       });
                                     }),
@@ -335,8 +359,6 @@ class _RemoteControlState extends State<RemoteControl> {
               ],
             )));
   }
-
-/* Functions Used */
 
   List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
@@ -369,7 +391,7 @@ class _RemoteControlState extends State<RemoteControl> {
             _connected = true;
           });
 
-          connection!.input!.listen(null).onDone(() {
+          connection!.input!.listen((_onDataReceived)).onDone(() {
             if (isDisconnecting) {
             } else {}
             if (mounted) {
@@ -396,37 +418,62 @@ class _RemoteControlState extends State<RemoteControl> {
       });
     }
   }
+
+  List<_Message> messages = List<_Message>.empty(growable: true);
+  String _messageBuffer = '';
+
+  void _onDataReceived(Uint8List data) {
+    int backspacesCounter = 0;
+    for (var byte in data) {
+      if (byte == 8 || byte == 127) {
+        backspacesCounter++;
+      }
+    }
+    Uint8List buffer = Uint8List(data.length - backspacesCounter);
+    int bufferIndex = buffer.length;
+    // Apply backspace control character
+    backspacesCounter = 0;
+    for (int i = data.length - 1; i >= 0; i--) {
+      print(buffer);
+
+      if (data[i] == 8 || data[i] == 127) {
+        backspacesCounter++;
+      } else {
+        if (backspacesCounter > 0) {
+          backspacesCounter--;
+        } else {
+          buffer[--bufferIndex] = data[i];
+          print(data[i]);
+        }
+      }
+    }
+
+    // Create message if there is new line character
+    String dataString = String.fromCharCodes(buffer);
+    int index = buffer.indexOf(13);
+    if (index != 0) {
+      setState(() {
+        messages.add(
+          _Message(
+            backspacesCounter > 0
+                ? _messageBuffer.substring(
+                    0, _messageBuffer.length - backspacesCounter)
+                : _messageBuffer + dataString.substring(0, index),
+          ),
+        );
+        _messageBuffer = dataString.substring(index);
+      });
+    } else {
+      _messageBuffer = (backspacesCounter > 0
+          ? _messageBuffer.substring(
+              0, _messageBuffer.length - backspacesCounter)
+          : _messageBuffer + dataString);
+    }
+  }
 }
 
 class _Message {
   String text;
+
   _Message(this.text);
 }
-
-
-
-
-/*  Dialogbox to be considered in v0.6 */
-
-
-// _showRobotList(BuildContext context) {
-//   return showDialog(
-//       barrierDismissible: true,
-//       context: context,
-//       builder: (BuildContext context) {
-//         return SizedBox(
-//             child: AlertDialog(
-//                 insetPadding: const EdgeInsets.only(
-//                     left: 40, top: 10, right: 40, bottom: 20),
-//                 title: const Text(
-//                   "Robot List",
-//                   textAlign: TextAlign.center,
-//                 ),
-//                 content: SizedBox(
-//                     height: 400,
-//                     width: 600,
-//                     child:
-//                         //  DiscoveryPage()
-//                         BluetoothApp())));
-//       });
-// }
