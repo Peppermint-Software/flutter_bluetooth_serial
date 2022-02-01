@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:math';
 import 'dart:async';
 import 'dart:typed_data';
@@ -27,17 +28,13 @@ class PeppermintRemote extends StatelessWidget {
     return const MediaQuery(
         data: MediaQueryData(),
         child: MaterialApp(
-          home: RemoteControl(
-            title: '',
-          ),
+          home: RemoteControl(),
         ));
   }
 }
 
 class RemoteControl extends StatefulWidget {
-  const RemoteControl({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  const RemoteControl({Key? key}) : super(key: key);
 
   @override
   State<RemoteControl> createState() => _RemoteControlState();
@@ -218,45 +215,14 @@ class _RemoteControlState extends State<RemoteControl> {
                                 HapticFeedback.heavyImpact();
                                 const _powerOncmd = Duration(milliseconds: 333);
 
-                                if (connection != null) {
-                                  connection!.input!.map((event) =>
-                                      print(ascii.encode(event.toString())));
-                                }
-
                                 Timer.periodic(
                                     _powerOncmd, (Timer t) => command(c1));
 
-                                // String message = '';
-
-                                // StreamController<String> stringController =
-                                //     StreamController();
-
-                                // stringController.stream.listen((String event) {
-                                //   print("Datareceived:  " + event);
-                                // }, onDone: () {
-                                //   print("Task done");
-                                // }, onError: (error) {
-                                //   print("some error");
-                                // });
-                                // if (connection != null) {
-                                //   connection?.input?.any((Uint8List element) {
-                                //     String dataStr = ascii.decode(element);
-                                //     message += dataStr;
-                                //     if (dataStr.contains('\n')) {
-                                //       print(message);
-                                //     }
-                                //     stringController.add(message);
-
-                                //     return true;
-                                //   });
-                                // }
-                                // stringController.add('event');
-
-                                /*         const _driveOncmd = Duration(milliseconds: 100);
+                                const _driveOncmd = Duration(milliseconds: 100);
                                 Timer.periodic(
-                                    _driveOncmd, (Timer t) => command(c2));*/
-
+                                    _driveOncmd, (Timer t) => command(c2));
                               } else {
+                                _disconnect;
                                 HapticFeedback.heavyImpact();
                                 const _powerOffCmd =
                                     Duration(milliseconds: 333);
@@ -313,18 +279,83 @@ class _RemoteControlState extends State<RemoteControl> {
                                                   connection!.isConnected
                                               ? Colors.green
                                               : null),
-                                      const Spacer(),
+                                      connection != null &&
+                                              connection!.isConnected
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 20),
+                                              child: Text(
+                                                _btrystat + "%",
+                                                textAlign: TextAlign.start,
+                                                style: const TextStyle(
+                                                    color: Colors.black),
+                                              ))
+                                          : const Text(''),
+                                      Icon(Icons.invert_colors,
+                                          color: connection != null &&
+                                                  connection!.isConnected
+                                              ? Colors.green
+                                              : null),
+                                      connection != null &&
+                                              connection!.isConnected
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 20),
+                                              child: Text(
+                                                _wtrLevel + "%",
+                                                textAlign: TextAlign.end,
+                                                style: const TextStyle(
+                                                    color: Colors.black),
+                                              ))
+                                          : const Text(''),
                                       Icon(Icons.water,
                                           color: connection != null &&
                                                   connection!.isConnected
                                               ? Colors.green
                                               : null),
-                                      const Spacer(),
+                                      connection != null &&
+                                              connection!.isConnected
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 20),
+                                              child: Text(
+                                                _wtrFlow,
+                                                textAlign: TextAlign.end,
+                                                style: const TextStyle(
+                                                    color: Colors.black),
+                                              ))
+                                          : const Text(''),
                                       Icon(Icons.cleaning_services,
                                           color: connection != null &&
                                                   connection!.isConnected
                                               ? Colors.green
                                               : null),
+/*Additional debugging features*/
+
+                                      // connection != null &&
+                                      //         connection!.isConnected
+                                      //     ? Padding(
+                                      //         padding: const EdgeInsets.only(
+                                      //             top: 20),
+                                      //         child: Text(
+                                      //           _relSpeed,
+                                      //           textAlign: TextAlign.end,
+                                      //           style: const TextStyle(
+                                      //               color: Colors.black),
+                                      //         ))
+                                      //     : const Text(''),
+                                      // connection != null &&
+                                      //         connection!.isConnected
+                                      //     ? Padding(
+                                      //         padding: const EdgeInsets.only(
+                                      //             top: 20),
+                                      //         child: Text(
+                                      //           _aSpeed,
+                                      //           textAlign: TextAlign.end,
+                                      //           style: const TextStyle(
+                                      //               color: Colors.black),
+                                      //         ))
+                                      //     : const Text(''),
                                     ],
                                   ),
                                   body: SizedBox(
@@ -332,13 +363,13 @@ class _RemoteControlState extends State<RemoteControl> {
                                     width: 240,
                                     child: Joystick(listener: (details) {
                                       setState(() {
-                                        double _x = 0;
-                                        double _y = 0;
+                                        double _x = 10;
+                                        double _y = 10;
                                         double step = 3;
                                         HapticFeedback.heavyImpact();
 
-                                        _x = _x + step * details.x;
-                                        _y = _y + step * details.y;
+                                        _x = step * details.x;
+                                        _y = step * details.y;
 
                                         double r = sqrt(pow(_x, 2).toInt() +
                                             pow(_y, 2).toInt());
@@ -346,8 +377,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                         var s = r.toStringAsFixed(0);
                                         double theta = atan(_y / _x);
 
-                                        double radians =
-                                            (theta * (pi / 180)).abs();
+                                        double radians = (180 * (theta / pi));
                                         String text = "MOONS+JSR${s}A$radians;";
                                         command(text);
                                       });
@@ -391,7 +421,7 @@ class _RemoteControlState extends State<RemoteControl> {
             _connected = true;
           });
 
-          connection!.input!.listen((_onDataReceived)).onDone(() {
+          connection!.input!.listen(onDataReceived).onDone(() {
             if (isDisconnecting) {
             } else {}
             if (mounted) {
@@ -419,61 +449,101 @@ class _RemoteControlState extends State<RemoteControl> {
     }
   }
 
-  List<_Message> messages = List<_Message>.empty(growable: true);
-  String _messageBuffer = '';
+  String _btrystat = '';
+  String _wtrLevel = '';
+  String _wtrFlow = '';
+  String _relSpeed = '';
+  String _aSpeed = '';
 
-  void _onDataReceived(Uint8List data) {
+  List<String> onDataReceived(Uint8List data) {
     int backspacesCounter = 0;
+    String? batStatus;
+    String? waterStat;
+    String? waterFlow;
+    String? refspeed;
+    String? speed;
     for (var byte in data) {
       if (byte == 8 || byte == 127) {
         backspacesCounter++;
       }
     }
-    Uint8List buffer = Uint8List(data.length - backspacesCounter);
-    int bufferIndex = buffer.length;
-    // Apply backspace control character
-    backspacesCounter = 0;
-    for (int i = data.length - 1; i >= 0; i--) {
-      print(buffer);
 
+    Uint8List proxy = Uint8List(data.length - backspacesCounter);
+    int proxyIndex = proxy.length;
+    backspacesCounter = 0;
+
+    for (int i = data.length - 1; i >= 0; i--) {
       if (data[i] == 8 || data[i] == 127) {
         backspacesCounter++;
       } else {
         if (backspacesCounter > 0) {
-          backspacesCounter--;
         } else {
-          buffer[--bufferIndex] = data[i];
-          print(data[i]);
+          proxy[--proxyIndex] = data[i];
+          if (data[i] == 86 && data[i - 1] == 42) {
+            List<int> batstatus = List<int>.from([
+              data[i + 1],
+              data[i + 2],
+              data[i + 3],
+              data[i + 4],
+            ]);
+            String result = const AsciiDecoder().convert(batstatus);
+            setState(() {
+              batStatus = result;
+              _btrystat = batStatus!;
+            });
+          }
+          if (data[i] == 119 && data[i - 1] == 42) {
+            List<int> wtrlevel = List<int>.from([
+              data[i + 1],
+              data[i + 2],
+              data[i + 3],
+              data[i + 4],
+            ]);
+            String result = const AsciiDecoder().convert(wtrlevel);
+            setState(() {
+              waterStat = result;
+              _wtrLevel = waterStat!;
+            });
+          }
+          if (data[i] == 89 && data[i - 1] == 42) {
+            List<int> wtrFlow = List<int>.from([
+              data[i + 1],
+              data[i + 2],
+              data[i + 3],
+            ]);
+            String result = const AsciiDecoder().convert(wtrFlow);
+            setState(() {
+              waterFlow = result;
+              _wtrFlow = waterFlow!;
+            });
+          }
+          if (data[i] == 74 && data[i - 1] == 42) {
+            List<int> refSpeed = List<int>.from([
+              data[i + 1],
+              data[i + 2],
+              data[i + 3],
+            ]);
+            String result = const AsciiDecoder().convert(refSpeed);
+            setState(() {
+              refspeed = result;
+              _relSpeed = refspeed!;
+            });
+          }
+          if (data[i] == 73 && data[i - 1] == 42) {
+            List<int> aSpeed = List<int>.from([
+              data[i + 1],
+              data[i + 2],
+              data[i + 3],
+            ]);
+            String result = const AsciiDecoder().convert(aSpeed);
+            setState(() {
+              speed = result;
+              _aSpeed = speed!;
+            });
+          }
         }
       }
     }
-
-    // Create message if there is new line character
-    String dataString = String.fromCharCodes(buffer);
-    int index = buffer.indexOf(13);
-    if (index != 0) {
-      setState(() {
-        messages.add(
-          _Message(
-            backspacesCounter > 0
-                ? _messageBuffer.substring(
-                    0, _messageBuffer.length - backspacesCounter)
-                : _messageBuffer + dataString.substring(0, index),
-          ),
-        );
-        _messageBuffer = dataString.substring(index);
-      });
-    } else {
-      _messageBuffer = (backspacesCounter > 0
-          ? _messageBuffer.substring(
-              0, _messageBuffer.length - backspacesCounter)
-          : _messageBuffer + dataString);
-    }
+    return [waterFlow.toString(), waterStat.toString(), batStatus.toString()];
   }
-}
-
-class _Message {
-  String text;
-
-  _Message(this.text);
 }
