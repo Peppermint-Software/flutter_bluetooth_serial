@@ -1,8 +1,10 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:math';
 import 'dart:async';
 import 'dart:typed_data';
+import './forward_reverse_button.dart';
+import './speed_controller_buttons.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -13,8 +15,6 @@ import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:sliding_switch/sliding_switch.dart';
 
 import 'detail_widget/obsticle_indication.dart';
-import 'forward_reverse_button.dart';
-import 'speed_controller_buttons.dart';
 
 void main() => runApp(const PeppermintRemote());
 
@@ -205,33 +205,33 @@ class _RemoteControlState extends State<RemoteControl> {
                             value: _value,
                             width: 150,
                             onChanged: (value) => setState(() {
-                              String c1 = "MOONS+ON;";
-                              String c2 = "MOONS+ME;";
-                              String c3 = "MOONS+OFF;";
-                              String c4 = "MOONS+MD;";
+                              String _startDrive = "MOONS+ON;";
+                              String _enableMotor = "MOONS+ME;";
+                              String _stopDrive = "MOONS+OFF;";
+                              String _disableMotor = "MOONS+MD;";
 
                               _value = value;
                               if (value = true) {
                                 HapticFeedback.heavyImpact();
                                 const _powerOncmd = Duration(milliseconds: 333);
 
-                                Timer.periodic(
-                                    _powerOncmd, (Timer t) => command(c1));
+                                Timer.periodic(_powerOncmd,
+                                    (Timer t) => command(_startDrive));
 
                                 const _driveOncmd = Duration(milliseconds: 100);
-                                Timer.periodic(
-                                    _driveOncmd, (Timer t) => command(c2));
+                                Timer.periodic(_driveOncmd,
+                                    (Timer t) => command(_enableMotor));
                               } else {
                                 _disconnect;
                                 HapticFeedback.heavyImpact();
                                 const _powerOffCmd =
                                     Duration(milliseconds: 333);
-                                Timer.periodic(
-                                    _powerOffCmd, (Timer t) => command(c3));
+                                Timer.periodic(_powerOffCmd,
+                                    (Timer t) => command(_stopDrive));
                                 const _driveOffcmd =
                                     Duration(milliseconds: 100);
-                                Timer.periodic(
-                                    _driveOffcmd, (Timer t) => command(c4));
+                                Timer.periodic(_driveOffcmd,
+                                    (Timer t) => command(_disableMotor));
                               }
                             }),
                             height: 40,
@@ -241,11 +241,11 @@ class _RemoteControlState extends State<RemoteControl> {
                             onSwipe: () {},
                             textOff: "OFF",
                             textOn: "ON",
-                            colorOn: const Color(0xff64dd17),
-                            colorOff: const Color(0xffdd2c00),
-                            background: const Color(0xffe4e5eb),
-                            buttonColor: const Color(0xfff7f5f7),
-                            inactiveColor: const Color(0xff636f7b),
+                            colorOn: Colors.lightGreenAccent.shade700,
+                            colorOff: Colors.deepOrangeAccent.shade700,
+                            background: Colors.grey.shade300,
+                            buttonColor: Colors.white,
+                            inactiveColor: Colors.grey,
                           ),
                         ))
                   ],
@@ -330,32 +330,6 @@ class _RemoteControlState extends State<RemoteControl> {
                                                   connection!.isConnected
                                               ? Colors.green
                                               : null),
-/*Additional debugging features*/
-
-                                      // connection != null &&
-                                      //         connection!.isConnected
-                                      //     ? Padding(
-                                      //         padding: const EdgeInsets.only(
-                                      //             top: 20),
-                                      //         child: Text(
-                                      //           _relSpeed,
-                                      //           textAlign: TextAlign.end,
-                                      //           style: const TextStyle(
-                                      //               color: Colors.black),
-                                      //         ))
-                                      //     : const Text(''),
-                                      // connection != null &&
-                                      //         connection!.isConnected
-                                      //     ? Padding(
-                                      //         padding: const EdgeInsets.only(
-                                      //             top: 20),
-                                      //         child: Text(
-                                      //           _aSpeed,
-                                      //           textAlign: TextAlign.end,
-                                      //           style: const TextStyle(
-                                      //               color: Colors.black),
-                                      //         ))
-                                      //     : const Text(''),
                                     ],
                                   ),
                                   body: SizedBox(
@@ -379,6 +353,7 @@ class _RemoteControlState extends State<RemoteControl> {
 
                                         double radians = (180 * (theta / pi));
                                         String text = "MOONS+JSR${s}A$radians;";
+
                                         command(text);
                                       });
                                     }),

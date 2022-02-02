@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:test/forward_reverse_button.dart';
-import 'package:test/main.dart';
+
+import 'forward_reverse_button.dart';
 
 class SpeedController extends StatelessWidget {
   const SpeedController({Key? key}) : super(key: key);

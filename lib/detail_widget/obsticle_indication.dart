@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:test/speed_controller_buttons.dart';
 
 class Obstacle extends StatefulWidget {
   const Obstacle({Key? key}) : super(key: key);
