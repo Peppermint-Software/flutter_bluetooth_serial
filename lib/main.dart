@@ -14,7 +14,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:sliding_switch/sliding_switch.dart';
 
-import 'detail_widget/obsticle_indication.dart';
+import 'detail_widget/obstacle_indication.dart';
 
 void main() => runApp(const PeppermintRemote());
 
