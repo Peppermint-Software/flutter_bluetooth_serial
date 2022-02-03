@@ -16,20 +16,20 @@ class ForwardReverseButton extends StatefulWidget {
 class ForwardReverseButtonState extends State<ForwardReverseButton> {
   @override
   Widget build(BuildContext context) {
-    bool _value = false;
+    bool _btnState = false;
     return Column(children: [
       RotatedBox(
         quarterTurns: 1,
         child: SlidingSwitch(
-          value: _value,
+          value: _btnState,
           width: 180,
           onChanged: (value) => setState(() {
             String c1 = "MOONS+F;";
             String c2 = "MOONS+R;";
-            _value = value;
+            _btnState = value;
             HapticFeedback.heavyImpact();
 
-            _value
+            _btnState
                 ? {command(c2), command(c2), command(c2)}
                 : {command(c1), command(c1), command(c1)};
           }),

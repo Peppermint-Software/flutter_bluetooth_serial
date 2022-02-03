@@ -128,7 +128,7 @@ class _RemoteControlState extends State<RemoteControl> {
     });
   }
 
-  bool _value = false;
+  bool _btnState = false;
 
   @override
   Widget build(BuildContext context) {
@@ -202,7 +202,7 @@ class _RemoteControlState extends State<RemoteControl> {
                           alignment: Alignment.bottomCenter,
                           padding: const EdgeInsets.all(5),
                           child: SlidingSwitch(
-                            value: _value,
+                            value: _btnState,
                             width: 150,
                             onChanged: (value) => setState(() {
                               String _startDrive = "MOONS+ON;";
@@ -210,16 +210,16 @@ class _RemoteControlState extends State<RemoteControl> {
                               String _stopDrive = "MOONS+OFF;";
                               String _disableMotor = "MOONS+MD;";
 
-                              _value = value;
+                              _btnState = value;
                               if (value = true) {
                                 HapticFeedback.heavyImpact();
-                                const _powerOncmd = Duration(milliseconds: 333);
+                                const _powerOnCmd = Duration(milliseconds: 333);
 
-                                Timer.periodic(_powerOncmd,
+                                Timer.periodic(_powerOnCmd,
                                     (Timer t) => command(_startDrive));
 
-                                const _driveOncmd = Duration(milliseconds: 100);
-                                Timer.periodic(_driveOncmd,
+                                const _driveOnCmd = Duration(milliseconds: 100);
+                                Timer.periodic(_driveOnCmd,
                                     (Timer t) => command(_enableMotor));
                               } else {
                                 _disconnect;
@@ -228,9 +228,9 @@ class _RemoteControlState extends State<RemoteControl> {
                                     Duration(milliseconds: 333);
                                 Timer.periodic(_powerOffCmd,
                                     (Timer t) => command(_stopDrive));
-                                const _driveOffcmd =
+                                const _driveOffCmd =
                                     Duration(milliseconds: 100);
-                                Timer.periodic(_driveOffcmd,
+                                Timer.periodic(_driveOffCmd,
                                     (Timer t) => command(_disableMotor));
                               }
                             }),
