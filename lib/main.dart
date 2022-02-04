@@ -335,7 +335,9 @@ class _RemoteControlState extends State<RemoteControl> {
                                   body: SizedBox(
                                     height: 300,
                                     width: 240,
-                                    child: Joystick(listener: (details) {
+                                    child: Joystick(onStickDragEnd: () {
+                                      command("MOONS+JSR0A0;");
+                                    }, listener: (details) {
                                       setState(() {
                                         double _x = 10;
                                         double _y = 10;
@@ -345,8 +347,9 @@ class _RemoteControlState extends State<RemoteControl> {
                                         _x = step * details.x;
                                         _y = step * details.y;
 
-                                        double r = sqrt(pow(_x, 2).toInt() +
-                                            pow(_y, 2).toInt());
+                                        double r = sqrt(
+                                            pow(details.x * 10, 2).toInt() +
+                                                pow(details.y * 10, 2).toInt());
 
                                         var s = r.toStringAsFixed(0);
                                         double theta = atan(_y / _x);
