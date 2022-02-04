@@ -221,7 +221,8 @@ class _RemoteControlState extends State<RemoteControl> {
                                 const _driveOnCmd = Duration(milliseconds: 100);
                                 Timer.periodic(_driveOnCmd,
                                     (Timer t) => command(_enableMotor));
-                              } else {
+                              }
+                              if (value = false) {
                                 _disconnect;
                                 HapticFeedback.heavyImpact();
                                 const _powerOffCmd =
@@ -339,24 +340,26 @@ class _RemoteControlState extends State<RemoteControl> {
                                       command("MOONS+JSR0A0;");
                                     }, listener: (details) {
                                       setState(() {
-                                        double _x = 10;
-                                        double _y = 10;
+                                        double _x = 1;
+                                        double _y = 1;
                                         double step = 3;
                                         HapticFeedback.heavyImpact();
 
                                         _x = step * details.x;
                                         _y = step * details.y;
 
-                                        double r = sqrt(
-                                            pow(details.x * 10, 2).toInt() +
-                                                pow(details.y * 10, 2).toInt());
+                                        double r = sqrt(pow(details.x * 10, 2)
+                                                    .toInt() +
+                                                pow(details.y * 10, 2).toInt())
+                                            .abs();
 
                                         var s = r.toStringAsFixed(0);
                                         double theta = atan(_y / _x);
 
-                                        double radians = (180 * (theta / pi));
+                                        double radians =
+                                            (180 * (theta / pi)).abs();
                                         String text = "MOONS+JSR${s}A$radians;";
-
+                                        print(text);
                                         command(text);
                                       });
                                     }),

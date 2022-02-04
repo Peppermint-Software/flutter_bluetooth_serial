@@ -17,6 +17,7 @@ class ForwardReverseButtonState extends State<ForwardReverseButton> {
   @override
   Widget build(BuildContext context) {
     bool _btnState = false;
+
     return Column(children: [
       RotatedBox(
         quarterTurns: 1,
@@ -27,7 +28,7 @@ class ForwardReverseButtonState extends State<ForwardReverseButton> {
             String _frwCmd = "MOONS+F;";
             String _revCmd = "MOONS+R;";
             _btnState = value;
-            HapticFeedback.heavyImpact();
+            HapticFeedback.vibrate();
 
             _btnState
                 ? {command(_revCmd), command(_revCmd), command(_revCmd)}
