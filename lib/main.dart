@@ -223,7 +223,6 @@ class _RemoteControlState extends State<RemoteControl> {
                                     (Timer t) => command(_enableMotor));
                               }
                               if (value = false) {
-                                _disconnect;
                                 HapticFeedback.heavyImpact();
                                 const _powerOffCmd =
                                     Duration(milliseconds: 333);
@@ -262,6 +261,7 @@ class _RemoteControlState extends State<RemoteControl> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
+                                alignment: Alignment.center,
                                 height: 350,
                                 width: 240,
                                 child: Scaffold(
@@ -334,36 +334,45 @@ class _RemoteControlState extends State<RemoteControl> {
                                     ],
                                   ),
                                   body: SizedBox(
-                                    height: 300,
-                                    width: 240,
-                                    child: Joystick(onStickDragEnd: () {
-                                      command("MOONS+JSR0A0;");
-                                    }, listener: (details) {
-                                      setState(() {
-                                        double _x = 1;
-                                        double _y = 1;
-                                        double step = 3;
-                                        HapticFeedback.heavyImpact();
+                                      height: 300,
+                                      width: 240,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 35, horizontal: 15),
+                                        child: Joystick(onStickDragEnd: () {
+                                          command("MOONS+JSR0A180;");
+                                          command("MOONS+JSR0A180;");
+                                          print("safety");
+                                        }, listener: (details) {
+                                          setState(() {
+                                            double _x = 0;
+                                            double _y = 0;
+                                            double step = 100;
+                                            HapticFeedback.heavyImpact();
 
-                                        _x = step * details.x;
-                                        _y = step * details.y;
+                                            _x = _x + step * details.x;
+                                            _y = _y + step * details.y;
 
-                                        double r = sqrt(pow(details.x * 10, 2)
-                                                    .toInt() +
-                                                pow(details.y * 10, 2).toInt())
-                                            .abs();
+                                            double r = sqrt(pow(_x, 2).toInt() +
+                                                    pow(_y, 2).toInt())
+                                                .abs();
+                                            double degree = atan2(_y, _x);
+                                            var s = r.toStringAsFixed(0);
 
-                                        var s = r.toStringAsFixed(0);
-                                        double theta = atan(_y / _x);
+                                            print("degree ==>" +
+                                                degree.toString());
+                                            double radians =
+                                                ((degree * pi) / 180);
+                                            print("radian ==>" +
+                                                radians.toString());
 
-                                        double radians =
-                                            (180 * (theta / pi)).abs();
-                                        String text = "MOONS+JSR${s}A$radians;";
-                                        print(text);
-                                        command(text);
-                                      });
-                                    }),
-                                  ),
+                                            String text =
+                                                "MOONS+JSR${s}A$radians;";
+                                            print(text);
+                                            command(text);
+                                          });
+                                        }),
+                                      )),
                                 ))
                           ])
                     ])
