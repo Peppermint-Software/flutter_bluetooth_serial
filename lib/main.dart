@@ -350,9 +350,10 @@ class _RemoteControlState extends State<RemoteControl> {
                                             double _y = 0;
                                             double step = 5;
                                             HapticFeedback.heavyImpact();
-
-                                            _x = 100 * details.x;
-                                            _y = 100 * details.y;
+                                            int _resCheck = Model().data.value;
+                                            print(_resCheck);
+                                            _x = _resCheck * details.x;
+                                            _y = _resCheck * details.y;
 
                                             double r = sqrt(pow(_x, 2).toInt() +
                                                     pow(_y, 2).toInt())
@@ -371,7 +372,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                                     : (radians < -90 &&
                                                             radians >= -180)
                                                         ? radians = 450 +
-                                                            radians /*needs changing here*/
+                                                            radians /*needs changing here*/ /*DONE*/
                                                         : radians /*the rest quadrants condition*/;
                                             int number = radians.toInt();
                                             String text =

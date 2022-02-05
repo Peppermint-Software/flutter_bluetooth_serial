@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'forward_reverse_button.dart';
@@ -107,6 +110,7 @@ class SpeedControllerWidget extends StatefulWidget {
 class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
   Model model = Model();
   int count = 0;
+  Timer? _timer;
 
   @override
   Widget build(BuildContext context) {
@@ -123,23 +127,45 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(10),
-                      primary: Colors.white,
-                      onPrimary: Colors.green[50],
-                    ),
-                    child: const Icon(
-                      Icons.add_outlined,
-                      size: 40,
-                      color: Colors.grey,
-                    ),
-                    onPressed: () {
-                      Actions.invoke(context, ModifyIntent(++count));
-                      model.data.value < 0
-                          ? null
-                          : command("MOONS+SL${model.data.value};");
+                  GestureDetector(
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(10),
+                          primary: Colors.white,
+                          onPrimary: Colors.green[50],
+                        ),
+                        child: const Icon(
+                          Icons.add_outlined,
+                          size: 40,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {}
+
+                        //   Actions.invoke(context, ModifyIntent(++count));
+                        //   model.data.value < 0
+                        //       ? null
+                        //       : command("MOONS+SL${model.data.value};");
+                        // },
+                        ),
+                    onTap: () {
+                      setState(() {
+                        Actions.invoke(context, ModifyIntent(++count));
+                      });
+                    },
+                    onTapDown: (TapDownDetails details) {
+                      _timer = Timer.periodic(const Duration(milliseconds: 100),
+                          (t) {
+                        setState(() {
+                          Actions.invoke(context, ModifyIntent(++count));
+                        });
+                      });
+                    },
+                    onTapUp: (TapUpDetails details) {
+                      _timer!.cancel();
+                    },
+                    onTapCancel: () {
+                      _timer!.cancel();
                     },
                   ),
                   AnimatedBuilder(
@@ -152,20 +178,41 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                                 style: Theme.of(context).textTheme.headline4));
                       }),
                   const Text('m/s'),
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(10),
-                          primary: Colors.white,
-                          onPrimary: Colors.green[50]),
-                      child: const Icon(Icons.remove_outlined,
-                          size: 40, color: Colors.grey),
-                      onPressed: () {
+                  GestureDetector(
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(10),
+                            primary: Colors.white,
+                            onPrimary: Colors.green[50]),
+                        child: const Icon(Icons.remove_outlined,
+                            size: 40, color: Colors.grey),
+                        onPressed: () {
+                          // Actions.invoke(context, ModifyIntent(--count));
+                          // model.data.value < 0
+                          //     ? null
+                          //     : command("MOONS+SL${model.data.value};");
+                        }),
+                    onTap: () {
+                      setState(() {
                         Actions.invoke(context, ModifyIntent(--count));
-                        model.data.value < 0
-                            ? null
-                            : command("MOONS+SL${model.data.value};");
-                      }),
+                      });
+                    },
+                    onTapDown: (TapDownDetails details) {
+                      _timer = Timer.periodic(const Duration(milliseconds: 100),
+                          (t) {
+                        setState(() {
+                          Actions.invoke(context, ModifyIntent(--count));
+                        });
+                      });
+                    },
+                    onTapUp: (TapUpDetails details) {
+                      _timer!.cancel();
+                    },
+                    onTapCancel: () {
+                      _timer!.cancel();
+                    },
+                  ),
                 ],
               ),
             ],
