@@ -345,26 +345,29 @@ class _RemoteControlState extends State<RemoteControl> {
                                           print("safety");
                                         }, listener: (details) {
                                           setState(() {
+                                            const Offset(0, 270);
                                             double _x = 0;
                                             double _y = 0;
-                                            double step = 100;
+                                            double step = 5;
                                             HapticFeedback.heavyImpact();
 
-                                            _x = _x + step * details.x;
-                                            _y = _y + step * details.y;
+                                            _x = 10 * details.x;
+                                            _y = 10 * details.y;
 
                                             double r = sqrt(pow(_x, 2).toInt() +
                                                     pow(_y, 2).toInt())
                                                 .abs();
-                                            double degree = atan2(_y, _x);
+                                            double degree =
+                                                atan2(details.y, details.x);
                                             var s = r.toStringAsFixed(0);
 
-                                            print("degree ==>" +
-                                                degree.toString());
                                             double radians =
-                                                ((degree * pi) / 180);
-                                            print("radian ==>" +
-                                                radians.toString());
+                                                (180 * (degree / pi));
+                                            if (radians <= 0) {
+                                              radians -= 360;
+                                            } else {
+                                              radians = radians;
+                                            }
 
                                             String text =
                                                 "MOONS+JSR${s}A$radians;";
