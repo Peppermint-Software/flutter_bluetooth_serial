@@ -261,10 +261,10 @@ class _RemoteControlState extends State<RemoteControl> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                                alignment: Alignment.center,
-                                height: 350,
-                                width: 240,
-                                child: Scaffold(
+                              alignment: Alignment.center,
+                              height: 350,
+                              width: 240,
+                              child: Scaffold(
                                   appBar: AppBar(
                                     elevation: 0,
                                     backgroundColor: Colors.transparent,
@@ -344,15 +344,15 @@ class _RemoteControlState extends State<RemoteControl> {
                                           command("MOONS+JSR0A180;");
                                           print("safety");
                                         }, listener: (details) {
+                                          StickDragDetails(0, 12);
                                           setState(() {
-                                            const Offset(0, 270);
                                             double _x = 0;
                                             double _y = 0;
                                             double step = 5;
                                             HapticFeedback.heavyImpact();
 
-                                            _x = 10 * details.x;
-                                            _y = 10 * details.y;
+                                            _x = 100 * details.x;
+                                            _y = 100 * details.y;
 
                                             double r = sqrt(pow(_x, 2).toInt() +
                                                     pow(_y, 2).toInt())
@@ -361,22 +361,27 @@ class _RemoteControlState extends State<RemoteControl> {
                                                 atan2(details.y, details.x);
                                             var s = r.toStringAsFixed(0);
 
-                                            double radians =
-                                                (180 * (degree / pi));
-                                            if (radians <= 0) {
-                                              radians -= 360;
-                                            } else {
-                                              radians = radians;
-                                            }
-
+                                            int radians =
+                                                (180 * (degree / pi)).toInt();
+                                            radians >= 1 && radians <= 180
+                                                ? radians = radians + 90
+                                                : (radians <= -1 &&
+                                                        radians >= -90)
+                                                    ? radians = 90 + radians
+                                                    : (radians < -90 &&
+                                                            radians >= -180)
+                                                        ? radians = 450 +
+                                                            radians /*needs changing here*/
+                                                        : radians /*the rest quadrants condition*/;
+                                            int number = radians.toInt();
                                             String text =
-                                                "MOONS+JSR${s}A$radians;";
+                                                "MOONS+JSR${s}A$number;";
                                             print(text);
                                             command(text);
                                           });
                                         }),
-                                      )),
-                                ))
+                                      ))),
+                            )
                           ])
                     ])
               ],
