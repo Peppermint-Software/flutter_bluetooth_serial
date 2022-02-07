@@ -169,7 +169,6 @@ class _RemoteControlState extends State<RemoteControl> {
 
                           await getPairedDevices();
                           _isButtonUnavailable = false;
-
                           if (_connected) {
                             _disconnect();
                           }
@@ -260,19 +259,14 @@ class _RemoteControlState extends State<RemoteControl> {
                                   Timer.periodic(_powerOnCmd,
                                       (Timer t) => command(_startDrive));
 
-                                  const _driveOnCmd =
-                                      Duration(milliseconds: 100);
-                                  Timer.periodic(_driveOnCmd,
-                                      (Timer t) => command(_enableMotor));
-                                } else {
-                                  null;
+                                  command(_enableMotor);
+                                  print("check 1");
                                 }
+
                                 if (value == false) {
                                   HapticFeedback.heavyImpact();
-                                  const _driveOffCmd =
-                                      Duration(milliseconds: 100);
-                                  Timer.periodic(_driveOffCmd,
-                                      (Timer t) => command(_disableMotor));
+
+                                  command(_disableMotor);
                                   const _powerOffCmd =
                                       Duration(milliseconds: 333);
                                   Timer.periodic(_powerOffCmd,
@@ -280,8 +274,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                   setState(() {
                                     deviceState == 0;
                                   });
-                                } else {
-                                  null;
+                                  print("check 2");
                                 }
                               }
                             }),
@@ -395,13 +388,15 @@ class _RemoteControlState extends State<RemoteControl> {
                                           command("MOONS+JSR0A180;");
                                           print("safety");
                                         }, listener: (details) {
-                                          if (deviceState == 1) {
+                                          if (connection != null &&
+                                              connection!.isConnected) {
+                                            HapticFeedback.heavyImpact();
+
                                             StickDragDetails(0, 12);
                                             setState(() {
                                               double _x = 0;
                                               double _y = 0;
                                               double step = 5;
-                                              HapticFeedback.heavyImpact();
 
                                               _x = 100 * details.x;
                                               _y = 100 * details.y;
