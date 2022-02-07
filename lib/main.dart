@@ -132,6 +132,7 @@ class _RemoteControlState extends State<RemoteControl> {
 
   @override
   Widget build(BuildContext context) {
+    bool _btnState1 = false;
     return Container(
         child: Scaffold(
             key: _scaffoldKey,
@@ -191,7 +192,36 @@ class _RemoteControlState extends State<RemoteControl> {
                             vertical: 2,
                             horizontal: 15,
                           ),
-                          child: ForwardReverseButton(context),
+                          child: RotatedBox(
+                            quarterTurns: 1,
+                            child: SlidingSwitch(
+                              value: _btnState1,
+                              width: 180,
+                              onChanged: (value) => setState(() {
+                                String _frwCmd = "MOONS+F;";
+                                String _revCmd = "MOONS+R;";
+                                _btnState = value;
+                                HapticFeedback.vibrate();
+
+                                value == true
+                                    ? command(_revCmd)
+                                    : command(_frwCmd);
+                              }),
+                              height: 50,
+                              animationDuration:
+                                  const Duration(milliseconds: 10),
+                              onTap: () {},
+                              onDoubleTap: () {},
+                              onSwipe: () {},
+                              textOff: '<',
+                              textOn: '>',
+                              colorOn: Colors.lightGreenAccent.shade700,
+                              colorOff: Colors.deepOrangeAccent.shade700,
+                              background: Colors.grey.shade300,
+                              buttonColor: Colors.white,
+                              inactiveColor: Colors.grey,
+                            ),
+                          ),
                         )
                       ],
                     ),
@@ -352,8 +382,8 @@ class _RemoteControlState extends State<RemoteControl> {
                                             HapticFeedback.heavyImpact();
                                             int _resCheck = Model().data.value;
                                             print(_resCheck);
-                                            _x = _resCheck * details.x;
-                                            _y = _resCheck * details.y;
+                                            _x = 100 * details.x;
+                                            _y = 100 * details.y;
 
                                             double r = sqrt(pow(_x, 2).toInt() +
                                                     pow(_y, 2).toInt())

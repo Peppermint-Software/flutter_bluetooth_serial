@@ -7,7 +7,7 @@ import 'package:sliding_switch/sliding_switch.dart';
 import 'package:flutter/services.dart';
 
 class ForwardReverseButton extends StatefulWidget {
-  const ForwardReverseButton(buildContext, {Key? key}) : super(key: key);
+  const ForwardReverseButton({Key? key}) : super(key: key);
 
   @override
   ForwardReverseButtonState createState() => ForwardReverseButtonState();
@@ -30,9 +30,7 @@ class ForwardReverseButtonState extends State<ForwardReverseButton> {
             _btnState = value;
             HapticFeedback.vibrate();
 
-            _btnState
-                ? {command(_revCmd), command(_revCmd), command(_revCmd)}
-                : {command(_frwCmd), command(_frwCmd), command(_frwCmd)};
+            value == true ? command(_revCmd) : command(_frwCmd);
           }),
           height: 50,
           animationDuration: const Duration(milliseconds: 10),
