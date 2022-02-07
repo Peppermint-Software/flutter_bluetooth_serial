@@ -50,11 +50,11 @@ class _RemoteControlState extends State<RemoteControl> {
   bool isDisconnecting = false;
 
   BluetoothConnection? connection;
+
   List<BluetoothDevice> _devicesList = [];
   BluetoothDevice? _device;
   bool _connected = false;
   bool _isButtonUnavailable = true;
-
   @override
   void initState() {
     super.initState();
@@ -93,7 +93,7 @@ class _RemoteControlState extends State<RemoteControl> {
     List<int> x = List<int>.from(ascii.encode(data1));
 
     String result = const AsciiDecoder().convert(x);
-    if (connection != null) {
+    if (connection != null && connection!.isConnected) {
       connection!.output.add(ascii.encoder.convert(result));
       await connection!.output.allSent;
     }
@@ -129,10 +129,12 @@ class _RemoteControlState extends State<RemoteControl> {
   }
 
   bool _btnState = false;
+  var deviceState = 0;
 
   @override
   Widget build(BuildContext context) {
     bool _btnState1 = false;
+    var model = Model();
     return Container(
         child: Scaffold(
             key: _scaffoldKey,
@@ -183,7 +185,7 @@ class _RemoteControlState extends State<RemoteControl> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         const Padding(
-                            padding: EdgeInsets.all(15),
+                            padding: EdgeInsets.all(11),
                             child: SpeedControllerWidget()),
                         const Padding(
                             padding: EdgeInsets.all(15), child: Obstacle()),
@@ -198,14 +200,17 @@ class _RemoteControlState extends State<RemoteControl> {
                               value: _btnState1,
                               width: 180,
                               onChanged: (value) => setState(() {
-                                String _frwCmd = "MOONS+F;";
-                                String _revCmd = "MOONS+R;";
-                                _btnState = value;
-                                HapticFeedback.vibrate();
+                                if (connection != null &&
+                                    connection!.isConnected) {
+                                  String _frwCmd = "MOONS+F;";
+                                  String _revCmd = "MOONS+R;";
+                                  _btnState = value;
+                                  HapticFeedback.vibrate();
 
-                                value == true
-                                    ? command(_revCmd)
-                                    : command(_frwCmd);
+                                  value == true
+                                      ? command(_revCmd)
+                                      : command(_frwCmd);
+                                }
                               }),
                               height: 50,
                               animationDuration:
@@ -230,38 +235,54 @@ class _RemoteControlState extends State<RemoteControl> {
                             vertical: 0, horizontal: 9),
                         child: Container(
                           alignment: Alignment.bottomCenter,
-                          padding: const EdgeInsets.all(5),
+                          padding: const EdgeInsets.all(2),
                           child: SlidingSwitch(
                             value: _btnState,
                             width: 150,
                             onChanged: (value) => setState(() {
-                              String _startDrive = "MOONS+ON;";
-                              String _enableMotor = "MOONS+ME;";
-                              String _stopDrive = "MOONS+OFF;";
-                              String _disableMotor = "MOONS+MD;";
+                              if (connection != null &&
+                                  connection!.isConnected) {
+                                String _startDrive = "MOONS+ON;";
+                                String _enableMotor = "MOONS+ME;";
+                                String _stopDrive = "MOONS+OFF;";
+                                String _disableMotor = "MOONS+MD;";
 
-                              _btnState = value;
-                              if (value = true) {
-                                HapticFeedback.heavyImpact();
-                                const _powerOnCmd = Duration(milliseconds: 333);
+                                _btnState = value;
+                                if (value == true) {
+                                  setState(() {
+                                    deviceState == 1;
+                                  });
 
-                                Timer.periodic(_powerOnCmd,
-                                    (Timer t) => command(_startDrive));
+                                  HapticFeedback.heavyImpact();
+                                  const _powerOnCmd =
+                                      Duration(milliseconds: 333);
+                                  command("MOONS+F;");
+                                  Timer.periodic(_powerOnCmd,
+                                      (Timer t) => command(_startDrive));
 
-                                const _driveOnCmd = Duration(milliseconds: 100);
-                                Timer.periodic(_driveOnCmd,
-                                    (Timer t) => command(_enableMotor));
-                              }
-                              if (value = false) {
-                                HapticFeedback.heavyImpact();
-                                const _powerOffCmd =
-                                    Duration(milliseconds: 333);
-                                Timer.periodic(_powerOffCmd,
-                                    (Timer t) => command(_stopDrive));
-                                const _driveOffCmd =
-                                    Duration(milliseconds: 100);
-                                Timer.periodic(_driveOffCmd,
-                                    (Timer t) => command(_disableMotor));
+                                  const _driveOnCmd =
+                                      Duration(milliseconds: 100);
+                                  Timer.periodic(_driveOnCmd,
+                                      (Timer t) => command(_enableMotor));
+                                } else {
+                                  null;
+                                }
+                                if (value == false) {
+                                  HapticFeedback.heavyImpact();
+                                  const _driveOffCmd =
+                                      Duration(milliseconds: 100);
+                                  Timer.periodic(_driveOffCmd,
+                                      (Timer t) => command(_disableMotor));
+                                  const _powerOffCmd =
+                                      Duration(milliseconds: 333);
+                                  Timer.periodic(_powerOffCmd,
+                                      (Timer t) => command(_stopDrive));
+                                  setState(() {
+                                    deviceState == 0;
+                                  });
+                                } else {
+                                  null;
+                                }
                               }
                             }),
                             height: 40,
@@ -374,42 +395,48 @@ class _RemoteControlState extends State<RemoteControl> {
                                           command("MOONS+JSR0A180;");
                                           print("safety");
                                         }, listener: (details) {
-                                          StickDragDetails(0, 12);
-                                          setState(() {
-                                            double _x = 0;
-                                            double _y = 0;
-                                            double step = 5;
-                                            HapticFeedback.heavyImpact();
-                                            int _resCheck = Model().data.value;
-                                            print(_resCheck);
-                                            _x = 100 * details.x;
-                                            _y = 100 * details.y;
+                                          if (deviceState == 1) {
+                                            StickDragDetails(0, 12);
+                                            setState(() {
+                                              double _x = 0;
+                                              double _y = 0;
+                                              double step = 5;
+                                              HapticFeedback.heavyImpact();
 
-                                            double r = sqrt(pow(_x, 2).toInt() +
-                                                    pow(_y, 2).toInt())
-                                                .abs();
-                                            double degree =
-                                                atan2(details.y, details.x);
-                                            var s = r.toStringAsFixed(0);
+                                              _x = 100 * details.x;
+                                              _y = 100 * details.y;
 
-                                            int radians =
-                                                (180 * (degree / pi)).toInt();
-                                            radians >= 1 && radians <= 180
-                                                ? radians = radians + 90
-                                                : (radians <= -1 &&
-                                                        radians >= -90)
-                                                    ? radians = 90 + radians
-                                                    : (radians < -90 &&
-                                                            radians >= -180)
-                                                        ? radians = 450 +
-                                                            radians /*needs changing here*/ /*DONE*/
-                                                        : radians /*the rest quadrants condition*/;
-                                            int number = radians.toInt();
-                                            String text =
-                                                "MOONS+JSR${s}A$number;";
-                                            print(text);
-                                            command(text);
-                                          });
+                                              double r = sqrt(
+                                                      pow(_x, 2).toInt() +
+                                                          pow(_y, 2).toInt())
+                                                  .abs();
+                                              double degree =
+                                                  atan2(details.y, details.x);
+                                              var s = r.toStringAsFixed(0);
+
+                                              int radians =
+                                                  (180 * (degree / pi)).toInt();
+                                              radians >= 1 && radians <= 180
+                                                  ? radians = radians + 90
+                                                  : (radians <= -1 &&
+                                                          radians >= -90)
+                                                      ? radians = 90 + radians
+                                                      : (radians < -90 &&
+                                                              radians >= -180)
+                                                          ? radians = 450 +
+                                                              radians /*needs changing here*/ /*DONE*/
+                                                          : radians /*the rest quadrants condition*/;
+                                              int number = radians.toInt();
+                                              String text =
+                                                  "MOONS+JSR${s}A$number;";
+
+                                              command(text);
+                                              print(text);
+                                            });
+                                          } else {
+                                            command("MOONS+JSR0A180;");
+                                            print("safety 2");
+                                          }
                                         }),
                                       ))),
                             )

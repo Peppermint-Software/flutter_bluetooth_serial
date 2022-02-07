@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ class SpeedController extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SpeedControllerWidget();
+    return SpeedControllerWidget();
   }
 }
 
@@ -25,9 +26,10 @@ class Model {
     return data.value;
   }
 
-  void setValue(int newValue) {
+  setValue(int newValue) {
     isDirty.value = data.value != newValue;
     data.value = newValue;
+    return newValue;
   }
 }
 
@@ -81,9 +83,9 @@ class _SaveButtonState extends State<SaveButton> {
         return TextButton.icon(
           icon: const Icon(
             Icons.lock,
-            size: 40,
+            size: 30,
           ),
-          label: Text('$savedValue'),
+          label: /*Text('$savedValue')*/ Text(''),
           style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(
               widget.valueNotifier.value ? Colors.red : Colors.green,
@@ -102,7 +104,6 @@ class _SaveButtonState extends State<SaveButton> {
 
 class SpeedControllerWidget extends StatefulWidget {
   const SpeedControllerWidget({Key? key}) : super(key: key);
-
   @override
   State<SpeedControllerWidget> createState() => _SpeedControllerWidgetState();
 }
@@ -131,13 +132,13 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(5),
                           primary: Colors.white,
                           onPrimary: Colors.green[50],
                         ),
                         child: const Icon(
                           Icons.add_outlined,
-                          size: 40,
+                          size: 45,
                           color: Colors.grey,
                         ),
                         onPressed: () {}
@@ -172,21 +173,21 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                       animation: model.data,
                       builder: (BuildContext context, Widget? child) {
                         return Padding(
-                            padding: const EdgeInsets.all(2),
+                            padding: const EdgeInsets.all(3),
                             child: Text(
                                 '${model.data.value < 0 ? model.data.value = 0 : model.data.value}',
-                                style: Theme.of(context).textTheme.headline4));
+                                style: Theme.of(context).textTheme.headline6));
                       }),
-                  const Text('m/s'),
+                  SaveButton(model.isDirty),
                   GestureDetector(
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             shape: const CircleBorder(),
-                            padding: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(2),
                             primary: Colors.white,
                             onPrimary: Colors.green[50]),
                         child: const Icon(Icons.remove_outlined,
-                            size: 40, color: Colors.grey),
+                            size: 50, color: Colors.grey),
                         onPressed: () {
                           // Actions.invoke(context, ModifyIntent(--count));
                           // model.data.value < 0
