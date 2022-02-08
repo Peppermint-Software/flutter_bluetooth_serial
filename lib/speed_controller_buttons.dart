@@ -138,7 +138,7 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                         ),
                         child: const Icon(
                           Icons.add_outlined,
-                          size: 45,
+                          size: 42,
                           color: Colors.grey,
                         ),
                         onPressed: () {}
@@ -187,7 +187,7 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                             primary: Colors.white,
                             onPrimary: Colors.green[50]),
                         child: const Icon(Icons.remove_outlined,
-                            size: 50, color: Colors.grey),
+                            size: 45, color: Colors.grey),
                         onPressed: () {
                           // Actions.invoke(context, ModifyIntent(--count));
                           // model.data.value < 0

@@ -10,26 +10,14 @@ class Obstacle extends StatefulWidget {
 class _ObstacleState extends State<Obstacle> {
   @override
   Widget build(BuildContext context) {
-    var model;
     return Column(
       children: [
         Ink(
-          decoration: const ShapeDecoration(
-            color: Colors.yellow,
-            shape: CircleBorder(),
-          ),
-          child: IconButton(
-            icon: const Icon(
-              Icons.circle,
-              color: Colors.deepOrange,
+            decoration: const ShapeDecoration(
+              color: Colors.lightGreen,
+              shape: CircleBorder(),
             ),
-            iconSize: 80,
-            color: Colors.white,
-            onPressed: () {
-              setState(() {});
-            },
-          ),
-        ),
+            child: Text("hello"))
       ],
     );
   }

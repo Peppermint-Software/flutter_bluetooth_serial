@@ -25,6 +25,7 @@ class PeppermintRemote extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     return const MediaQuery(
         data: MediaQueryData(),
         child: MaterialApp(
@@ -187,7 +188,7 @@ class _RemoteControlState extends State<RemoteControl> {
                             padding: EdgeInsets.all(11),
                             child: SpeedControllerWidget()),
                         const Padding(
-                            padding: EdgeInsets.all(15), child: Obstacle()),
+                            padding: EdgeInsets.all(25), child: Obstacle()),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             vertical: 2,
@@ -198,7 +199,7 @@ class _RemoteControlState extends State<RemoteControl> {
                             child: SlidingSwitch(
                               value: _btnState1,
                               width: 180,
-                              onChanged: (value) => setState(() {
+                              onChanged: (bool value) => setState(() {
                                 if (connection != null &&
                                     connection!.isConnected) {
                                   String _frwCmd = "MOONS+F;";
@@ -213,7 +214,7 @@ class _RemoteControlState extends State<RemoteControl> {
                               }),
                               height: 50,
                               animationDuration:
-                                  const Duration(milliseconds: 10),
+                                  const Duration(milliseconds: 5),
                               onTap: () {},
                               onDoubleTap: () {},
                               onSwipe: () {},
@@ -229,12 +230,14 @@ class _RemoteControlState extends State<RemoteControl> {
                         )
                       ],
                     ),
+                    const Padding(
+                        padding: EdgeInsets.only(bottom: 2, top: 0),
+                        child: Text("Traction Power")),
                     Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 0, horizontal: 9),
+                        padding: const EdgeInsets.all(2),
                         child: Container(
                           alignment: Alignment.bottomCenter,
-                          padding: const EdgeInsets.all(2),
+                          padding: const EdgeInsets.only(bottom: 2),
                           child: SlidingSwitch(
                             value: _btnState,
                             width: 150,
@@ -247,6 +250,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                 String _disableMotor = "MOONS+MD;";
 
                                 _btnState = value;
+
                                 if (value == true) {
                                   setState(() {
                                     deviceState == 1;
@@ -260,7 +264,6 @@ class _RemoteControlState extends State<RemoteControl> {
                                       (Timer t) => command(_startDrive));
 
                                   command(_enableMotor);
-                                  print("check 1");
                                 }
 
                                 if (value == false) {
@@ -279,7 +282,7 @@ class _RemoteControlState extends State<RemoteControl> {
                               }
                             }),
                             height: 40,
-                            animationDuration: const Duration(milliseconds: 40),
+                            animationDuration: const Duration(milliseconds: 10),
                             onTap: () {},
                             onDoubleTap: () {},
                             onSwipe: () {},
@@ -386,7 +389,6 @@ class _RemoteControlState extends State<RemoteControl> {
                                         child: Joystick(onStickDragEnd: () {
                                           command("MOONS+JSR0A180;");
                                           command("MOONS+JSR0A180;");
-                                          print("safety");
                                         }, listener: (details) {
                                           if (connection != null &&
                                               connection!.isConnected) {
@@ -426,11 +428,9 @@ class _RemoteControlState extends State<RemoteControl> {
                                                   "MOONS+JSR${s}A$number;";
 
                                               command(text);
-                                              print(text);
                                             });
                                           } else {
                                             command("MOONS+JSR0A180;");
-                                            print("safety 2");
                                           }
                                         }),
                                       ))),
@@ -584,7 +584,6 @@ class _RemoteControlState extends State<RemoteControl> {
             List<int> aSpeed = List<int>.from([
               data[i + 1],
               data[i + 2],
-              data[i + 3],
             ]);
             String result = const AsciiDecoder().convert(aSpeed);
             setState(() {
