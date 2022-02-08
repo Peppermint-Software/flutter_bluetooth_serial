@@ -146,40 +146,72 @@ class _RemoteControlState extends State<RemoteControl> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    DropdownButton(
-                        items: _getDeviceItems(),
-                        onChanged: (value) =>
-                            setState(() => _device = value as BluetoothDevice?),
-                        value: _devicesList.isNotEmpty ? _device : null,
-                        onTap: _isButtonUnavailable
-                            ? null
-                            : _connected
-                                ? _disconnect
-                                : _connect),
-                    Switch(
-                      value: _bluetoothState.isEnabled,
-                      onChanged: (bool value) {
-                        future() async {
-                          if (value) {
-                            await FlutterBluetoothSerial.instance
-                                .requestEnable();
-                          } else {
-                            await FlutterBluetoothSerial.instance
-                                .requestDisable();
-                          }
+                    SingleChildScrollView(
+                        child: DropdownButton(
+                            isExpanded: false,
+                            items: _getDeviceItems(),
+                            onChanged: (value) => setState(
+                                () => _device = value as BluetoothDevice?),
+                            value: _devicesList.isNotEmpty ? _device : null,
+                            onTap: _isButtonUnavailable
+                                ? null
+                                : _connected
+                                    ? _disconnect
+                                    : _connect)),
+                    Padding(
+                        padding: EdgeInsets.all(0),
+                        child: Switch(
+                          value: _bluetoothState.isEnabled,
+                          onChanged: (bool value) {
+                            future() async {
+                              if (value) {
+                                await FlutterBluetoothSerial.instance
+                                    .requestEnable();
+                              } else {
+                                await FlutterBluetoothSerial.instance
+                                    .requestDisable();
+                                connection!.dispose();
+                              }
 
-                          await getPairedDevices();
-                          _isButtonUnavailable = false;
-                          if (_connected) {
-                            _disconnect();
-                          }
-                        }
+                              await getPairedDevices();
+                              _isButtonUnavailable = false;
+                              if (_connected) {
+                                _disconnect();
+                              }
+                            }
 
-                        future().then((_) {
-                          setState(() {});
-                        });
-                      },
-                    ),
+                            future().then((_) {
+                              setState(() {});
+                            });
+                          },
+                        )),
+
+                    // IconButton(
+                    //     highlightColor: Colors.greenAccent,
+                    //     onPressed: () async {
+                    //       !_bluetoothState.isEnabled
+                    //           ? {
+                    //               if (_bluetoothState.isEnabled == true)
+                    //                 {
+                    //                   await FlutterBluetoothSerial.instance
+                    //                       .requestEnable()
+                    //                 }
+                    //               else
+                    //                 {
+                    //                   await FlutterBluetoothSerial.instance
+                    //                       .requestDisable(),
+                    //                   connection!.dispose()
+                    //                 },
+                    //               await getPairedDevices(),
+                    //               _isButtonUnavailable = false,
+                    //               if (_connected)
+                    //                 {
+                    //                   _disconnect(),
+                    //                 }
+                    //             }
+                    //           : connection!.dispose();
+                    //     },
+                    //     icon: const Icon(Icons.bluetooth)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,8 +219,24 @@ class _RemoteControlState extends State<RemoteControl> {
                         const Padding(
                             padding: EdgeInsets.all(11),
                             child: SpeedControllerWidget()),
-                        const Padding(
-                            padding: EdgeInsets.all(25), child: Obstacle()),
+                        Padding(
+                            padding: const EdgeInsets.all(25),
+                            child: Column(
+                              children: [
+                                Ink(
+                                    decoration: const ShapeDecoration(
+                                      color: Colors.white38,
+                                      shape: CircleBorder(),
+                                    ),
+                                    child: Image(
+                                        color: connection != null &&
+                                                connection!.isConnected
+                                            ? Colors.teal.shade300
+                                            : Colors.grey.shade400,
+                                        image: const AssetImage(
+                                            "asset/peppermint_leaf_only.png"))),
+                              ],
+                            )),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             vertical: 2,
@@ -445,12 +493,19 @@ class _RemoteControlState extends State<RemoteControl> {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
     if (_devicesList.isEmpty) {
       items.add(const DropdownMenuItem(
-        child: Text('Choose Robot'),
+        alignment: Alignment.center,
+        child: Text("Turn on Switch"),
       ));
     } else {
+      items.add(const DropdownMenuItem(
+          alignment: Alignment.center, child: Text("--Choose Robot--")));
       for (var device in _devicesList) {
+        var x = device.name!.contains("SD0") ? device.name.toString() : null;
         items.add(DropdownMenuItem(
-          child: Text(device.name.toString()),
+          alignment: Alignment.center,
+          child: x != null && device.name!.contains("SD0")
+              ? Text(device.name.toString())
+              : const Text("--Invalid--"),
           value: device,
         ));
       }
