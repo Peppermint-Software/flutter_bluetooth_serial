@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:async';
 import 'dart:typed_data';
-import './forward_reverse_button.dart';
+import 'dart:ui';
 import './speed_controller_buttons.dart';
 
 import 'package:flutter/foundation.dart';
@@ -13,8 +13,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:sliding_switch/sliding_switch.dart';
-
-import 'detail_widget/obstacle_indication.dart';
 
 void main() => runApp(const PeppermintRemote());
 
@@ -52,6 +50,9 @@ class _RemoteControlState extends State<RemoteControl> {
 
   BluetoothConnection? connection;
 
+  late SpeedControllerWidget speedControllerWidget;
+  late Widget currentPage;
+
   List<BluetoothDevice> _devicesList = [];
   BluetoothDevice? _device;
   bool _connected = false;
@@ -59,6 +60,9 @@ class _RemoteControlState extends State<RemoteControl> {
   @override
   void initState() {
     super.initState();
+    // speedControllerWidget = SpeedControllerWidget;
+    // currentPage = speedControllerWidget;
+
     getPairedDevices();
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
@@ -79,6 +83,12 @@ class _RemoteControlState extends State<RemoteControl> {
       });
     });
   }
+
+  // void callback(Widget nextpage) {
+  //   setState(() {
+  //     currentPage = nextpage;
+  //   });
+  // }
 
   @override
   void dispose() {
@@ -135,7 +145,6 @@ class _RemoteControlState extends State<RemoteControl> {
   @override
   Widget build(BuildContext context) {
     bool _btnState1 = false;
-    var model = Model();
     return Container(
         child: Scaffold(
             key: _scaffoldKey,
@@ -144,10 +153,12 @@ class _RemoteControlState extends State<RemoteControl> {
               children: [
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SingleChildScrollView(
                         child: DropdownButton(
+                            elevation: 1,
+                            disabledHint: const Text("turnonbluetooth"),
+                            hint: const Text("selectRobot"),
                             isExpanded: false,
                             items: _getDeviceItems(),
                             onChanged: (value) => setState(
@@ -159,7 +170,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                     ? _disconnect
                                     : _connect)),
                     Padding(
-                        padding: EdgeInsets.all(0),
+                        padding: const EdgeInsets.all(0),
                         child: Switch(
                           value: _bluetoothState.isEnabled,
                           onChanged: (bool value) {
@@ -187,54 +198,64 @@ class _RemoteControlState extends State<RemoteControl> {
                         )),
 
                     // IconButton(
-                    //     highlightColor: Colors.greenAccent,
-                    //     onPressed: () async {
-                    //       !_bluetoothState.isEnabled
-                    //           ? {
-                    //               if (_bluetoothState.isEnabled == true)
-                    //                 {
-                    //                   await FlutterBluetoothSerial.instance
-                    //                       .requestEnable()
-                    //                 }
-                    //               else
-                    //                 {
-                    //                   await FlutterBluetoothSerial.instance
-                    //                       .requestDisable(),
-                    //                   connection!.dispose()
-                    //                 },
-                    //               await getPairedDevices(),
-                    //               _isButtonUnavailable = false,
-                    //               if (_connected)
-                    //                 {
-                    //                   _disconnect(),
-                    //                 }
-                    //             }
-                    //           : connection!.dispose();
-                    //     },
-                    //     icon: const Icon(Icons.bluetooth)),
+                    //   onPressed: () {
+                    //     bool value1 = _bluetoothState.isEnabled;
+                    //     // setState(() {
+                    //     //   value == true;
+                    //     // });
+                    //     future() async {
+                    //       if (value1 == true) {
+                    //         await FlutterBluetoothSerial.instance
+                    //             .requestEnable();
+                    //       } else {
+                    //         await FlutterBluetoothSerial.instance
+                    //             .requestDisable();
+                    //         connection!.dispose();
+                    //       }
+
+                    //       await getPairedDevices();
+                    //       _isButtonUnavailable = false;
+                    //       if (_connected) {
+                    //         _disconnect();
+                    //       }
+                    //     }
+
+                    //     future().then((_) {
+                    //       setState(() {});
+                    //     });
+                    //   },
+                    //   icon: const Icon(Icons.bluetooth_connected),
+                    //   disabledColor: Colors.grey,
+                    // ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        const Padding(
-                            padding: EdgeInsets.all(11),
+                        Padding(
+                            padding: const EdgeInsets.all(11),
                             child: SpeedControllerWidget()),
                         Padding(
                             padding: const EdgeInsets.all(25),
                             child: Column(
                               children: [
                                 Ink(
-                                    decoration: const ShapeDecoration(
-                                      color: Colors.white38,
-                                      shape: CircleBorder(),
+                                    width: 100,
+                                    height: 100.0,
+                                    decoration: ShapeDecoration(
+                                      color: connection != null &&
+                                              connection!.isConnected
+                                          ? Colors.white38
+                                          : Colors.grey.shade100,
+                                      shape: const CircleBorder(),
                                     ),
                                     child: Image(
+                                        fit: BoxFit.contain,
                                         color: connection != null &&
                                                 connection!.isConnected
                                             ? Colors.teal.shade300
                                             : Colors.grey.shade400,
                                         image: const AssetImage(
-                                            "asset/peppermint_leaf_only.png"))),
+                                            "asset/Leaf_grey.png"))),
                               ],
                             )),
                         Padding(
@@ -262,7 +283,7 @@ class _RemoteControlState extends State<RemoteControl> {
                               }),
                               height: 50,
                               animationDuration:
-                                  const Duration(milliseconds: 5),
+                                  const Duration(milliseconds: 0),
                               onTap: () {},
                               onDoubleTap: () {},
                               onSwipe: () {},
@@ -325,12 +346,11 @@ class _RemoteControlState extends State<RemoteControl> {
                                   setState(() {
                                     deviceState == 0;
                                   });
-                                  print("check 2");
                                 }
                               }
                             }),
                             height: 40,
-                            animationDuration: const Duration(milliseconds: 10),
+                            animationDuration: const Duration(milliseconds: 0),
                             onTap: () {},
                             onDoubleTap: () {},
                             onSwipe: () {},
@@ -468,9 +488,9 @@ class _RemoteControlState extends State<RemoteControl> {
                                                       ? radians = 90 + radians
                                                       : (radians < -90 &&
                                                               radians >= -180)
-                                                          ? radians = 450 +
-                                                              radians /*needs changing here*/ /*DONE*/
-                                                          : radians /*the rest quadrants condition*/;
+                                                          ? radians =
+                                                              450 + radians
+                                                          : radians;
                                               int number = radians.toInt();
                                               String text =
                                                   "MOONS+JSR${s}A$number;";
@@ -508,6 +528,7 @@ class _RemoteControlState extends State<RemoteControl> {
               : const Text("--Invalid--"),
           value: device,
         ));
+        items.remove(const DropdownMenuItem(child: Text("--Invalid--")));
       }
     }
     return items;

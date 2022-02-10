@@ -67,6 +67,7 @@ flutter:
   assets:
     - asset/peppermint_leaf_only_high_res.png
     - asset/peppermint_leaf_only.png
+    - asset/Leaf_grey.png
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

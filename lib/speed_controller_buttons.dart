@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 
 import 'forward_reverse_button.dart';
 
-class SpeedController extends StatelessWidget {
-  const SpeedController({Key? key}) : super(key: key);
+// class SpeedController extends StatelessWidget {
+//   const SpeedController({Key? key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return SpeedControllerWidget();
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return  SpeedControllerWidget();
+//   }
+// }
 
 class Model {
   ValueNotifier<bool> isDirty = ValueNotifier<bool>(false);
@@ -64,10 +64,12 @@ class SaveAction extends Action<SaveIntent> {
 }
 
 class SaveButton extends StatefulWidget {
-  const SaveButton(this.valueNotifier, {Key? key}) : super(key: key);
+  const SaveButton(
+      {Key? key, required this.valueNotifier, required this.magnitude})
+      : super(key: key);
 
   final ValueNotifier<bool> valueNotifier;
-
+  final int magnitude;
   @override
   State<SaveButton> createState() => _SaveButtonState();
 }
@@ -85,7 +87,7 @@ class _SaveButtonState extends State<SaveButton> {
             Icons.lock,
             size: 30,
           ),
-          label: /*Text('$savedValue')*/ Text(''),
+          label: /*Text('$savedValue')*/ const Text(""),
           style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(
               widget.valueNotifier.value ? Colors.red : Colors.green,
@@ -103,122 +105,114 @@ class _SaveButtonState extends State<SaveButton> {
 }
 
 class SpeedControllerWidget extends StatefulWidget {
-  const SpeedControllerWidget({Key? key}) : super(key: key);
   @override
   State<SpeedControllerWidget> createState() => _SpeedControllerWidgetState();
 }
 
 class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
-  Model model = Model();
   int count = 0;
   Timer? _timer;
-
+  int weight = 0;
+  int magnitude = 0;
   @override
   Widget build(BuildContext context) {
-    return Actions(
-      actions: <Type, Action<Intent>>{
-        ModifyIntent: ModifyAction(model),
-        SaveIntent: SaveAction(model),
-      },
-      child: Builder(
-        builder: (BuildContext context) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+          color: Colors.grey.shade300, borderRadius: BorderRadius.circular(10)),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  GestureDetector(
-                    child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(5),
-                          primary: Colors.white,
-                          onPrimary: Colors.green[50],
-                        ),
-                        child: const Icon(
-                          Icons.add_outlined,
-                          size: 42,
-                          color: Colors.grey,
-                        ),
-                        onPressed: () {}
-
-                        //   Actions.invoke(context, ModifyIntent(++count));
-                        //   model.data.value < 0
-                        //       ? null
-                        //       : command("MOONS+SL${model.data.value};");
-                        // },
-                        ),
-                    onTap: () {
-                      setState(() {
-                        Actions.invoke(context, ModifyIntent(++count));
-                      });
-                    },
-                    onTapDown: (TapDownDetails details) {
-                      _timer = Timer.periodic(const Duration(milliseconds: 100),
-                          (t) {
-                        setState(() {
-                          Actions.invoke(context, ModifyIntent(++count));
-                        });
-                      });
-                    },
-                    onTapUp: (TapUpDetails details) {
-                      _timer!.cancel();
-                    },
-                    onTapCancel: () {
-                      _timer!.cancel();
-                    },
+              const SizedBox(width: 10),
+              GestureDetector(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.blue,
                   ),
-                  AnimatedBuilder(
-                      animation: model.data,
-                      builder: (BuildContext context, Widget? child) {
-                        return Padding(
-                            padding: const EdgeInsets.all(3),
-                            child: Text(
-                                '${model.data.value < 0 ? model.data.value = 0 : model.data.value}',
-                                style: Theme.of(context).textTheme.headline6));
-                      }),
-                  SaveButton(model.isDirty),
-                  GestureDetector(
-                    child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            shape: const CircleBorder(),
-                            padding: const EdgeInsets.all(2),
-                            primary: Colors.white,
-                            onPrimary: Colors.green[50]),
-                        child: const Icon(Icons.remove_outlined,
-                            size: 45, color: Colors.grey),
-                        onPressed: () {
-                          // Actions.invoke(context, ModifyIntent(--count));
-                          // model.data.value < 0
-                          //     ? null
-                          //     : command("MOONS+SL${model.data.value};");
-                        }),
-                    onTap: () {
-                      setState(() {
-                        Actions.invoke(context, ModifyIntent(--count));
-                      });
-                    },
-                    onTapDown: (TapDownDetails details) {
-                      _timer = Timer.periodic(const Duration(milliseconds: 100),
-                          (t) {
-                        setState(() {
-                          Actions.invoke(context, ModifyIntent(--count));
-                        });
-                      });
-                    },
-                    onTapUp: (TapUpDetails details) {
-                      _timer!.cancel();
-                    },
-                    onTapCancel: () {
-                      _timer!.cancel();
-                    },
+                  width: 40,
+                  height: 40,
+                  child: const Center(
+                    child: Icon(
+                      Icons.add,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                   ),
-                ],
+                ),
+                onTap: () {
+                  setState(() {
+                    weight++;
+                  });
+                },
+                onTapDown: (TapDownDetails details) {
+                  _timer =
+                      Timer.periodic(const Duration(milliseconds: 100), (t) {
+                    setState(() {
+                      weight++;
+                    });
+                  });
+                },
+                onTapUp: (TapUpDetails details) {
+                  _timer!.cancel();
+                },
+                onTapCancel: () {
+                  _timer!.cancel();
+                },
+              ),
+              Text(
+                "$weight",
+                style: const TextStyle(
+                  color: Colors.black38,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30.0,
+                ),
+              ),
+              // this.widget.callback(weight),
+              GestureDetector(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.blue,
+                  ),
+                  width: 40,
+                  height: 40,
+                  child: Center(
+                    child: Container(
+                      color: Colors.white,
+                      width: 20,
+                      height: 5.0,
+                    ),
+                  ),
+                ),
+                onTap: () {
+                  setState(() {
+                    if (weight > 0) weight--;
+                  });
+                },
+                onTapDown: (TapDownDetails details) {
+                  _timer =
+                      Timer.periodic(const Duration(milliseconds: 100), (t) {
+                    setState(() {
+                      if (weight > 0) weight--;
+                    });
+                  });
+                },
+                onTapUp: (TapUpDetails details) {
+                  _timer!.cancel();
+                },
+                onTapCancel: () {
+                  _timer!.cancel();
+                },
               ),
             ],
-          );
-        },
+          ),
+        ],
       ),
     );
   }
