@@ -47,7 +47,6 @@ class _RemoteControlState extends State<RemoteControl> {
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   bool get isConnected => connection != null && connection!.isConnected;
   bool isDisconnecting = false;
-
   BluetoothConnection? connection;
 
   late SpeedControllerWidget speedControllerWidget;
