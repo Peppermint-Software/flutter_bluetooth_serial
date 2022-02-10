@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:ffi';
 
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
 import 'forward_reverse_button.dart';
+import 'main.dart';
 
 // class SpeedController extends StatelessWidget {
 //   const SpeedController({Key? key}) : super(key: key);
@@ -107,17 +109,19 @@ class _SaveButtonState extends State<SaveButton> {
 }
 
 class SpeedControllerWidget extends StatefulWidget {
+  const SpeedControllerWidget({Key? key}) : super(key: key);
+
   @override
   State<SpeedControllerWidget> createState() => _SpeedControllerWidgetState();
 }
 
 class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
-  int count = 0;
-  Timer? _timer;
   int weight = 0;
-  int magnitude = 0;
+  late Timer _timer;
+
   @override
   Widget build(BuildContext context) {
+    command(weight.toString());
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -161,10 +165,10 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                   });
                 },
                 onTapUp: (TapUpDetails details) {
-                  _timer!.cancel();
+                  _timer.cancel();
                 },
                 onTapCancel: () {
-                  _timer!.cancel();
+                  _timer.cancel();
                 },
               ),
               Text(
@@ -207,10 +211,10 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
                   });
                 },
                 onTapUp: (TapUpDetails details) {
-                  _timer!.cancel();
+                  _timer.cancel();
                 },
                 onTapCancel: () {
-                  _timer!.cancel();
+                  _timer.cancel();
                 },
               ),
             ],
@@ -219,4 +223,18 @@ class _SpeedControllerWidgetState extends State<SpeedControllerWidget> {
       ),
     );
   }
+
+  Future command(String data1) async {
+    List<int> x = List<int>.from(ascii.encode(data1));
+
+    String result = const AsciiDecoder().convert(x);
+    if (connection != null && connection!.isConnected) {
+      connection!.output.add(ascii.encoder.convert(result));
+      await connection!.output.allSent;
+    }
+  }
+
+  // void set something(int magni) {
+  //   int mahnivalue = (magni ~/ 100);
+  // }
 }

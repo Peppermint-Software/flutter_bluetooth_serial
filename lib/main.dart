@@ -51,6 +51,7 @@ class _RemoteControlState extends State<RemoteControl> {
 
   late SpeedControllerWidget speedControllerWidget;
   late Widget currentPage;
+  var magnitude = SpeedControllerWidget();
 
   List<BluetoothDevice> _devicesList = [];
   BluetoothDevice? _device;
@@ -195,43 +196,12 @@ class _RemoteControlState extends State<RemoteControl> {
                             });
                           },
                         )),
-
-                    // IconButton(
-                    //   onPressed: () {
-                    //     bool value1 = _bluetoothState.isEnabled;
-                    //     // setState(() {
-                    //     //   value == true;
-                    //     // });
-                    //     future() async {
-                    //       if (value1 == true) {
-                    //         await FlutterBluetoothSerial.instance
-                    //             .requestEnable();
-                    //       } else {
-                    //         await FlutterBluetoothSerial.instance
-                    //             .requestDisable();
-                    //         connection!.dispose();
-                    //       }
-
-                    //       await getPairedDevices();
-                    //       _isButtonUnavailable = false;
-                    //       if (_connected) {
-                    //         _disconnect();
-                    //       }
-                    //     }
-
-                    //     future().then((_) {
-                    //       setState(() {});
-                    //     });
-                    //   },
-                    //   icon: const Icon(Icons.bluetooth_connected),
-                    //   disabledColor: Colors.grey,
-                    // ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Padding(
-                            padding: const EdgeInsets.all(11),
+                        const Padding(
+                            padding: EdgeInsets.all(11),
                             child: SpeedControllerWidget()),
                         Padding(
                             padding: const EdgeInsets.all(25),
