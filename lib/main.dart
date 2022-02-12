@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:math';
 import 'dart:async';
 import 'dart:typed_data';
@@ -33,7 +34,9 @@ class PeppermintRemote extends StatelessWidget {
 }
 
 class RemoteControl extends StatefulWidget {
-  const RemoteControl({Key? key}) : super(key: key);
+  const RemoteControl({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<RemoteControl> createState() => _RemoteControlState();
@@ -42,27 +45,27 @@ class RemoteControl extends StatefulWidget {
 BluetoothConnection? connection;
 
 class _RemoteControlState extends State<RemoteControl> {
+  String disp = "";
+  double increment = 0;
+  double? sendval;
+  double? sendvalf;
+  bool _check = true;
+  bool _checkrun = true;
+  late Timer _timer;
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   bool get isConnected => connection != null && connection!.isConnected;
   bool isDisconnecting = false;
-  BluetoothConnection? connection;
-
-  late SpeedControllerWidget speedControllerWidget;
-  late Widget currentPage;
-  var magnitude = SpeedControllerWidget();
 
   List<BluetoothDevice> _devicesList = [];
   BluetoothDevice? _device;
   bool _connected = false;
   bool _isButtonUnavailable = true;
+  bool _feedback = true;
   @override
   void initState() {
     super.initState();
-    // speedControllerWidget = SpeedControllerWidget;
-    // currentPage = speedControllerWidget;
-
     getPairedDevices();
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
@@ -84,12 +87,6 @@ class _RemoteControlState extends State<RemoteControl> {
     });
   }
 
-  // void callback(Widget nextpage) {
-  //   setState(() {
-  //     currentPage = nextpage;
-  //   });
-  // }
-
   @override
   void dispose() {
     if (isConnected) {
@@ -104,7 +101,7 @@ class _RemoteControlState extends State<RemoteControl> {
     List<int> x = List<int>.from(ascii.encode(data1));
 
     String result = const AsciiDecoder().convert(x);
-    if (connection != null && connection!.isConnected) {
+    if (isConnected) {
       connection!.output.add(ascii.encoder.convert(result));
       await connection!.output.allSent;
     }
@@ -154,21 +151,20 @@ class _RemoteControlState extends State<RemoteControl> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    SingleChildScrollView(
-                        child: DropdownButton(
-                            elevation: 1,
-                            disabledHint: const Text("turnonbluetooth"),
-                            hint: const Text("selectRobot"),
-                            isExpanded: false,
-                            items: _getDeviceItems(),
-                            onChanged: (value) => setState(
-                                () => _device = value as BluetoothDevice?),
-                            value: _devicesList.isNotEmpty ? _device : null,
-                            onTap: _isButtonUnavailable
-                                ? null
-                                : _connected
-                                    ? _disconnect
-                                    : _connect)),
+                    DropdownButton(
+                        elevation: 1,
+                        disabledHint: const Text("turnonbluetooth"),
+                        hint: const Text("selectRobot"),
+                        isExpanded: false,
+                        items: _getDeviceItems(),
+                        onChanged: (value) =>
+                            setState(() => _device = value as BluetoothDevice?),
+                        value: _devicesList.isNotEmpty ? _device : null,
+                        onTap: _isButtonUnavailable
+                            ? null
+                            : _connected
+                                ? _disconnect
+                                : _connect),
                     Padding(
                         padding: const EdgeInsets.all(0),
                         child: Switch(
@@ -197,12 +193,165 @@ class _RemoteControlState extends State<RemoteControl> {
                           },
                         )),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        const Padding(
-                            padding: EdgeInsets.all(11),
-                            child: SpeedControllerWidget()),
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                color: Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(5)),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    const SizedBox(width: 5),
+                                    GestureDetector(
+                                      child: Container(
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.blue,
+                                        ),
+                                        width: 40,
+                                        height: 40,
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.add,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        setState(() {
+                                          _checkrun = false;
+                                          increment * 0.1 < 2
+                                              ? increment++
+                                              : increment = 1;
+                                        });
+                                        sendval = increment * 10;
+                                        disp = (increment * 0.1)
+                                            .toStringAsPrecision(2);
+                                      },
+                                      onTapDown: (TapDownDetails details) {
+                                        _timer = Timer.periodic(
+                                            const Duration(milliseconds: 100),
+                                            (t) {
+                                          setState(() {
+                                            _checkrun = false;
+
+                                            increment * 0.1 < 2
+                                                ? increment++
+                                                : increment = 1;
+                                          });
+                                          sendval = increment * 10;
+
+                                          disp = (increment * 0.1)
+                                              .toStringAsPrecision(2);
+                                        });
+                                      },
+                                      onTapUp: (TapUpDetails details) {
+                                        _timer.cancel();
+                                      },
+                                      onTapCancel: () {
+                                        _timer.cancel();
+                                      },
+                                    ),
+                                    Text(
+                                      disp,
+                                      style: const TextStyle(
+                                        color: Colors.black38,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 25,
+                                      ),
+                                    ),
+                                    const Text("m/sec",
+                                        style: TextStyle(fontSize: 9)),
+                                    IconButton(
+                                      onPressed: () {
+                                        HapticFeedback.heavyImpact();
+
+                                        setState(() {
+                                          _check = !_check;
+                                          if (_check == false) {
+                                            sendvalf = sendval;
+
+                                            command("MOONS+SL$sendvalf;");
+                                          }
+                                          if (_check == true &&
+                                              _checkrun == false) {
+                                            sendvalf = 0;
+
+                                            command("MOONS+SL$sendvalf");
+                                          }
+                                        });
+                                      },
+                                      icon: Icon((_check == false)
+                                          ? Icons.lock
+                                          : Icons.lock_open),
+                                    ),
+                                    GestureDetector(
+                                      child: Container(
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.blue,
+                                        ),
+                                        width: 40,
+                                        height: 40,
+                                        child: Center(
+                                          child: Container(
+                                            color: Colors.white,
+                                            width: 15,
+                                            height: 3,
+                                          ),
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        setState(() {
+                                          _checkrun = !_checkrun;
+
+                                          if (increment > 0) increment--;
+                                        });
+                                        sendval = increment * 10;
+
+                                        disp = (increment * 0.1)
+                                            .toStringAsPrecision(2);
+                                      },
+                                      onTapDown: (TapDownDetails details) {
+                                        _timer = Timer.periodic(
+                                            const Duration(milliseconds: 100),
+                                            (t) {
+                                          setState(() {
+                                            _checkrun = !_checkrun;
+
+                                            if (increment > 0) increment--;
+                                          });
+                                          sendval = increment * 10;
+
+                                          disp = (increment * 0.1)
+                                              .toStringAsPrecision(2);
+                                        });
+                                      },
+                                      onTapUp: (TapUpDetails details) {
+                                        _timer.cancel();
+                                      },
+                                      onTapCancel: () {
+                                        _timer.cancel();
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                         Padding(
                             padding: const EdgeInsets.all(25),
                             child: Column(
@@ -211,16 +360,14 @@ class _RemoteControlState extends State<RemoteControl> {
                                     width: 100,
                                     height: 100.0,
                                     decoration: ShapeDecoration(
-                                      color: connection != null &&
-                                              connection!.isConnected
+                                      color: isConnected
                                           ? Colors.white38
                                           : Colors.grey.shade100,
                                       shape: const CircleBorder(),
                                     ),
                                     child: Image(
                                         fit: BoxFit.contain,
-                                        color: connection != null &&
-                                                connection!.isConnected
+                                        color: isConnected
                                             ? Colors.teal.shade300
                                             : Colors.grey.shade400,
                                         image: const AssetImage(
@@ -238,8 +385,7 @@ class _RemoteControlState extends State<RemoteControl> {
                               value: _btnState1,
                               width: 180,
                               onChanged: (bool value) => setState(() {
-                                if (connection != null &&
-                                    connection!.isConnected) {
+                                if (isConnected) {
                                   String _frwCmd = "MOONS+F;";
                                   String _revCmd = "MOONS+R;";
                                   _btnState = value;
@@ -280,8 +426,7 @@ class _RemoteControlState extends State<RemoteControl> {
                             value: _btnState,
                             width: 150,
                             onChanged: (value) => setState(() {
-                              if (connection != null &&
-                                  connection!.isConnected) {
+                              if (isConnected) {
                                 String _startDrive = "MOONS+ON;";
                                 String _enableMotor = "MOONS+ME;";
                                 String _stopDrive = "MOONS+OFF;";
@@ -337,12 +482,12 @@ class _RemoteControlState extends State<RemoteControl> {
                 Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Column(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Container(
                               alignment: Alignment.center,
@@ -354,18 +499,15 @@ class _RemoteControlState extends State<RemoteControl> {
                                     backgroundColor: Colors.transparent,
                                     actions: <Widget>[
                                       Icon(Icons.bluetooth_connected,
-                                          color: connection != null &&
-                                                  connection!.isConnected
+                                          color: isConnected
                                               ? Colors.green
                                               : null),
                                       const Spacer(),
                                       Icon(Icons.battery_charging_full,
-                                          color: connection != null &&
-                                                  connection!.isConnected
+                                          color: isConnected
                                               ? Colors.green
                                               : null),
-                                      connection != null &&
-                                              connection!.isConnected
+                                      isConnected
                                           ? Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 20),
@@ -377,12 +519,10 @@ class _RemoteControlState extends State<RemoteControl> {
                                               ))
                                           : const Text(''),
                                       Icon(Icons.invert_colors,
-                                          color: connection != null &&
-                                                  connection!.isConnected
+                                          color: isConnected
                                               ? Colors.green
                                               : null),
-                                      connection != null &&
-                                              connection!.isConnected
+                                      isConnected
                                           ? Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 20),
@@ -394,12 +534,10 @@ class _RemoteControlState extends State<RemoteControl> {
                                               ))
                                           : const Text(''),
                                       Icon(Icons.water,
-                                          color: connection != null &&
-                                                  connection!.isConnected
+                                          color: isConnected
                                               ? Colors.green
                                               : null),
-                                      connection != null &&
-                                              connection!.isConnected
+                                      isConnected
                                           ? Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 20),
@@ -411,8 +549,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                               ))
                                           : const Text(''),
                                       Icon(Icons.cleaning_services,
-                                          color: connection != null &&
-                                                  connection!.isConnected
+                                          color: isConnected
                                               ? Colors.green
                                               : null),
                                     ],
@@ -422,23 +559,21 @@ class _RemoteControlState extends State<RemoteControl> {
                                       width: 240,
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
-                                            vertical: 35, horizontal: 15),
+                                            vertical: 35, horizontal: 8),
                                         child: Joystick(onStickDragEnd: () {
                                           command("MOONS+JSR0A180;");
                                           command("MOONS+JSR0A180;");
                                         }, listener: (details) {
-                                          if (connection != null &&
-                                              connection!.isConnected) {
+                                          if (isConnected) {
                                             HapticFeedback.heavyImpact();
 
                                             StickDragDetails(0, 12);
                                             setState(() {
                                               double _x = 0;
                                               double _y = 0;
-                                              double step = 5;
 
-                                              _x = 100 * details.x;
-                                              _y = 100 * details.y;
+                                              _x = (sendvalf! * details.x);
+                                              _y = (sendvalf! * details.y);
 
                                               double r = sqrt(
                                                       pow(_x, 2).toInt() +
