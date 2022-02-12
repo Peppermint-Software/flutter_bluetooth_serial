@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:math';
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui';
-import './speed_controller_buttons.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +50,7 @@ class _RemoteControlState extends State<RemoteControl> {
   bool _check = true;
   bool _checkrun = true;
   late Timer _timer;
-  BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
+  BluetoothState? _bluetoothState = BluetoothState.UNKNOWN;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   bool get isConnected => connection != null && connection!.isConnected;
@@ -62,7 +60,7 @@ class _RemoteControlState extends State<RemoteControl> {
   BluetoothDevice? _device;
   bool _connected = false;
   bool _isButtonUnavailable = true;
-  bool _feedback = true;
+
   @override
   void initState() {
     super.initState();
@@ -92,6 +90,7 @@ class _RemoteControlState extends State<RemoteControl> {
     if (isConnected) {
       isDisconnecting = true;
       connection!.dispose();
+      connection = null;
     }
 
     super.dispose();
@@ -151,24 +150,25 @@ class _RemoteControlState extends State<RemoteControl> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    DropdownButton(
-                        elevation: 1,
-                        disabledHint: const Text("turnonbluetooth"),
-                        hint: const Text("selectRobot"),
-                        isExpanded: false,
-                        items: _getDeviceItems(),
-                        onChanged: (value) =>
-                            setState(() => _device = value as BluetoothDevice?),
-                        value: _devicesList.isNotEmpty ? _device : null,
-                        onTap: _isButtonUnavailable
-                            ? null
-                            : _connected
-                                ? _disconnect
-                                : _connect),
                     Padding(
                         padding: const EdgeInsets.all(0),
+                        child: DropdownButton(
+                          elevation: 1,
+                          disabledHint: const Text("Turn On Switch"),
+                          hint: const Text("Select Robot"),
+                          isExpanded: false,
+                          items: _getDeviceItems(),
+                          onChanged: (value) => setState(
+                              () => _device = value as BluetoothDevice?),
+                          value: _devicesList.isNotEmpty ? _device : null,
+                        )),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Switch(
-                          value: _bluetoothState.isEnabled,
+                          inactiveTrackColor: Colors.red,
+                          activeTrackColor: Colors.green,
+                          activeColor: Colors.white,
+                          value: _bluetoothState!.isEnabled,
                           onChanged: (bool value) {
                             future() async {
                               if (value) {
@@ -177,7 +177,6 @@ class _RemoteControlState extends State<RemoteControl> {
                               } else {
                                 await FlutterBluetoothSerial.instance
                                     .requestDisable();
-                                connection!.dispose();
                               }
 
                               await getPairedDevices();
@@ -272,8 +271,11 @@ class _RemoteControlState extends State<RemoteControl> {
                                         fontSize: 25,
                                       ),
                                     ),
-                                    const Text("m/sec",
-                                        style: TextStyle(fontSize: 9)),
+                                    const Text(
+                                      "m/sec",
+                                      style: TextStyle(fontSize: 9),
+                                      textAlign: TextAlign.center,
+                                    ),
                                     IconButton(
                                       onPressed: () {
                                         HapticFeedback.heavyImpact();
@@ -353,7 +355,7 @@ class _RemoteControlState extends State<RemoteControl> {
                           ),
                         ),
                         Padding(
-                            padding: const EdgeInsets.all(25),
+                            padding: const EdgeInsets.all(15),
                             child: Column(
                               children: [
                                 Ink(
@@ -616,24 +618,21 @@ class _RemoteControlState extends State<RemoteControl> {
   List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
     if (_devicesList.isEmpty) {
-      items.add(const DropdownMenuItem(
-        alignment: Alignment.center,
-        child: Text("Turn on Switch"),
-      ));
     } else {
-      items.add(const DropdownMenuItem(
-          alignment: Alignment.center, child: Text("--Choose Robot--")));
-      for (var device in _devicesList) {
-        var x = device.name!.contains("SD0") ? device.name.toString() : null;
-        items.add(DropdownMenuItem(
-          alignment: Alignment.center,
-          child: x != null && device.name!.contains("SD0")
-              ? Text(device.name.toString())
-              : const Text("--Invalid--"),
-          value: device,
-        ));
-        items.remove(const DropdownMenuItem(child: Text("--Invalid--")));
-      }
+      _devicesList.forEach((device) {
+        if (device.name!.contains("SD0") || device.name!.contains("TUG")) {
+          items.add(DropdownMenuItem(
+            alignment: Alignment.center,
+            onTap: _isButtonUnavailable
+                ? null
+                : _connected
+                    ? _disconnect
+                    : _connect,
+            child: Text(device.name.toString()),
+            value: device,
+          ));
+        }
+      });
     }
     return items;
   }
