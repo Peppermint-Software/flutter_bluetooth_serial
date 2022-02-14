@@ -200,7 +200,7 @@ class _RemoteControlState extends State<RemoteControl> {
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
+                                color: Colors.transparent,
                                 borderRadius: BorderRadius.circular(5)),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -253,7 +253,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                           sendval = increment * 10;
 
                                           disp = (increment * 0.1)
-                                              .toStringAsPrecision(2);
+                                              .toStringAsPrecision(1);
                                         });
                                       },
                                       onTapUp: (TapUpDetails details) {
@@ -271,12 +271,15 @@ class _RemoteControlState extends State<RemoteControl> {
                                         fontSize: 25,
                                       ),
                                     ),
-                                    const Text(
-                                      "m/sec",
-                                      style: TextStyle(fontSize: 9),
-                                      textAlign: TextAlign.center,
-                                    ),
+                                    const Padding(
+                                        padding: EdgeInsets.only(left: 7),
+                                        child: Text(
+                                          "m/sec",
+                                          style: TextStyle(fontSize: 9),
+                                          textAlign: TextAlign.end,
+                                        )),
                                     IconButton(
+                                      alignment: Alignment.centerLeft,
                                       onPressed: () {
                                         HapticFeedback.heavyImpact();
 
@@ -363,8 +366,8 @@ class _RemoteControlState extends State<RemoteControl> {
                                     height: 100.0,
                                     decoration: ShapeDecoration(
                                       color: isConnected
-                                          ? Colors.white38
-                                          : Colors.grey.shade100,
+                                          ? Colors.white
+                                          : Colors.white,
                                       shape: const CircleBorder(),
                                     ),
                                     child: Image(
