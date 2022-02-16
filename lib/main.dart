@@ -13,8 +13,6 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:sliding_switch/sliding_switch.dart';
 
-/*This code has Bluetooth 5 components*/
-
 void main() => runApp(const PeppermintRemote());
 
 class PeppermintRemote extends StatelessWidget {

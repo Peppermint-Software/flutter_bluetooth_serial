@@ -1,6 +1,6 @@
-# Peppermint Remote Control
+# Remote Control
 
-This is the initial creation stages of Peppermint Remote Control app.
+This is the initial creation stages of Remote Control app.
 
 > Most of the features in this project are placed in the **main.dart** file so that the components run in a single thread.
 
