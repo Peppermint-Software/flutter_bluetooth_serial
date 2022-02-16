@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:async';
 import 'dart:typed_data';
-import './forward_reverse_button.dart';
-import './speed_controller_buttons.dart';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +13,6 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:sliding_switch/sliding_switch.dart';
 
-import 'detail_widget/obstacle_indication.dart';
-
 void main() => runApp(const PeppermintRemote());
 
 class PeppermintRemote extends StatelessWidget {
@@ -25,6 +22,7 @@ class PeppermintRemote extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     return const MediaQuery(
         data: MediaQueryData(),
         child: MaterialApp(
@@ -34,7 +32,9 @@ class PeppermintRemote extends StatelessWidget {
 }
 
 class RemoteControl extends StatefulWidget {
-  const RemoteControl({Key? key}) : super(key: key);
+  const RemoteControl({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<RemoteControl> createState() => _RemoteControlState();
@@ -43,22 +43,33 @@ class RemoteControl extends StatefulWidget {
 BluetoothConnection? connection;
 
 class _RemoteControlState extends State<RemoteControl> {
-  BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
+  /*All variables*/
+  String disp = "";
+
+  double increment = 0;
+  double? sendval;
+  double? sendvalf;
+  bool _check = true;
+  bool _checkrun = true;
+  late Timer _timer;
+  final bool _visible = false;
+  BluetoothState? _bluetoothState = BluetoothState.UNKNOWN;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   bool get isConnected => connection != null && connection!.isConnected;
   bool isDisconnecting = false;
-
-  BluetoothConnection? connection;
-  List<BluetoothDevice> _devicesList = [];
+  List<BluetoothDevice> _pairedDeviceList = [];
   BluetoothDevice? _device;
   bool _connected = false;
-  bool _isButtonUnavailable = true;
+  bool _bluetoothSwitch = false;
+  bool _btnState = false;
+  var deviceState = 0;
+  /*All variables*/
 
   @override
   void initState() {
     super.initState();
-    getPairedDevices();
+    getPairedDeviceList();
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
         _bluetoothState = state;
@@ -72,9 +83,9 @@ class _RemoteControlState extends State<RemoteControl> {
       setState(() {
         _bluetoothState = state;
         if (_bluetoothState == BluetoothState.STATE_OFF) {
-          _isButtonUnavailable = true;
+          _bluetoothSwitch = true;
         }
-        getPairedDevices();
+        getPairedDeviceList();
       });
     });
   }
@@ -84,6 +95,7 @@ class _RemoteControlState extends State<RemoteControl> {
     if (isConnected) {
       isDisconnecting = true;
       connection!.dispose();
+      connection = null;
     }
 
     super.dispose();
@@ -93,7 +105,7 @@ class _RemoteControlState extends State<RemoteControl> {
     List<int> x = List<int>.from(ascii.encode(data1));
 
     String result = const AsciiDecoder().convert(x);
-    if (connection != null) {
+    if (isConnected) {
       connection!.output.add(ascii.encoder.convert(result));
       await connection!.output.allSent;
     }
@@ -104,13 +116,13 @@ class _RemoteControlState extends State<RemoteControl> {
 
     if (_bluetoothState == BluetoothState.STATE_OFF) {
       await FlutterBluetoothSerial.instance.requestEnable();
-      await getPairedDevices();
+      await getPairedDeviceList();
     } else {
-      await getPairedDevices();
+      await getPairedDeviceList();
     }
   }
 
-  Future<void> getPairedDevices() async {
+  Future<void> getPairedDeviceList() async {
     List<BluetoothDevice> devices = [];
 
     try {
@@ -124,14 +136,13 @@ class _RemoteControlState extends State<RemoteControl> {
     }
 
     setState(() {
-      _devicesList = devices;
+      _pairedDeviceList = devices;
     });
   }
 
-  bool _btnState = false;
-
   @override
   Widget build(BuildContext context) {
+    bool _btnState1 = false;
     return Container(
         child: Scaffold(
             key: _scaffoldKey,
@@ -140,147 +151,430 @@ class _RemoteControlState extends State<RemoteControl> {
               children: [
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    DropdownButton(
-                        items: _getDeviceItems(),
-                        onChanged: (value) =>
-                            setState(() => _device = value as BluetoothDevice?),
-                        value: _devicesList.isNotEmpty ? _device : null,
-                        onTap: _isButtonUnavailable
-                            ? null
-                            : _connected
-                                ? _disconnect
-                                : _connect),
-                    Switch(
-                      value: _bluetoothState.isEnabled,
-                      onChanged: (bool value) {
-                        future() async {
-                          if (value) {
-                            await FlutterBluetoothSerial.instance
-                                .requestEnable();
-                          } else {
-                            await FlutterBluetoothSerial.instance
-                                .requestDisable();
-                          }
+                    Padding(
+                        padding: const EdgeInsets.all(0),
+                        child: DropdownButton(
+                          autofocus: true,
+                          alignment: Alignment.center,
+                          elevation: 1,
+                          disabledHint: const Text("Turn On Switch"),
+                          hint: !isConnected
+                              ? const Text("Select Robot")
+                              : const Text("Select Robot"),
+                          isExpanded: false,
+                          items: _getDeviceItems(),
+                          onChanged: (value) => setState(
+                              () => _device = value as BluetoothDevice?),
+                          value: _pairedDeviceList.isNotEmpty && isConnected
+                              ? _device
+                              : null,
+                        )),
+                    Row(children: [
+                      Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: Icon(
+                            Icons.bluetooth_disabled,
+                            color: !_bluetoothState!.isEnabled
+                                ? Colors.red
+                                : Colors.transparent,
+                          )),
+                      Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Switch(
+                            inactiveTrackColor: Colors.red,
+                            activeTrackColor: Colors.green,
+                            activeColor: Colors.white,
+                            value: _bluetoothState!.isEnabled,
+                            onChanged: (bool value) {
+                              future() async {
+                                if (value) {
+                                  await FlutterBluetoothSerial.instance
+                                      .requestEnable();
+                                } else {
+                                  await FlutterBluetoothSerial.instance
+                                      .requestDisable();
+                                }
 
-                          await getPairedDevices();
-                          _isButtonUnavailable = false;
+                                await getPairedDeviceList();
+                                _bluetoothSwitch = false;
+                                if (_connected) {
+                                  _disconnect();
+                                }
+                              }
 
-                          if (_connected) {
-                            _disconnect();
-                          }
-                        }
-
-                        future().then((_) {
-                          setState(() {});
-                        });
-                      },
-                    ),
+                              future().then((_) {
+                                setState(() {});
+                              });
+                            },
+                          )),
+                      Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: Icon(
+                            !isConnected
+                                ? Icons.bluetooth_disabled
+                                : Icons.bluetooth_audio_rounded,
+                            color: _bluetoothState!.isEnabled && !isConnected
+                                ? Colors.green
+                                : isConnected
+                                    ? Colors.green
+                                    : Colors.transparent,
+                          ))
+                    ]),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        const Padding(
-                            padding: EdgeInsets.all(15),
-                            child: SpeedControllerWidget()),
-                        const Padding(
-                            padding: EdgeInsets.all(15), child: Obstacle()),
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 2,
-                            horizontal: 15,
+                          padding: const EdgeInsets.all(8),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(5)),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    const SizedBox(width: 5),
+                                    AbsorbPointer(
+                                        absorbing: isConnected ? false : true,
+                                        child: GestureDetector(
+                                          child: Container(
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.blue,
+                                            ),
+                                            width: 40,
+                                            height: 40,
+                                            child: const Center(
+                                              child: Icon(
+                                                Icons.add,
+                                                size: 20,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          onTap: () {
+                                            setState(() {
+                                              _checkrun = false;
+                                              increment * 0.1 < 2
+                                                  ? increment++
+                                                  : increment = 1;
+                                            });
+                                            sendval = increment * 10;
+                                            disp = (increment * 0.1)
+                                                .toStringAsPrecision(1);
+                                          },
+                                          onTapDown: (TapDownDetails details) {
+                                            _timer = Timer.periodic(
+                                                const Duration(
+                                                    milliseconds: 100), (t) {
+                                              setState(() {
+                                                _checkrun = false;
+
+                                                increment * 0.1 < 2
+                                                    ? increment++
+                                                    : increment = 1;
+                                              });
+                                              sendval = increment * 10;
+
+                                              disp = (increment * 0.1)
+                                                  .toStringAsPrecision(1);
+                                            });
+                                          },
+                                          onTapUp: (TapUpDetails details) {
+                                            _timer.cancel();
+                                          },
+                                          onTapCancel: () {
+                                            _timer.cancel();
+                                          },
+                                        )),
+                                    Visibility(
+                                        visible:
+                                            !isConnected ? _visible : !_visible,
+                                        child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 6),
+                                            child: Text(
+                                              increment == 0 ? "0.0" : disp,
+                                              textDirection: TextDirection.rtl,
+                                              softWrap: true,
+                                              textAlign: increment == 0
+                                                  ? TextAlign.right
+                                                  : TextAlign.center,
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 25,
+                                              ),
+                                            ))),
+                                    Visibility(
+                                        visible: increment != 0
+                                            ? !_visible
+                                            : _visible,
+                                        child: const Padding(
+                                            padding: EdgeInsets.only(left: 7),
+                                            child: Text(
+                                              "m/sec",
+                                              style: TextStyle(fontSize: 9),
+                                              textAlign: TextAlign.end,
+                                            ))),
+                                    AbsorbPointer(
+                                        absorbing: isConnected ? false : true,
+                                        child: IconButton(
+                                          alignment: Alignment.centerLeft,
+                                          onPressed: () {
+                                            HapticFeedback.heavyImpact();
+
+                                            setState(() {
+                                              _check = !_check;
+                                              if (_check == false) {
+                                                sendvalf = sendval;
+
+                                                command("MOONS+SL$sendvalf;");
+                                              }
+                                              if (_check == true &&
+                                                  _checkrun == false) {
+                                                sendvalf = 0;
+
+                                                command("MOONS+SL$sendvalf");
+                                              }
+                                            });
+                                          },
+                                          icon: Icon((_check == false)
+                                              ? Icons.lock
+                                              : Icons.lock_open),
+                                        )),
+                                    AbsorbPointer(
+                                      absorbing: isConnected ? false : true,
+                                      child: GestureDetector(
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          width: 40,
+                                          height: 40,
+                                          child: Center(
+                                            child: Container(
+                                              color: Colors.white,
+                                              width: 15,
+                                              height: 3,
+                                            ),
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          setState(() {
+                                            _checkrun = !_checkrun;
+
+                                            if (increment > 0) increment--;
+                                          });
+                                          sendval = increment * 10;
+
+                                          disp = (increment * 0.1)
+                                              .toStringAsPrecision(1);
+                                        },
+                                        onTapDown: (TapDownDetails details) {
+                                          _timer = Timer.periodic(
+                                              const Duration(milliseconds: 100),
+                                              (t) {
+                                            setState(() {
+                                              _checkrun = !_checkrun;
+
+                                              if (increment > 0) increment--;
+                                            });
+                                            sendval = increment * 10;
+
+                                            disp = (increment * 0.1)
+                                                .toStringAsPrecision(1);
+                                          });
+                                        },
+                                        onTapUp: (TapUpDetails details) {
+                                          _timer.cancel();
+                                        },
+                                        onTapCancel: () {
+                                          _timer.cancel();
+                                        },
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                          child: ForwardReverseButton(context),
-                        )
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Column(
+                              children: [
+                                Ink(
+                                    width: 100,
+                                    height: 100.0,
+                                    decoration: ShapeDecoration(
+                                      color: isConnected
+                                          ? Colors.transparent
+                                          : Colors.transparent,
+                                      shape: const CircleBorder(),
+                                    ),
+                                    child: Image(
+                                        fit: BoxFit.contain,
+                                        color: isConnected
+                                            ? Colors.teal.shade300
+                                            : Colors.grey.shade400,
+                                        image: const AssetImage(
+                                            "asset/Leaf_grey.png"))),
+                              ],
+                            )),
+                        AbsorbPointer(
+                            absorbing: isConnected &&
+                                    !_bluetoothSwitch &&
+                                    _btnState == true
+                                ? false
+                                : true,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 2,
+                                horizontal: 15,
+                              ),
+                              child: RotatedBox(
+                                quarterTurns: 1,
+                                child: SlidingSwitch(
+                                  value: _btnState1,
+                                  width: 180,
+                                  onChanged: (bool value) => setState(() {
+                                    if (isConnected) {
+                                      String _frwCmd = "MOONS+F;";
+                                      String _revCmd = "MOONS+R;";
+
+                                      HapticFeedback.vibrate();
+
+                                      value == true
+                                          ? command(_revCmd)
+                                          : command(_frwCmd);
+                                    }
+                                  }),
+                                  height: 50,
+                                  animationDuration:
+                                      const Duration(milliseconds: 0),
+                                  onTap: () {},
+                                  onDoubleTap: () {},
+                                  onSwipe: () {},
+                                  textOff: '<',
+                                  textOn: '>',
+                                  colorOn: Colors.deepOrangeAccent.shade700,
+                                  colorOff: Colors.lightGreenAccent.shade700,
+                                  background: Colors.grey.shade300,
+                                  buttonColor: Colors.white,
+                                  inactiveColor: Colors.grey,
+                                ),
+                              ),
+                            ))
                       ],
                     ),
-                    Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 0, horizontal: 9),
-                        child: Container(
-                          alignment: Alignment.bottomCenter,
-                          padding: const EdgeInsets.all(5),
-                          child: SlidingSwitch(
-                            value: _btnState,
-                            width: 150,
-                            onChanged: (value) => setState(() {
-                              String _startDrive = "MOONS+ON;";
-                              String _enableMotor = "MOONS+ME;";
-                              String _stopDrive = "MOONS+OFF;";
-                              String _disableMotor = "MOONS+MD;";
+                    const Padding(
+                        padding: EdgeInsets.only(bottom: 2, top: 0),
+                        child: Text("Traction Power")),
+                    AbsorbPointer(
+                        absorbing:
+                            isConnected && !_bluetoothSwitch ? false : true,
+                        child: Padding(
+                            padding: const EdgeInsets.all(2),
+                            child: Container(
+                              alignment: Alignment.bottomCenter,
+                              padding: const EdgeInsets.only(bottom: 2),
+                              child: SlidingSwitch(
+                                value: _btnState && _bluetoothSwitch,
+                                width: 150,
+                                onChanged: (value) => setState(() {
+                                  if (!_bluetoothState!.isEnabled) {
+                                    setState(() {
+                                      _btnState == false;
+                                      value = false;
+                                    });
+                                  }
+                                  if (isConnected) {
+                                    String _startDrive = "MOONS+ON;";
+                                    String _enableMotor = "MOONS+ME;";
+                                    String _stopDrive = "MOONS+OFF;";
+                                    String _disableMotor = "MOONS+MD;";
 
-                              _btnState = value;
-                              if (value = true) {
-                                HapticFeedback.heavyImpact();
-                                const _powerOnCmd = Duration(milliseconds: 333);
+                                    _btnState = value;
 
-                                Timer.periodic(_powerOnCmd,
-                                    (Timer t) => command(_startDrive));
+                                    if (value == true) {
+                                      HapticFeedback.heavyImpact();
+                                      const _powerOnCmd =
+                                          Duration(milliseconds: 333);
+                                      Timer.periodic(_powerOnCmd,
+                                          (Timer t) => command(_startDrive));
 
-                                const _driveOnCmd = Duration(milliseconds: 100);
-                                Timer.periodic(_driveOnCmd,
-                                    (Timer t) => command(_enableMotor));
-                              } else {
-                                _disconnect;
-                                HapticFeedback.heavyImpact();
-                                const _powerOffCmd =
-                                    Duration(milliseconds: 333);
-                                Timer.periodic(_powerOffCmd,
-                                    (Timer t) => command(_stopDrive));
-                                const _driveOffCmd =
-                                    Duration(milliseconds: 100);
-                                Timer.periodic(_driveOffCmd,
-                                    (Timer t) => command(_disableMotor));
-                              }
-                            }),
-                            height: 40,
-                            animationDuration: const Duration(milliseconds: 40),
-                            onTap: () {},
-                            onDoubleTap: () {},
-                            onSwipe: () {},
-                            textOff: "OFF",
-                            textOn: "ON",
-                            colorOn: Colors.lightGreenAccent.shade700,
-                            colorOff: Colors.deepOrangeAccent.shade700,
-                            background: Colors.grey.shade300,
-                            buttonColor: Colors.white,
-                            inactiveColor: Colors.grey,
-                          ),
-                        ))
+                                      command(_enableMotor);
+                                    }
+
+                                    if (value == false) {
+                                      HapticFeedback.heavyImpact();
+
+                                      command(_disableMotor);
+                                      const _powerOffCmd =
+                                          Duration(milliseconds: 333);
+                                      Timer.periodic(_powerOffCmd,
+                                          (Timer t) => command(_stopDrive));
+                                      setState(() {
+                                        deviceState == 0;
+                                      });
+                                    }
+                                  } else {
+                                    setState(() {
+                                      value = false;
+                                    });
+                                  }
+                                }),
+                                height: 40,
+                                animationDuration:
+                                    const Duration(milliseconds: 0),
+                                onTap: () {},
+                                onDoubleTap: () {},
+                                onSwipe: () {},
+                                textOff: "OFF",
+                                textOn: "ON",
+                                colorOn: Colors.lightGreenAccent.shade700,
+                                colorOff: Colors.deepOrangeAccent.shade700,
+                                background: Colors.grey.shade300,
+                                buttonColor: Colors.white,
+                                inactiveColor: Colors.grey,
+                              ),
+                            )))
                   ],
                 ),
                 Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Column(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Container(
-                                height: 350,
-                                width: 240,
-                                child: Scaffold(
+                              alignment: Alignment.center,
+                              height: 350,
+                              width: 240,
+                              child: Scaffold(
                                   appBar: AppBar(
                                     elevation: 0,
                                     backgroundColor: Colors.transparent,
                                     actions: <Widget>[
-                                      Icon(Icons.bluetooth_connected,
-                                          color: connection != null &&
-                                                  connection!.isConnected
-                                              ? Colors.green
-                                              : null),
-                                      const Spacer(),
                                       Icon(Icons.battery_charging_full,
-                                          color: connection != null &&
-                                                  connection!.isConnected
+                                          color: isConnected
                                               ? Colors.green
                                               : null),
-                                      connection != null &&
-                                              connection!.isConnected
+                                      isConnected
                                           ? Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 20),
@@ -292,12 +586,10 @@ class _RemoteControlState extends State<RemoteControl> {
                                               ))
                                           : const Text(''),
                                       Icon(Icons.invert_colors,
-                                          color: connection != null &&
-                                                  connection!.isConnected
+                                          color: isConnected
                                               ? Colors.green
                                               : null),
-                                      connection != null &&
-                                              connection!.isConnected
+                                      isConnected
                                           ? Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 20),
@@ -309,12 +601,10 @@ class _RemoteControlState extends State<RemoteControl> {
                                               ))
                                           : const Text(''),
                                       Icon(Icons.water,
-                                          color: connection != null &&
-                                                  connection!.isConnected
+                                          color: isConnected
                                               ? Colors.green
                                               : null),
-                                      connection != null &&
-                                              connection!.isConnected
+                                      isConnected
                                           ? Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 20),
@@ -326,39 +616,64 @@ class _RemoteControlState extends State<RemoteControl> {
                                               ))
                                           : const Text(''),
                                       Icon(Icons.cleaning_services,
-                                          color: connection != null &&
-                                                  connection!.isConnected
+                                          color: isConnected
                                               ? Colors.green
                                               : null),
                                     ],
                                   ),
                                   body: SizedBox(
-                                    height: 300,
-                                    width: 240,
-                                    child: Joystick(listener: (details) {
-                                      setState(() {
-                                        double _x = 10;
-                                        double _y = 10;
-                                        double step = 3;
-                                        HapticFeedback.heavyImpact();
+                                      height: 300,
+                                      width: 240,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 35, horizontal: 8),
+                                        child: Joystick(onStickDragEnd: () {
+                                          command("MOONS+JSR0A180;");
+                                          command("MOONS+JSR0A180;");
+                                        }, listener: (details) {
+                                          if (isConnected) {
+                                            HapticFeedback.heavyImpact();
 
-                                        _x = step * details.x;
-                                        _y = step * details.y;
+                                            StickDragDetails(0, 12);
+                                            setState(() {
+                                              double _x = 0;
+                                              double _y = 0;
 
-                                        double r = sqrt(pow(_x, 2).toInt() +
-                                            pow(_y, 2).toInt());
+                                              _x = (sendvalf! * details.x);
+                                              _y = (sendvalf! * details.y);
 
-                                        var s = r.toStringAsFixed(0);
-                                        double theta = atan(_y / _x);
+                                              double r = sqrt(
+                                                      pow(_x, 2).toInt() +
+                                                          pow(_y, 2).toInt())
+                                                  .abs();
+                                              double degree =
+                                                  atan2(details.y, details.x);
+                                              var s = r.toStringAsFixed(0);
 
-                                        double radians = (180 * (theta / pi));
-                                        String text = "MOONS+JSR${s}A$radians;";
+                                              int radians =
+                                                  (180 * (degree / pi)).toInt();
+                                              radians >= 1 && radians <= 180
+                                                  ? radians = radians + 90
+                                                  : (radians <= -1 &&
+                                                          radians >= -90)
+                                                      ? radians = 90 + radians
+                                                      : (radians < -90 &&
+                                                              radians >= -180)
+                                                          ? radians =
+                                                              450 + radians
+                                                          : radians;
+                                              int number = radians.toInt();
+                                              String text =
+                                                  "MOONS+JSR${s}A$number;";
 
-                                        command(text);
-                                      });
-                                    }),
-                                  ),
-                                ))
+                                              command(text);
+                                            });
+                                          } else {
+                                            command("MOONS+JSR0A180;");
+                                          }
+                                        }),
+                                      ))),
+                            )
                           ])
                     ])
               ],
@@ -367,24 +682,29 @@ class _RemoteControlState extends State<RemoteControl> {
 
   List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
-    if (_devicesList.isEmpty) {
-      items.add(const DropdownMenuItem(
-        child: Text('Choose Robot'),
-      ));
+    if (_pairedDeviceList.isEmpty) {
     } else {
-      for (var device in _devicesList) {
-        items.add(DropdownMenuItem(
-          child: Text(device.name.toString()),
-          value: device,
-        ));
-      }
+      _pairedDeviceList.forEach((device) {
+        if (device.name!.contains("SD") || device.name!.contains("TUG")) {
+          items.add(DropdownMenuItem(
+            alignment: Alignment.center,
+            onTap: _bluetoothSwitch
+                ? null
+                : _connected
+                    ? _disconnect
+                    : _connect,
+            child: Text(device.name.toString()),
+            value: device,
+          ));
+        }
+      });
     }
     return items;
   }
 
   void _connect() async {
     setState(() {
-      _isButtonUnavailable = true;
+      _bluetoothSwitch = true;
     });
     if (_device == null) {
     } else {
@@ -396,7 +716,7 @@ class _RemoteControlState extends State<RemoteControl> {
             _connected = true;
           });
 
-          connection!.input!.listen(onDataReceived).onDone(() {
+          connection!.input!.listen(dataReceived).onDone(() {
             if (isDisconnecting) {
             } else {}
             if (mounted) {
@@ -405,21 +725,21 @@ class _RemoteControlState extends State<RemoteControl> {
           });
         }).catchError((error) {});
 
-        setState(() => _isButtonUnavailable = false);
+        setState(() => _bluetoothSwitch = false);
       }
     }
   }
 
   void _disconnect() async {
     setState(() {
-      _isButtonUnavailable = true;
+      _bluetoothSwitch = true;
     });
 
-    await connection?.close();
+    await connection!.close();
     if (!connection!.isConnected) {
       setState(() {
         _connected = false;
-        _isButtonUnavailable = false;
+        _bluetoothSwitch = false;
       });
     }
   }
@@ -430,7 +750,7 @@ class _RemoteControlState extends State<RemoteControl> {
   String _relSpeed = '';
   String _aSpeed = '';
 
-  List<String> onDataReceived(Uint8List data) {
+  List<String> dataReceived(Uint8List data) {
     int backspacesCounter = 0;
     String? batStatus;
     String? waterStat;
@@ -508,7 +828,6 @@ class _RemoteControlState extends State<RemoteControl> {
             List<int> aSpeed = List<int>.from([
               data[i + 1],
               data[i + 2],
-              data[i + 3],
             ]);
             String result = const AsciiDecoder().convert(aSpeed);
             setState(() {
