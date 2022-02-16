@@ -61,7 +61,7 @@ class _RemoteControlState extends State<RemoteControl> {
   List<BluetoothDevice> _pairedDeviceList = [];
   BluetoothDevice? _device;
   bool _connected = false;
-  bool _bluetoothSwitch = true;
+  bool _bluetoothSwitch = false;
   bool _btnState = false;
   var deviceState = 0;
   /*All variables*/
