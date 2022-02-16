@@ -270,8 +270,6 @@ class _RemoteControlState extends State<RemoteControl> {
                                             sendval = increment * 10;
                                             disp = (increment * 0.1)
                                                 .toStringAsPrecision(1);
-                                            print(
-                                                "1 ==>" + increment.toString());
                                           },
                                           onTapDown: (TapDownDetails details) {
                                             _timer = Timer.periodic(
@@ -285,8 +283,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                                     : increment = 1;
                                               });
                                               sendval = increment * 10;
-                                              print(
-                                                  "2->" + increment.toString());
+
                                               disp = (increment * 0.1)
                                                   .toStringAsPrecision(1);
                                             });
@@ -305,8 +302,12 @@ class _RemoteControlState extends State<RemoteControl> {
                                             padding:
                                                 const EdgeInsets.only(left: 6),
                                             child: Text(
-                                              disp,
-                                              textAlign: TextAlign.center,
+                                              increment == 0 ? "0.0" : disp,
+                                              textDirection: TextDirection.rtl,
+                                              softWrap: true,
+                                              textAlign: increment == 0
+                                                  ? TextAlign.right
+                                                  : TextAlign.center,
                                               style: const TextStyle(
                                                 color: Colors.black,
                                                 fontWeight: FontWeight.bold,
@@ -314,10 +315,9 @@ class _RemoteControlState extends State<RemoteControl> {
                                               ),
                                             ))),
                                     Visibility(
-                                        visible:
-                                            (disp != '1' || disp != '2') == true
-                                                ? _visible
-                                                : !_visible,
+                                        visible: increment != 0
+                                            ? !_visible
+                                            : _visible,
                                         child: const Padding(
                                             padding: EdgeInsets.only(left: 7),
                                             child: Text(
