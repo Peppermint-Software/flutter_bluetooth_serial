@@ -39,13 +39,12 @@ dependencies:
   flutter_joystick: ^0.0.1
   http: ^0.13.4
   test: ^1.17.10
-  flutter_svg: ^1.0.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   
-  flutter_launcher_icons: ^0.9.2
+  # flutter_launcher_icons: ^0.9.2
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -54,13 +53,13 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^1.0.0
 
-flutter_icons:
-  image_path: "asset/leaf_green_white_back.png" 
-  android: true
-  ios: true
-  adaptive_icon_background: "#ffffff"
-  # optionally, as transparency is not allowed on app store
-  # remove_alpha_ios: true
+# flutter_icons:
+#   image_path: "asset/leaf_green_white_back.png" 
+#   android: true
+#   ios: true
+#   adaptive_icon_background: "#ffffff"
+#   # optionally, as transparency is not allowed on app store
+#   # remove_alpha_ios: true
 
 
 # For information on the generic Dart part of this file, see the
@@ -76,7 +75,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - asset/Leaf_grey.png
+    - asset/
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
