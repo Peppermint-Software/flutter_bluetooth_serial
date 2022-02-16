@@ -43,6 +43,7 @@ class RemoteControl extends StatefulWidget {
 BluetoothConnection? connection;
 
 class _RemoteControlState extends State<RemoteControl> {
+  /*All variables*/
   String disp = "";
 
   double increment = 0;
@@ -57,16 +58,18 @@ class _RemoteControlState extends State<RemoteControl> {
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   bool get isConnected => connection != null && connection!.isConnected;
   bool isDisconnecting = false;
-
-  List<BluetoothDevice> _devicesList = [];
+  List<BluetoothDevice> _pairedDeviceList = [];
   BluetoothDevice? _device;
   bool _connected = false;
-  bool _isButtonUnavailable = true;
+  bool _bluetoothSwitch = true;
+  bool _btnState = false;
+  var deviceState = 0;
+  /*All variables*/
 
   @override
   void initState() {
     super.initState();
-    getPairedDevices();
+    getPairedDeviceList();
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
         _bluetoothState = state;
@@ -80,9 +83,9 @@ class _RemoteControlState extends State<RemoteControl> {
       setState(() {
         _bluetoothState = state;
         if (_bluetoothState == BluetoothState.STATE_OFF) {
-          _isButtonUnavailable = true;
+          _bluetoothSwitch = true;
         }
-        getPairedDevices();
+        getPairedDeviceList();
       });
     });
   }
@@ -113,13 +116,13 @@ class _RemoteControlState extends State<RemoteControl> {
 
     if (_bluetoothState == BluetoothState.STATE_OFF) {
       await FlutterBluetoothSerial.instance.requestEnable();
-      await getPairedDevices();
+      await getPairedDeviceList();
     } else {
-      await getPairedDevices();
+      await getPairedDeviceList();
     }
   }
 
-  Future<void> getPairedDevices() async {
+  Future<void> getPairedDeviceList() async {
     List<BluetoothDevice> devices = [];
 
     try {
@@ -133,12 +136,9 @@ class _RemoteControlState extends State<RemoteControl> {
     }
 
     setState(() {
-      _devicesList = devices;
+      _pairedDeviceList = devices;
     });
   }
-
-  bool _btnState = false;
-  var deviceState = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +166,7 @@ class _RemoteControlState extends State<RemoteControl> {
                           items: _getDeviceItems(),
                           onChanged: (value) => setState(
                               () => _device = value as BluetoothDevice?),
-                          value: _devicesList.isNotEmpty && isConnected
+                          value: _pairedDeviceList.isNotEmpty && isConnected
                               ? _device
                               : null,
                         )),
@@ -196,8 +196,8 @@ class _RemoteControlState extends State<RemoteControl> {
                                       .requestDisable();
                                 }
 
-                                await getPairedDevices();
-                                _isButtonUnavailable = false;
+                                await getPairedDeviceList();
+                                _bluetoothSwitch = false;
                                 if (_connected) {
                                   _disconnect();
                                 }
@@ -433,7 +433,7 @@ class _RemoteControlState extends State<RemoteControl> {
                             )),
                         AbsorbPointer(
                             absorbing: isConnected &&
-                                    !_isButtonUnavailable &&
+                                    !_bluetoothSwitch &&
                                     _btnState == true
                                 ? false
                                 : true,
@@ -482,14 +482,14 @@ class _RemoteControlState extends State<RemoteControl> {
                         child: Text("Traction Power")),
                     AbsorbPointer(
                         absorbing:
-                            isConnected && !_isButtonUnavailable ? false : true,
+                            isConnected && !_bluetoothSwitch ? false : true,
                         child: Padding(
                             padding: const EdgeInsets.all(2),
                             child: Container(
                               alignment: Alignment.bottomCenter,
                               padding: const EdgeInsets.only(bottom: 2),
                               child: SlidingSwitch(
-                                value: _btnState && _isButtonUnavailable,
+                                value: _btnState && _bluetoothSwitch,
                                 width: 150,
                                 onChanged: (value) => setState(() {
                                   if (!_bluetoothState!.isEnabled) {
@@ -682,13 +682,13 @@ class _RemoteControlState extends State<RemoteControl> {
 
   List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
-    if (_devicesList.isEmpty) {
+    if (_pairedDeviceList.isEmpty) {
     } else {
-      _devicesList.forEach((device) {
+      _pairedDeviceList.forEach((device) {
         if (device.name!.contains("SD") || device.name!.contains("TUG")) {
           items.add(DropdownMenuItem(
             alignment: Alignment.center,
-            onTap: _isButtonUnavailable
+            onTap: _bluetoothSwitch
                 ? null
                 : _connected
                     ? _disconnect
@@ -704,7 +704,7 @@ class _RemoteControlState extends State<RemoteControl> {
 
   void _connect() async {
     setState(() {
-      _isButtonUnavailable = true;
+      _bluetoothSwitch = true;
     });
     if (_device == null) {
     } else {
@@ -716,7 +716,7 @@ class _RemoteControlState extends State<RemoteControl> {
             _connected = true;
           });
 
-          connection!.input!.listen(onDataReceived).onDone(() {
+          connection!.input!.listen(dataReceived).onDone(() {
             if (isDisconnecting) {
             } else {}
             if (mounted) {
@@ -725,21 +725,21 @@ class _RemoteControlState extends State<RemoteControl> {
           });
         }).catchError((error) {});
 
-        setState(() => _isButtonUnavailable = false);
+        setState(() => _bluetoothSwitch = false);
       }
     }
   }
 
   void _disconnect() async {
     setState(() {
-      _isButtonUnavailable = true;
+      _bluetoothSwitch = true;
     });
 
     await connection!.close();
     if (!connection!.isConnected) {
       setState(() {
         _connected = false;
-        _isButtonUnavailable = false;
+        _bluetoothSwitch = false;
       });
     }
   }
@@ -750,7 +750,7 @@ class _RemoteControlState extends State<RemoteControl> {
   String _relSpeed = '';
   String _aSpeed = '';
 
-  List<String> onDataReceived(Uint8List data) {
+  List<String> dataReceived(Uint8List data) {
     int backspacesCounter = 0;
     String? batStatus;
     String? waterStat;
