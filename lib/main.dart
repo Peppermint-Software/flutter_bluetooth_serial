@@ -654,7 +654,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                                   (180 * (degree / pi)).toInt();
                                               radians >= 1 && radians <= 180
                                                   ? radians = radians + 90
-                                                  : (radians <= -1 &&
+                                                  : (radians <= 0 &&
                                                           radians >= -90)
                                                       ? radians = 90 + radians
                                                       : (radians < -90 &&
@@ -812,18 +812,18 @@ class _RemoteControlState extends State<RemoteControl> {
               _wtrFlow = waterFlow!;
             });
           }
-          if (data[i] == 74 && data[i - 1] == 42) {
-            List<int> refSpeed = List<int>.from([
-              data[i + 1],
-              data[i + 2],
-              data[i + 3],
-            ]);
-            String result = const AsciiDecoder().convert(refSpeed);
-            setState(() {
-              refspeed = result;
-              _relSpeed = refspeed!;
-            });
-          }
+          // if (data[i] == 74 && data[i - 1] == 42) {
+          //   List<int> refSpeed = List<int>.from([
+          //     data[i + 1],
+          //     data[i + 2],
+          //     data[i + 3],
+          //   ]);
+          //   String result = const AsciiDecoder().convert(refSpeed);
+          //   setState(() {
+          //     refspeed = result;
+          //     _relSpeed = refspeed!;
+          //   });
+          // }
           if (data[i] == 73 && data[i - 1] == 42) {
             List<int> aSpeed = List<int>.from([
               data[i + 1],
