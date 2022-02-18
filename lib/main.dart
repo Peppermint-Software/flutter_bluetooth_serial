@@ -654,7 +654,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                                   (180 * (degree / pi)).toInt();
                                               radians >= 1 && radians <= 180
                                                   ? radians = radians + 90
-                                                  : (radians <= 0 &&
+                                                  : (radians <= -1 &&
                                                           radians >= -90)
                                                       ? radians = 90 + radians
                                                       : (radians < -90 &&
