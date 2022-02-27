@@ -39,6 +39,7 @@ dependencies:
   flutter_joystick: ^0.0.1
   http: ^0.13.4
   test: ^1.17.10
+  flutter_blue: ^0.8.0
 
 dev_dependencies:
   flutter_test:
