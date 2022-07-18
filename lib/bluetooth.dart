@@ -30,7 +30,7 @@ BluetoothConnection? connection;
 class _RemoteControlState extends State<RemoteControl> {
   /*All variables*/
   String disp = "";
-  // var someone = IconDashboard(
+  // var someone = IconDashboard( +++++++++++++
   //     null, Colors.green, connection!.isConnected, _btrystat, icon1, 2, 0xe0d1);
   var something1;
   double increment = 0;
