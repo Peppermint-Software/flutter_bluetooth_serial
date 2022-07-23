@@ -3,13 +3,12 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:peppermintrc/ble.dart';
-import 'package:peppermintrc/helpers.dart';
+import 'package:peppermintrc/globals.dart';
 import 'package:peppermintrc/helpers.dart';
 import 'package:sliding_switch/sliding_switch.dart';
 import 'package:flutter_blue/flutter_blue.dart' as ble5;
@@ -23,6 +22,8 @@ class RemoteControl extends StatefulWidget {
 
   @override
   State<RemoteControl> createState() => _RemoteControlState();
+
+  static getPairedDeviceList() {}
 }
 
 BluetoothConnection? connection;
@@ -30,9 +31,6 @@ BluetoothConnection? connection;
 class _RemoteControlState extends State<RemoteControl> {
   /*All variables*/
   String disp = "";
-  // var someone = IconDashboard( +++++++++++++
-  //     null, Colors.green, connection!.isConnected, _btrystat, icon1, 2, 0xe0d1);
-  var something1;
   double increment = 0;
   double? sendval;
   double? sendvalf;
@@ -52,7 +50,14 @@ class _RemoteControlState extends State<RemoteControl> {
   bool _btnState = false;
   var deviceState = 0;
   var flutterblue = ble5.FlutterBlue.instance;
+  final String _enableMotor = "MOONS+ME;";
+  final String _stopDrive = "MOONS+OFF;";
+  final String _disableMotor = "MOONS+MD;";
+
+  var _operationDir = GlobalSingleton().getOperationDir();
+  var _drivestatus = GlobalSingleton().getDriveStatus();
   /*All variables*/
+
   _showDeviceTolist(final ble5.BluetoothDevice device1) {
     if (!devicesList.contains(device1)) {
       setState(() {
@@ -64,6 +69,7 @@ class _RemoteControlState extends State<RemoteControl> {
   @override
   void initState() {
     super.initState();
+
     getPairedDeviceList();
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
@@ -87,7 +93,8 @@ class _RemoteControlState extends State<RemoteControl> {
     });
     flutterBlue.startScan();
 
-    enableBluetooth(); //turning the bluetooth on
+    GlobalSingleton()
+        .enableBluetooth(); //turning the bluetooth on code is in globals.dart
 
     FlutterBluetoothSerial.instance
         .onStateChanged()
@@ -112,31 +119,6 @@ class _RemoteControlState extends State<RemoteControl> {
 
     super.dispose();
   }
-
-//used to send data to the robot (call by value function)
-  Future command(String data1) async {
-    List<int> x = List<int>.from(ascii.encode(data1));
-
-    String result = const AsciiDecoder().convert(x);
-    if (isConnected) {
-      connection!.output.add(ascii.encoder.convert(result));
-      await connection!.output.allSent;
-    }
-  }
-
-// end of Function
-//Turning On Bluetooth
-  Future<void> enableBluetooth() async {
-    _bluetoothState = await FlutterBluetoothSerial.instance.state;
-
-    if (_bluetoothState == BluetoothState.STATE_OFF) {
-      await FlutterBluetoothSerial.instance.requestEnable();
-      await getPairedDeviceList().timeout(const Duration(seconds: 8));
-    } else {
-      await getPairedDeviceList();
-    }
-  }
-//  End of turning on Bluetooth
 
   Future<void> getPairedDeviceList() async {
     List<BluetoothDevice> devices = [];
@@ -353,14 +335,15 @@ class _RemoteControlState extends State<RemoteControl> {
                                               _check = !_check;
                                               if (_check == false) {
                                                 sendvalf = sendval;
-
-                                                command("MOONS+SL$sendvalf;");
+                                                GlobalSingleton().command(
+                                                    GlobalSingleton().driveOn);
+                                                // command("MOONS+SL$sendvalf;");
                                               }
                                               if (_check == true &&
                                                   _checkrun == false) {
                                                 sendvalf = 0;
-
-                                                command("MOONS+SL$sendvalf");
+                                                GlobalSingleton().command(
+                                                    "MOONS+SL$sendvalf;");
                                               }
                                             });
                                           },
@@ -466,14 +449,14 @@ class _RemoteControlState extends State<RemoteControl> {
                                   width: 180,
                                   onChanged: (bool value) => setState(() {
                                     if (isConnected) {
-                                      String _frwCmd = "MOONS+F;";
-                                      String _revCmd = "MOONS+R;";
-
                                       HapticFeedback.vibrate();
 
                                       value == true
-                                          ? command(_revCmd)
-                                          : command(_frwCmd);
+                                          ? GlobalSingleton()
+                                              .command(GlobalSingleton().revCmd)
+                                          : GlobalSingleton().command(
+                                              GlobalSingleton().fwdCmd);
+                                      // GlobalSingleton().command(_frwCmd);
                                     }
                                   }),
                                   height: 50,
@@ -516,31 +499,33 @@ class _RemoteControlState extends State<RemoteControl> {
                                     });
                                   }
                                   if (isConnected) {
-                                    String _startDrive = "MOONS+ON;";
-                                    String _enableMotor = "MOONS+ME;";
-                                    String _stopDrive = "MOONS+OFF;";
-                                    String _disableMotor = "MOONS+MD;";
-
                                     _btnState = value;
 
                                     if (value == true) {
                                       HapticFeedback.heavyImpact();
-                                      const _powerOnCmd =
+                                      const powerOnCmd =
                                           Duration(milliseconds: 333);
-                                      Timer.periodic(_powerOnCmd,
-                                          (Timer t) => command(_startDrive));
-
-                                      command(_enableMotor);
+                                      Timer.periodic(
+                                          powerOnCmd,
+                                          (Timer t) => GlobalSingleton()
+                                              .command(
+                                                  GlobalSingleton().driveOn));
+                                      GlobalSingleton()
+                                          .command(GlobalSingleton().motorOn);
                                     }
 
                                     if (value == false) {
                                       HapticFeedback.heavyImpact();
 
-                                      command(_disableMotor);
-                                      const _powerOffCmd =
+                                      GlobalSingleton()
+                                          .command(GlobalSingleton().motorOff);
+                                      const powerOffCmd =
                                           Duration(milliseconds: 333);
-                                      Timer.periodic(_powerOffCmd,
-                                          (Timer t) => command(_stopDrive));
+                                      Timer.periodic(
+                                          powerOffCmd,
+                                          (Timer t) => GlobalSingleton()
+                                              .command(
+                                                  GlobalSingleton().driveOff));
                                     }
                                   } else {
                                     setState(() {
@@ -593,7 +578,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                               padding: const EdgeInsets.only(
                                                   top: 20),
                                               child: Text(
-                                                _wtrLevel + "%",
+                                                "$_wtrLevel%",
                                                 textAlign: TextAlign.end,
                                                 style: const TextStyle(
                                                     color: Colors.black),
@@ -653,7 +638,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 35, horizontal: 8),
                                         child: Joystick(onStickDragEnd: () {
-                                          command(
+                                          GlobalSingleton().command(
                                               "MOONS+JSR0A180;"); //movement stop (by default)
                                         }, listener: (details) {
                                           if (isConnected) {
@@ -673,7 +658,6 @@ class _RemoteControlState extends State<RemoteControl> {
                                               double degree =
                                                   atan2(details.y, details.x);
                                               var s = r.toStringAsFixed(0);
-                                              Command().command("Hello");
                                               int radians =
                                                   (180 * (degree / pi)).toInt();
                                               radians >= 1 && radians <= 180
@@ -690,10 +674,11 @@ class _RemoteControlState extends State<RemoteControl> {
                                               String text =
                                                   "MOONS+JSR${s}A$number;";
 
-                                              command(text);
+                                              GlobalSingleton().command(text);
                                             });
                                           } else {
-                                            command("MOONS+JSR0A180;");
+                                            GlobalSingleton()
+                                                .command("MOONS+JSR0A180;");
                                           }
                                         }),
                                       ))),
@@ -831,7 +816,7 @@ class _RemoteControlState extends State<RemoteControl> {
         if (backspacesCounter > 0) {
         } else {
           proxy[--proxyIndex] = data[i];
-          something1 = ReaderOfUint().something(data, 86, 4, i);
+          var something1 = ReaderOfUint().something(data, 86, 4, i);
 
           if (data[i] == 86 && data[i - 1] == 42) {
             List<int> batstatus = List<int>.from([
