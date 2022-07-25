@@ -50,9 +50,6 @@ class _RemoteControlState extends State<RemoteControl> {
   bool _btnState = false;
   var deviceState = 0;
   var flutterblue = ble5.FlutterBlue.instance;
-  final String _enableMotor = "MOONS+ME;";
-  final String _stopDrive = "MOONS+OFF;";
-  final String _disableMotor = "MOONS+MD;";
 
   var _operationDir = GlobalSingleton().getOperationDir();
   var _drivestatus = GlobalSingleton().getDriveStatus();
@@ -337,7 +334,6 @@ class _RemoteControlState extends State<RemoteControl> {
                                                 sendvalf = sendval;
                                                 GlobalSingleton().command(
                                                     GlobalSingleton().driveOn);
-                                                // command("MOONS+SL$sendvalf;");
                                               }
                                               if (_check == true &&
                                                   _checkrun == false) {
@@ -456,7 +452,6 @@ class _RemoteControlState extends State<RemoteControl> {
                                               .command(GlobalSingleton().revCmd)
                                           : GlobalSingleton().command(
                                               GlobalSingleton().fwdCmd);
-                                      // GlobalSingleton().command(_frwCmd);
                                     }
                                   }),
                                   height: 50,
@@ -569,7 +564,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                     elevation: 0,
                                     backgroundColor: Colors.transparent,
                                     actions: <Widget>[
-                                      Icon(Icons.invert_colors,
+                                      Icon(Icons.battery_0_bar,
                                           color: isConnected
                                               ? Colors.green
                                               : null),
@@ -578,7 +573,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                               padding: const EdgeInsets.only(
                                                   top: 20),
                                               child: Text(
-                                                "$_wtrLevel%",
+                                                "$_btrystat%",
                                                 textAlign: TextAlign.end,
                                                 style: const TextStyle(
                                                     color: Colors.black),
@@ -639,46 +634,27 @@ class _RemoteControlState extends State<RemoteControl> {
                                             vertical: 35, horizontal: 8),
                                         child: Joystick(onStickDragEnd: () {
                                           GlobalSingleton().command(
-                                              "MOONS+JSR0A180;"); //movement stop (by default)
+                                              GlobalSingleton()
+                                                  .joystickStopCmd); //movement stop (by default)
                                         }, listener: (details) {
                                           if (isConnected) {
                                             HapticFeedback.heavyImpact();
-
                                             setState(() {
                                               double _x = 0;
                                               double _y = 0;
 
                                               _x = (sendvalf! * details.x);
                                               _y = (sendvalf! * details.y);
-
-                                              double r = sqrt(
-                                                      pow(_x, 2).toInt() +
-                                                          pow(_y, 2).toInt())
-                                                  .abs();
                                               double degree =
                                                   atan2(details.y, details.x);
-                                              var s = r.toStringAsFixed(0);
-                                              int radians =
-                                                  (180 * (degree / pi)).toInt();
-                                              radians >= 1 && radians <= 180
-                                                  ? radians = radians + 90
-                                                  : (radians <= 0 &&
-                                                          radians >= -90)
-                                                      ? radians = 90 + radians
-                                                      : (radians < -90 &&
-                                                              radians >= -180)
-                                                          ? radians =
-                                                              450 + radians
-                                                          : radians;
-                                              int number = radians.toInt();
                                               String text =
-                                                  "MOONS+JSR${s}A$number;";
-
+                                                  "MOONS+JSR${GlobalSingleton().offsetJoystickLogic(details.x, details.y, _x, _y, degree)}";
                                               GlobalSingleton().command(text);
                                             });
                                           } else {
-                                            GlobalSingleton()
-                                                .command("MOONS+JSR0A180;");
+                                            GlobalSingleton().command(
+                                                GlobalSingleton()
+                                                    .joystickStopCmd); //movement stop (by default)
                                           }
                                         }),
                                       ))),
@@ -816,21 +792,11 @@ class _RemoteControlState extends State<RemoteControl> {
         if (backspacesCounter > 0) {
         } else {
           proxy[--proxyIndex] = data[i];
-          var something1 = ReaderOfUint().something(data, 86, 4, i);
+          var something1 = GlobalSingleton().rmagnitude(data, 86, 4, i);
+          setState(() {
+            _btrystat = something1 as String;
+          });
 
-          if (data[i] == 86 && data[i - 1] == 42) {
-            List<int> batstatus = List<int>.from([
-              data[i + 1],
-              data[i + 2],
-              data[i + 3],
-              data[i + 4],
-            ]);
-            String result = const AsciiDecoder().convert(batstatus);
-            setState(() {
-              batStatus = result;
-              _btrystat = batStatus!;
-            });
-          }
           if (data[i] == 119 && data[i - 1] == 42) {
             List<int> wtrlevel = List<int>.from([
               data[i + 1],
