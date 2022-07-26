@@ -15,6 +15,7 @@ doc/api/
 # Avoid committing generated Javascript files:
 *.flutter-plugins-dependencies
 *.flutter-plugins
+*.flutter_01.log
 *.apk
 *.dart.js
 *.info.json      # Produced by the --dump-info flag.
