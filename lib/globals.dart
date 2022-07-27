@@ -86,7 +86,7 @@ The string is converted to a byte array and then sent to the device.
 // TODO:have to find a better way to encapsulate the logic of this code
     if (array[index] == charCode && array[index - 1] == hash) {
       String we;
-      for (int i = 1; i >= n; i++) {
+      for (int i = 1; i <= n; i++) {
         List<int> something = List<int>.from([array[index + i]]);
         String qwer = const AsciiDecoder().convert(something);
         we = qwer;

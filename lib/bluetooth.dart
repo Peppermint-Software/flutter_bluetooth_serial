@@ -9,7 +9,6 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:peppermintrc/ble.dart';
 import 'package:peppermintrc/globals.dart';
-import 'package:peppermintrc/helpers.dart';
 import 'package:sliding_switch/sliding_switch.dart';
 import 'package:flutter_blue/flutter_blue.dart' as ble5;
 
@@ -30,6 +29,7 @@ BluetoothConnection? connection;
 
 class _RemoteControlState extends State<RemoteControl> {
   /*All variables*/
+
   String disp = "";
   double increment = 0;
   double? sendval;
@@ -51,8 +51,9 @@ class _RemoteControlState extends State<RemoteControl> {
   var deviceState = 0;
   var flutterblue = ble5.FlutterBlue.instance;
 
-  var _operationDir = GlobalSingleton().getOperationDir();
-  var _drivestatus = GlobalSingleton().getDriveStatus();
+  final _operationDir = GlobalSingleton().getOperationDir();
+  final _drivestatus = GlobalSingleton().getDriveStatus();
+
   /*All variables*/
 
   _showDeviceTolist(final ble5.BluetoothDevice device1) {
@@ -218,6 +219,9 @@ class _RemoteControlState extends State<RemoteControl> {
                           ))
                     ]),
                     Row(
+/*The Spped limiter Button and the peppermint Logo  and 
+the Forward and Reverse gear are place in a Row Within the main column of the app.
+ */
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
@@ -263,7 +267,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                                   ? increment++
                                                   : increment = 1;
                                             });
-                                            sendval = increment * 10;
+                                            increment += 10;
                                             disp = (increment * 0.1)
                                                 .toStringAsPrecision(1);
                                           },
@@ -472,6 +476,9 @@ class _RemoteControlState extends State<RemoteControl> {
                             ))
                       ],
                     ),
+
+/*The Traction power Button at the bottom of the screen*/
+
                     const Padding(
                         padding: EdgeInsets.only(bottom: 2, top: 0),
                         child: Text("Traction Power")),
@@ -545,6 +552,9 @@ class _RemoteControlState extends State<RemoteControl> {
                             )))
                   ],
                 ),
+/*Code of the rigth column of the app.
+It inclurdes the battery status indicator and the Joystick that we use to control the Robot
+ */
                 Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -645,6 +655,10 @@ class _RemoteControlState extends State<RemoteControl> {
 
                                               _x = (sendvalf! * details.x);
                                               _y = (sendvalf! * details.y);
+
+                                              print(
+                                                  "Sending value in joystick code " +
+                                                      sendvalf.toString());
                                               double degree =
                                                   atan2(details.y, details.x);
                                               String text =
@@ -704,7 +718,7 @@ class _RemoteControlState extends State<RemoteControl> {
             device.name!.contains("TUG")) {
           items.add(DropdownMenuItem(
             alignment: Alignment.center,
-            child: Text(device.name.toString() + "-BLE"),
+            child: Text("${device.name}-BLE"),
             onTap: _bluetoothSwitch
                 ? null
                 : _connected
@@ -765,7 +779,7 @@ class _RemoteControlState extends State<RemoteControl> {
   String _wtrFlow = '';
   String _relSpeed = '';
   String _aSpeed = '';
-  String _modbus = '';
+  final String _modbus = '';
 
   List<String> dataReceived(Uint8List data) {
     int backspacesCounter = 0;
@@ -810,6 +824,7 @@ class _RemoteControlState extends State<RemoteControl> {
               _wtrLevel = waterStat!;
             });
           }
+
           if (data[i] == 89 && data[i - 1] == 42) {
             List<int> wtrFlow = List<int>.from([
               data[i + 1],
@@ -822,6 +837,7 @@ class _RemoteControlState extends State<RemoteControl> {
               _wtrFlow = waterFlow!;
             });
           }
+
           if (data[i] == 74 && data[i - 1] == 42) {
             List<int> refSpeed = List<int>.from([
               data[i + 1],
@@ -835,6 +851,7 @@ class _RemoteControlState extends State<RemoteControl> {
               _relSpeed = refspeed!;
             });
           }
+
           if (data[i] == 73 && data[i - 1] == 42) {
             List<int> aSpeed = List<int>.from([
               data[i + 1],
