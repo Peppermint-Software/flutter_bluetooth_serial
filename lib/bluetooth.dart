@@ -659,6 +659,7 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
                                               print(
                                                   "Sending value in joystick code " +
                                                       sendvalf.toString());
+
                                               double degree =
                                                   atan2(details.y, details.x);
                                               String text =
