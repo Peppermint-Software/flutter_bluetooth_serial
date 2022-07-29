@@ -9,6 +9,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:peppermintrc/ble.dart';
 import 'package:peppermintrc/globals.dart';
+import 'package:peppermintrc/speedLimiter.dart';
 import 'package:sliding_switch/sliding_switch.dart';
 import 'package:flutter_blue/flutter_blue.dart' as ble5;
 
@@ -222,7 +223,7 @@ class _RemoteControlState extends State<RemoteControl> {
 /*The Spped limiter Button and the peppermint Logo  and 
 the Forward and Reverse gear are place in a Row Within the main column of the app.
  */
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Padding(
@@ -241,168 +242,10 @@ the Forward and Reverse gear are place in a Row Within the main column of the ap
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: <Widget>[
-                                    const SizedBox(width: 5),
+                                    const SizedBox(width: 2),
                                     AbsorbPointer(
                                         absorbing: isConnected ? false : true,
-                                        child: GestureDetector(
-                                          child: Container(
-                                            decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.blue,
-                                            ),
-                                            width: 40,
-                                            height: 40,
-                                            child: const Center(
-                                              child: Icon(
-                                                Icons.add,
-                                                size: 20,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                          onTap: () {
-                                            setState(() {
-                                              _checkrun = false;
-                                              increment * 0.1 < 2
-                                                  ? increment++
-                                                  : increment = 1;
-                                            });
-                                            increment += 10;
-                                            disp = (increment * 0.1)
-                                                .toStringAsPrecision(1);
-                                          },
-                                          onTapDown: (TapDownDetails details) {
-                                            _timer = Timer.periodic(
-                                                const Duration(
-                                                    milliseconds: 100), (t) {
-                                              setState(() {
-                                                _checkrun = false;
-
-                                                increment * 0.1 < 2
-                                                    ? increment++
-                                                    : increment = 1;
-                                              });
-                                              sendval = increment * 10;
-
-                                              disp = (increment * 0.1)
-                                                  .toStringAsPrecision(1);
-                                            });
-                                          },
-                                          onTapUp: (TapUpDetails details) {
-                                            _timer.cancel();
-                                          },
-                                          onTapCancel: () {
-                                            _timer.cancel();
-                                          },
-                                        )),
-                                    Visibility(
-                                        visible:
-                                            !isConnected ? _visible : !_visible,
-                                        child: Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 6),
-                                            child: Text(
-                                              increment == 0 ? "0.0" : disp,
-                                              textDirection: TextDirection.rtl,
-                                              softWrap: true,
-                                              textAlign: increment == 0
-                                                  ? TextAlign.right
-                                                  : TextAlign.center,
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 25,
-                                              ),
-                                            ))),
-                                    Visibility(
-                                        visible: increment != 0
-                                            ? !_visible
-                                            : _visible,
-                                        child: const Padding(
-                                            padding: EdgeInsets.only(left: 7),
-                                            child: Text(
-                                              "m/sec",
-                                              style: TextStyle(fontSize: 9),
-                                              textAlign: TextAlign.end,
-                                            ))),
-                                    AbsorbPointer(
-                                        absorbing: isConnected ? false : true,
-                                        child: IconButton(
-                                          alignment: Alignment.centerLeft,
-                                          onPressed: () {
-                                            HapticFeedback.heavyImpact();
-
-                                            setState(() {
-                                              _check = !_check;
-                                              if (_check == false) {
-                                                sendvalf = sendval;
-                                                GlobalSingleton().command(
-                                                    GlobalSingleton().driveOn);
-                                              }
-                                              if (_check == true &&
-                                                  _checkrun == false) {
-                                                sendvalf = 0;
-                                                GlobalSingleton().command(
-                                                    "MOONS+SL$sendvalf;");
-                                              }
-                                            });
-                                          },
-                                          icon: Icon((_check == false)
-                                              ? Icons.lock
-                                              : Icons.lock_open),
-                                        )),
-                                    AbsorbPointer(
-                                      absorbing: isConnected ? false : true,
-                                      child: GestureDetector(
-                                        child: Container(
-                                          decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.blue,
-                                          ),
-                                          width: 40,
-                                          height: 40,
-                                          child: Center(
-                                            child: Container(
-                                              color: Colors.white,
-                                              width: 15,
-                                              height: 3,
-                                            ),
-                                          ),
-                                        ),
-                                        onTap: () {
-                                          setState(() {
-                                            _checkrun = !_checkrun;
-
-                                            if (increment > 0) increment--;
-                                          });
-                                          sendval = increment * 10;
-
-                                          disp = (increment * 0.1)
-                                              .toStringAsPrecision(1);
-                                        },
-                                        onTapDown: (TapDownDetails details) {
-                                          _timer = Timer.periodic(
-                                              const Duration(milliseconds: 100),
-                                              (t) {
-                                            setState(() {
-                                              _checkrun = !_checkrun;
-
-                                              if (increment > 0) increment--;
-                                            });
-                                            sendval = increment * 10;
-
-                                            disp = (increment * 0.1)
-                                                .toStringAsPrecision(1);
-                                          });
-                                        },
-                                        onTapUp: (TapUpDetails details) {
-                                          _timer.cancel();
-                                        },
-                                        onTapCancel: () {
-                                          _timer.cancel();
-                                        },
-                                      ),
-                                    )
+                                        child: const SpeedLimiter()),
                                   ],
                                 ),
                               ],
@@ -807,10 +650,7 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
         if (backspacesCounter > 0) {
         } else {
           proxy[--proxyIndex] = data[i];
-          var something1 = GlobalSingleton().rmagnitude(data, 86, 4, i);
-          setState(() {
-            _btrystat = something1 as String;
-          });
+          print("data here ==>" + data[i].toString());
 
           if (data[i] == 119 && data[i - 1] == 42) {
             List<int> wtrlevel = List<int>.from([
