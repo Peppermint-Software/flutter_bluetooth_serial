@@ -7,14 +7,16 @@ import 'package:peppermintrc/bluetooth.dart';
 
 bool get isConnected => connection != null && connection!.isConnected;
 
-class IconDashboard {
-  Color? yesColor;
-  Color? noColor;
-  int? iconhash;
-  IconDashboard(noColor, yesColor, condition, iconhash) {
-    Icon(
-      IconData(iconhash, fontFamily: 'MaterialIcons'),
-      color: condition ? yesColor : noColor,
-    );
+class Icon_placeHolder extends StatefulWidget {
+  const Icon_placeHolder({Key? key}) : super(key: key);
+
+  @override
+  State<Icon_placeHolder> createState() => _Icon_placeHolderState();
+}
+
+class _Icon_placeHolderState extends State<Icon_placeHolder> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(child: const Text('Icon_placeHolder'));
   }
 }

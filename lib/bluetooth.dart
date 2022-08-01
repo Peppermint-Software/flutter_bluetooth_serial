@@ -137,7 +137,7 @@ class _RemoteControlState extends State<RemoteControl> {
     });
   }
 
-//Actual widget start
+  //Actual widget start
   @override
   Widget build(BuildContext context) {
     bool _btnState1 = false;
@@ -220,7 +220,7 @@ class _RemoteControlState extends State<RemoteControl> {
                           ))
                     ]),
                     Row(
-/*The Spped limiter Button and the peppermint Logo  and 
+/*The Speed limiter Button and the peppermint Logo  and 
 the Forward and Reverse gear are place in a Row Within the main column of the app.
  */
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -229,7 +229,7 @@ the Forward and Reverse gear are place in a Row Within the main column of the ap
                         Padding(
                           padding: const EdgeInsets.all(8),
                           child: Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
                                 color: Colors.transparent,
                                 borderRadius: BorderRadius.circular(5)),
@@ -242,7 +242,7 @@ the Forward and Reverse gear are place in a Row Within the main column of the ap
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: <Widget>[
-                                    const SizedBox(width: 2),
+                                    const SizedBox(width: 1),
                                     AbsorbPointer(
                                         absorbing: isConnected ? false : true,
                                         child: const SpeedLimiter()),
@@ -293,7 +293,6 @@ the Forward and Reverse gear are place in a Row Within the main column of the ap
                                   onChanged: (bool value) => setState(() {
                                     if (isConnected) {
                                       HapticFeedback.vibrate();
-
                                       value == true
                                           ? GlobalSingleton()
                                               .command(GlobalSingleton().revCmd)
@@ -323,16 +322,19 @@ the Forward and Reverse gear are place in a Row Within the main column of the ap
 /*The Traction power Button at the bottom of the screen*/
 
                     const Padding(
-                        padding: EdgeInsets.only(bottom: 2, top: 0),
-                        child: Text("Traction Power")),
+                        padding: EdgeInsets.only(bottom: 0, top: 0),
+                        child: Text(
+                          "Traction Power",
+                          style: TextStyle(fontSize: 7),
+                        )),
                     AbsorbPointer(
                         absorbing:
                             isConnected && !_bluetoothSwitch ? false : true,
                         child: Padding(
-                            padding: const EdgeInsets.all(2),
+                            padding: const EdgeInsets.all(0),
                             child: Container(
                               alignment: Alignment.bottomCenter,
-                              padding: const EdgeInsets.only(bottom: 2),
+                              padding: const EdgeInsets.only(bottom: 0),
                               child: SlidingSwitch(
                                 value: _btnState && _bluetoothSwitch,
                                 width: 150,
@@ -434,7 +436,8 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
                                           : const Text(''),
                                       Icon(Icons.speed,
                                           color: isConnected
-                                              ? Colors.green
+                                              ? const Color.fromARGB(
+                                                  255, 76, 175, 80)
                                               : null),
                                       isConnected
                                           ? Padding(
@@ -498,10 +501,6 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
 
                                               _x = (sendvalf! * details.x);
                                               _y = (sendvalf! * details.y);
-
-                                              print(
-                                                  "Sending value in joystick code " +
-                                                      sendvalf.toString());
 
                                               double degree =
                                                   atan2(details.y, details.x);
@@ -650,8 +649,6 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
         if (backspacesCounter > 0) {
         } else {
           proxy[--proxyIndex] = data[i];
-          print("data here ==>" + data[i].toString());
-
           if (data[i] == 119 && data[i - 1] == 42) {
             List<int> wtrlevel = List<int>.from([
               data[i + 1],
