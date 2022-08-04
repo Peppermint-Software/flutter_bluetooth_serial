@@ -321,43 +321,47 @@ The Traction power Button at the bottom of the screen
                                 onChanged: (value) => setState(() {
                                   if (!_bluetoothState!.isEnabled) {
                                     setState(() {
-                                      _btnState == false;
-                                      value = false;
+                                      _btnState = false;
                                     });
                                   }
-                                  if (isConnected) {
-                                    _btnState = value;
+                                  switch (_btnState) {
+                                    case true:
+                                      {
+                                        HapticFeedback.heavyImpact();
+                                        const powerOnCmd =
+                                            Duration(milliseconds: 333);
+                                        Timer.periodic(
+                                            powerOnCmd,
+                                            (Timer t) => GlobalSingleton()
+                                                .command(
+                                                    GlobalSingleton().driveOn));
+                                        GlobalSingleton()
+                                            .command(GlobalSingleton().motorOn);
+                                        break;
 
-                                    if (value == true) {
-                                      HapticFeedback.heavyImpact();
-                                      const powerOnCmd =
-                                          Duration(milliseconds: 333);
-                                      Timer.periodic(
-                                          powerOnCmd,
-                                          (Timer t) => GlobalSingleton()
-                                              .command(
-                                                  GlobalSingleton().driveOn));
-                                      GlobalSingleton()
-                                          .command(GlobalSingleton().motorOn);
-                                    }
+                                        // TODO: WRITE A CODE TO CANCEL A TIMER WHEN AN EVENT OCCURS
+                                      }
+                                    case false:
+                                      {
+                                        HapticFeedback.heavyImpact();
 
-                                    if (value == false) {
-                                      HapticFeedback.heavyImpact();
+                                        GlobalSingleton().command(
+                                            GlobalSingleton().motorOff);
+                                        const powerOffCmd =
+                                            Duration(milliseconds: 333);
+                                        Timer.periodic(
+                                            powerOffCmd,
+                                            (Timer t) => GlobalSingleton()
+                                                .command(GlobalSingleton()
+                                                    .driveOff));
+                                        break;
+                                      }
 
-                                      GlobalSingleton()
-                                          .command(GlobalSingleton().motorOff);
-                                      const powerOffCmd =
-                                          Duration(milliseconds: 333);
-                                      Timer.periodic(
-                                          powerOffCmd,
-                                          (Timer t) => GlobalSingleton()
-                                              .command(
-                                                  GlobalSingleton().driveOff));
-                                    }
-                                  } else {
-                                    setState(() {
-                                      value = false;
-                                    });
+                                    // else {
+                                    //   setState(() {
+                                    //     value = false;
+                                    //   });
+                                    // }
                                   }
                                 }),
                                 height: 40,
