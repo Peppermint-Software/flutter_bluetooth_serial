@@ -7,11 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
-import 'package:peppermintrc/ble.dart';
 import 'package:peppermintrc/globals.dart';
 import 'package:peppermintrc/speedLimiter.dart';
 import 'package:sliding_switch/sliding_switch.dart';
-import 'package:flutter_blue/flutter_blue.dart' as ble5;
 
 import 'helpers.dart';
 
@@ -50,20 +48,11 @@ class _RemoteControlState extends State<RemoteControl> {
   bool _bluetoothSwitch = false;
   bool _btnState = false;
   var deviceState = 0;
-  var flutterblue = ble5.FlutterBlue.instance;
 
   final _operationDir = GlobalSingleton().getOperationDir();
   final _drivestatus = GlobalSingleton().getDriveStatus();
 
   /*All variables*/
-
-  _showDeviceTolist(final ble5.BluetoothDevice device1) {
-    if (!devicesList.contains(device1)) {
-      setState(() {
-        devicesList.add(device1);
-      });
-    }
-  }
 
   @override
   void initState() {
@@ -76,21 +65,6 @@ class _RemoteControlState extends State<RemoteControl> {
       });
     });
     //checking for bluetooth state
-
-    flutterblue.startScan(timeout: const Duration(seconds: 8));
-    flutterBlue.connectedDevices
-        .asStream()
-        .listen((List<ble5.BluetoothDevice> devices) {
-      for (ble5.BluetoothDevice device1 in devices) {
-        _showDeviceTolist(device1);
-      }
-    });
-    flutterBlue.scanResults.listen((List<ble5.ScanResult> results) {
-      for (ble5.ScanResult result in results) {
-        _showDeviceTolist(result.device);
-      }
-    });
-    flutterBlue.startScan();
 
     GlobalSingleton()
         .enableBluetooth(); //turning the bluetooth on code is in globals.dart
@@ -220,7 +194,8 @@ class _RemoteControlState extends State<RemoteControl> {
                           ))
                     ]),
                     Row(
-/*The Speed limiter Button and the peppermint Logo  and 
+/*
+The Speed limiter Button and the peppermint Logo  and 
 the Forward and Reverse gear are place in a Row Within the main column of the app.
  */
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -281,46 +256,51 @@ the Forward and Reverse gear are place in a Row Within the main column of the ap
                                 ? false
                                 : true,
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 2,
-                                horizontal: 15,
-                              ),
-                              child: RotatedBox(
-                                quarterTurns: 1,
-                                child: SlidingSwitch(
-                                  value: _btnState1,
-                                  width: 180,
-                                  onChanged: (bool value) => setState(() {
-                                    if (isConnected) {
-                                      HapticFeedback.vibrate();
-                                      value == true
-                                          ? GlobalSingleton()
-                                              .command(GlobalSingleton().revCmd)
-                                          : GlobalSingleton().command(
-                                              GlobalSingleton().fwdCmd);
-                                    }
-                                  }),
-                                  height: 50,
-                                  animationDuration:
-                                      const Duration(milliseconds: 0),
-                                  onTap: () {},
-                                  onDoubleTap: () {},
-                                  onSwipe: () {},
-                                  textOff: '<',
-                                  textOn: '>',
-                                  colorOn: Colors.deepOrangeAccent.shade700,
-                                  colorOff: Colors.lightGreenAccent.shade700,
-                                  background: Colors.grey.shade300,
-                                  buttonColor: Colors.white,
-                                  inactiveColor: Colors.grey,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 2,
+                                  horizontal: 10,
                                 ),
-                              ),
-                            ))
+                                child:
+/*
+This part of the code must be replaced by the two forward and reverse button
+*/
+                                    Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 40),
+                                      child: IconButton(
+                                          alignment:
+                                              AlignmentDirectional.topEnd,
+                                          iconSize: 30,
+                                          onPressed: () {},
+                                          icon: const Icon(
+                                              Icons.arrow_drop_up_rounded)),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 40, bottom: 20),
+                                      child: IconButton(
+                                        alignment:
+                                            AlignmentDirectional.bottomEnd,
+                                        iconSize: 30,
+                                        onPressed: () {},
+                                        icon: const Icon(
+                                            Icons.arrow_drop_down_rounded),
+                                      ),
+                                    )
+                                  ],
+                                )
+/*Marker */
+                                ))
                       ],
                     ),
 
-/*The Traction power Button at the bottom of the screen*/
-
+/*
+The Traction power Button at the bottom of the screen
+*/
                     const Padding(
                         padding: EdgeInsets.only(bottom: 0, top: 0),
                         child: Text(
@@ -397,9 +377,10 @@ the Forward and Reverse gear are place in a Row Within the main column of the ap
                             )))
                   ],
                 ),
-/*Code of the rigth column of the app.
+/*
+Code of the rigth column of the app.
 It inclurdes the battery status indicator and the Joystick that we use to control the Robot
- */
+*/
                 Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -505,7 +486,7 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
                                               double degree =
                                                   atan2(details.y, details.x);
                                               String text =
-                                                  "MOONS+JSR${GlobalSingleton().offsetJoystickLogic(details.x, details.y, _x, _y, degree)}";
+                                                  "MOONS+JSR${GlobalSingleton().offsetJoystickLogic(details.x, details.y, _x, _y, degree)};";
                                               GlobalSingleton().command(text);
                                             });
                                           } else {
@@ -524,7 +505,7 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
 
   List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
-    List<DropdownMenuItem<ble5.BluetoothDevice>> items1 = [];
+
     if (_pairedDeviceList.isEmpty) {
     } else {
       _pairedDeviceList.forEach((device) {
@@ -541,19 +522,6 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
             child: Text(device.name.toString()),
             value: device,
           ));
-        }
-        List<DropdownMenuItem<ble5.BluetoothDevice>> _operation(
-            ble5.BluetoothDevice device1) {
-          if (!devicesList.contains(device1)) {
-            setState(() {
-              items1.add(DropdownMenuItem(
-                child: Text(device1.name.toString()),
-                value: device1,
-              ));
-            });
-          }
-          print(items1);
-          return items1;
         }
 
         if (device.type == BluetoothDeviceType.le &&
@@ -588,7 +556,6 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
           setState(() {
             _connected = true;
           });
-
           connection!.input!.listen(dataReceived).onDone(() {
             if (isDisconnecting) {
             } else {}
@@ -631,7 +598,6 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
     String? waterFlow;
     String? refspeed;
     String? speed;
-    String? modbus;
     for (var byte in data) {
       if (byte == 8 || byte == 127) {
         backspacesCounter++;
@@ -641,7 +607,6 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
     Uint8List proxy = Uint8List(data.length - backspacesCounter);
     int proxyIndex = proxy.length;
     backspacesCounter = 0;
-
     for (int i = data.length - 1; i >= 0; i--) {
       if (data[i] == 8 || data[i] == 127) {
         backspacesCounter++;

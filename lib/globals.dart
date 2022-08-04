@@ -63,6 +63,7 @@ The string is converted to a byte array and then sent to the device.
     List<int> x = List<int>.from(ascii.encode(command));
 // This part works on a robot [Thumbs up]
     String result = const AsciiDecoder().convert(x);
+    print(result);
     if (isConnected) {
       connection!.output.add(ascii.encoder.convert(result));
       await connection!.output.allSent;
@@ -95,9 +96,11 @@ The string is converted to a byte array and then sent to the device.
     }
   }
 
-/*Creates the offest that is required t send to the micro controller that exists 
+/*
+Creates the offest that is required t send to the micro controller that exists 
 in the robot. It interprets the joystick data that based on the commands guidelines 
-as provided by the Electronics team*/
+as provided by the Electronics team
+*/
   String offsetJoystickLogic(
       num detailsx, num detailsy, double x, double y, var degree) {
     double r = sqrt(pow(x, 2).toInt() + pow(y, 2).toInt()).abs();
