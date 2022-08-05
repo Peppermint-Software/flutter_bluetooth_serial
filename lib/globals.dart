@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
@@ -22,6 +23,8 @@ class GlobalSingleton {
   String revCmd = "MOONS+R;";
   String fwdCmd = "MOONS+F;";
   String joystickStopCmd = "MOONS+JSR0A180;";
+  late Timer onTimerVar;
+  late Timer offTimerVar;
 
   OperationDir _operationDir = OperationDir.forward;
   DriveStatus _drivestatus = DriveStatus.off;

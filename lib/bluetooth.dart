@@ -32,7 +32,7 @@ class _RemoteControlState extends State<RemoteControl> {
   String disp = "";
   double increment = 0;
   double? sendval;
-  double? sendvalf;
+  late double sendvalf;
   bool _check = true;
   bool _checkrun = true;
   late Timer _timer;
@@ -324,44 +324,41 @@ The Traction power Button at the bottom of the screen
                                       _btnState = false;
                                     });
                                   }
-                                  switch (_btnState) {
+                                  switch (value) {
                                     case true:
                                       {
                                         HapticFeedback.heavyImpact();
                                         const powerOnCmd =
                                             Duration(milliseconds: 333);
-                                        Timer.periodic(
-                                            powerOnCmd,
-                                            (Timer t) => GlobalSingleton()
-                                                .command(
-                                                    GlobalSingleton().driveOn));
+                                        GlobalSingleton().onTimerVar =
+                                            Timer.periodic(
+                                                powerOnCmd,
+                                                (Timer t) => GlobalSingleton()
+                                                    .command(GlobalSingleton()
+                                                        .driveOn));
                                         GlobalSingleton()
                                             .command(GlobalSingleton().motorOn);
-                                        break;
+                                        GlobalSingleton().offTimerVar.cancel();
 
-                                        // TODO: WRITE A CODE TO CANCEL A TIMER WHEN AN EVENT OCCURS
+                                        break;
                                       }
                                     case false:
                                       {
                                         HapticFeedback.heavyImpact();
+                                        GlobalSingleton().onTimerVar.cancel();
 
                                         GlobalSingleton().command(
                                             GlobalSingleton().motorOff);
                                         const powerOffCmd =
                                             Duration(milliseconds: 333);
-                                        Timer.periodic(
-                                            powerOffCmd,
-                                            (Timer t) => GlobalSingleton()
-                                                .command(GlobalSingleton()
-                                                    .driveOff));
+                                        GlobalSingleton().offTimerVar =
+                                            Timer.periodic(
+                                                powerOffCmd,
+                                                (Timer t) => GlobalSingleton()
+                                                    .command(GlobalSingleton()
+                                                        .driveOff));
                                         break;
                                       }
-
-                                    // else {
-                                    //   setState(() {
-                                    //     value = false;
-                                    //   });
-                                    // }
                                   }
                                 }),
                                 height: 40,
@@ -484,8 +481,8 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
                                               double _x = 0;
                                               double _y = 0;
 
-                                              _x = (sendvalf! * details.x);
-                                              _y = (sendvalf! * details.y);
+                                              _x = (sendvalf * details.x);
+                                              _y = (sendvalf * details.y);
 
                                               double degree =
                                                   atan2(details.y, details.x);
