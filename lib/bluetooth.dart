@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -32,7 +33,7 @@ class _RemoteControlState extends State<RemoteControl> {
   String disp = "";
   double increment = 0;
   double? sendval;
-  late double sendvalf;
+  double? sendvalf;
   bool _check = true;
   bool _checkrun = true;
   late Timer _timer;
@@ -272,23 +273,31 @@ This part of the code must be replaced by the two forward and reverse button
                                       padding:
                                           const EdgeInsets.only(bottom: 40),
                                       child: IconButton(
-                                          alignment:
-                                              AlignmentDirectional.topEnd,
-                                          iconSize: 30,
-                                          onPressed: () {},
-                                          icon: const Icon(
-                                              Icons.arrow_drop_up_rounded)),
+                                        icon: const Icon(
+                                            Icons.keyboard_arrow_up_rounded),
+                                        color: Colors.grey,
+                                        alignment: AlignmentDirectional.topEnd,
+                                        iconSize: 40,
+                                        onPressed: () {
+                                          GlobalSingleton().command(
+                                              GlobalSingleton().fwdCmd);
+                                        },
+                                      ),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.only(
                                           top: 40, bottom: 20),
                                       child: IconButton(
+                                        color: Colors.grey,
                                         alignment:
                                             AlignmentDirectional.bottomEnd,
-                                        iconSize: 30,
-                                        onPressed: () {},
+                                        iconSize: 40,
+                                        onPressed: () {
+                                          GlobalSingleton().command(
+                                              GlobalSingleton().revCmd);
+                                        },
                                         icon: const Icon(
-                                            Icons.arrow_drop_down_rounded),
+                                            Icons.keyboard_arrow_down_rounded),
                                       ),
                                     )
                                   ],
@@ -349,14 +358,9 @@ The Traction power Button at the bottom of the screen
 
                                         GlobalSingleton().command(
                                             GlobalSingleton().motorOff);
-                                        const powerOffCmd =
-                                            Duration(milliseconds: 333);
-                                        GlobalSingleton().offTimerVar =
-                                            Timer.periodic(
-                                                powerOffCmd,
-                                                (Timer t) => GlobalSingleton()
-                                                    .command(GlobalSingleton()
-                                                        .driveOff));
+
+                                        GlobalSingleton().command(
+                                            GlobalSingleton().driveOff);
                                         break;
                                       }
                                   }
@@ -480,14 +484,15 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
                                             setState(() {
                                               double _x = 0;
                                               double _y = 0;
+                                              sendvalf = Model().save();
 
-                                              _x = (sendvalf * details.x);
-                                              _y = (sendvalf * details.y);
+                                              _x = (sendvalf! * details.x);
+                                              _y = (sendvalf! * details.y);
 
                                               double degree =
                                                   atan2(details.y, details.x);
                                               String text =
-                                                  "MOONS+JSR${GlobalSingleton().offsetJoystickLogic(details.x, details.y, _x, _y, degree)};";
+                                                  "MOONS+JSR${GlobalSingleton().offsetJoystickLogic(details.x, details.y, _x, _y, degree)}";
                                               GlobalSingleton().command(text);
                                             });
                                           } else {
@@ -615,7 +620,7 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
         if (backspacesCounter > 0) {
         } else {
           proxy[--proxyIndex] = data[i];
-          if (data[i] == 119 && data[i - 1] == 42) {
+          if (data[i] == 86 && data[i - 1] == 42) {
             List<int> wtrlevel = List<int>.from([
               data[i + 1],
               data[i + 2],
