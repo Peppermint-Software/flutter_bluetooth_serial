@@ -9,7 +9,7 @@ import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:peppermintrc/helpers.dart';
 import 'package:flutter/services.dart';
 
-import 'bluetooth.dart';
+import 'remoteControl.dart';
 
 enum OperationDir { forward, reverse }
 

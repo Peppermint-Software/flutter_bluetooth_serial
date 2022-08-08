@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:peppermintrc/bluetooth.dart';
+import 'package:peppermintrc/remoteControl.dart';
 
 bool get isConnected => connection != null && connection!.isConnected;
 

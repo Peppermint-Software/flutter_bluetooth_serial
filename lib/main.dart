@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:peppermintrc/bluetooth.dart';
+import 'package:peppermintrc/remoteControl.dart';
 
 void main() => runApp(const PeppermintRemote());
 
