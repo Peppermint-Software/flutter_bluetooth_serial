@@ -242,13 +242,9 @@ the Forward and Reverse gear are place in a Row Within the main column of the ap
                                         : Colors.transparent,
                                     shape: const CircleBorder(),
                                   ),
-                                  child: Image(
-                                      fit: BoxFit.contain,
-                                      color: isConnected
-                                          ? Colors.teal.shade300
-                                          : Colors.grey.shade400,
-                                      image: const AssetImage(
-                                          "asset/Leaf_grey.png"))),
+                                  child: ElevatedButton(
+                                      onPressed: () {},
+                                      child: const Text("ON/OFF"))),
                             ],
                           )),
                       AbsorbPointer(

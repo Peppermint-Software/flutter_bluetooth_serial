@@ -40,10 +40,9 @@ class _DiagnosticsMainState extends State<DiagnosticsMain> {
                                 Icons.arrow_drop_down_circle_rounded,
                                 color: Colors.grey,
                               ),
-                              content: contentHeader.entries
-                                  .forEach((element) => element.value),
+                              content: contentHeader[index].forEach((element) => element.value),
                               showAccordion: true,
-                              contentPadding: EdgeInsets.all(8),
+                              contentPadding: const EdgeInsets.all(8),
                               title: titleList[index],
                             ))),
               ]))));
@@ -61,11 +60,11 @@ var contentHeader = {
   titleList[1]: {},
   titleList[3]: {},
 };
+
 Widget ClassName(BuildContext context, index) => Card(
         // clipBehavior: Clip.antiAlias,
         child: Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisAlignment: MainAxisAlignment.,
       mainAxisSize: MainAxisSize.min,
       children: [
         ListBody(children: const [
