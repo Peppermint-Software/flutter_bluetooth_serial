@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
+import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:peppermintrc/remoteControl/helpers.dart';
 
@@ -22,6 +24,8 @@ class GlobalSingleton {
   String joystickStopCmd = "MOONS+JSR0A180;";
   late Timer onTimerVar;
   late Timer offTimerVar;
+  var ppmtGreenColor = const Color.fromARGB(255, 76, 175, 80);
+  var ppmtBackgroundColor = Colors.white;
 
   OperationDir _operationDir = OperationDir.forward;
   DriveStatus _drivestatus = DriveStatus.off;

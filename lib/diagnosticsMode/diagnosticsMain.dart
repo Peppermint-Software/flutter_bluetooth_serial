@@ -63,7 +63,7 @@ var contentHeader = {
 
 Widget ContentPlaceholder(BuildContext context, int index) {
   return Card(
-    child:  )
+    child: contentHeader[0]; )
 }
 
 Widget ClassName(BuildContext context, index) => Card(
