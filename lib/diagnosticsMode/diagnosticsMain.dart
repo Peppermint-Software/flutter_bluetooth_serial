@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/widgets.dart';
 import 'package:getwidget/components/accordion/gf_accordion.dart';
 import 'package:getwidget/components/appbar/gf_appbar.dart';
 
@@ -40,52 +38,47 @@ class _DiagnosticsMainState extends State<DiagnosticsMain> {
                                 Icons.arrow_drop_down_circle_rounded,
                                 color: Colors.grey,
                               ),
-                              contentChild: ContentPlaceholder(context, index ),
+                              contentChild: placeholder(context),
                               showAccordion: true,
                               contentPadding: const EdgeInsets.all(8),
-                              title: titleList[index],
+                              title: titleList[index].toString(),
                             ))),
               ]))));
 }
 
 var titleList = {0: "General Info", 1: "Cleaning Data", 2: "Motor Data"};
 
-var contentHeader = {
-  titleList[0]: [
-    "Firmware Version:",
-    "Modebus connection Status: ",
-    "E-Stop Engaged: ",
-    "Smart Ignition Status:"
-  ],
-  titleList[1]: {},
-  titleList[3]: {},
-};
-
-Widget ContentPlaceholder(BuildContext context, int index) {
+Widget placeholder(context) {
   return Card(
-    child: contentHeader[0]; )
-}
-
-Widget ClassName(BuildContext context, index) => Card(
-        // clipBehavior: Clip.antiAlias,
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ListBody(children: const [
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(40), // if you need this
+      side: BorderSide(
+        color: Colors.grey.withOpacity(0.2),
+        width: 1,
+      ),
+    ),
+    child: Container(
+      color: Colors.white,
+      width: 200,
+      height: 200,
+      child: Column(
+        children: <Widget>[
           Text(
-            "Class name: ",
+            titleList.toString(),
           ),
           Spacer(),
-          Text("Widget name: "),
-          Text("Widget name: "),
-          Spacer(),
-          Text("Widget name: "),
-          Spacer(),
-          Text("Widget name: "),
-          Spacer(),
-          Text("Widget name: "),
-          Text("Widget name: "),
-        ])
-      ],
-    ));
+          Text(something.toString()),
+        ],
+      ),
+    ),
+  );
+}
+
+List<Map<String, dynamic>> something = [
+  {
+    "Firmware Version": true,
+    "Modbus Connection Status": " Connected",
+    "E Stop Engaged: ": true
+  },
+  {"Placeholder": "Lorem epsum", "Something 1": "Lorem epsum 2"}
+];

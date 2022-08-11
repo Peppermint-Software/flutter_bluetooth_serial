@@ -24,7 +24,7 @@ class GlobalSingleton {
   String joystickStopCmd = "MOONS+JSR0A180;";
   late Timer onTimerVar;
   late Timer offTimerVar;
-  var ppmtGreenColor = const Color.fromARGB(255, 76, 175, 80);
+  var ppmtGreenColor = Color.fromARGB(255, 76, 175, 80);
   var ppmtBackgroundColor = Colors.white;
 
   OperationDir _operationDir = OperationDir.forward;
