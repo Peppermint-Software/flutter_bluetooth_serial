@@ -66,7 +66,7 @@ Widget placeholder(context) {
           Text(
             titleList.toString(),
           ),
-          Spacer(),
+          const Spacer(),
           Text(something.toString()),
         ],
       ),

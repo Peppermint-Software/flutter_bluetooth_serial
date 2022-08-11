@@ -15,7 +15,6 @@ doc/api/
 # Avoid committing generated Javascript files:
 *.flutter-plugins-dependencies
 *.flutter-plugins
-*.flutter_01.log
 *.log
 *.apk
 *.dart.js

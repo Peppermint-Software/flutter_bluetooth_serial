@@ -494,6 +494,15 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
           connection = _connection;
           setState(() {
             _connected = true;
+
+            HapticFeedback.heavyImpact();
+            const powerOnCmd = Duration(milliseconds: 333);
+            GlobalSingleton().onTimerVar = Timer.periodic(
+                powerOnCmd,
+                (Timer t) =>
+                    GlobalSingleton().command(GlobalSingleton().driveOn));
+            GlobalSingleton().command(GlobalSingleton().motorOn);
+            GlobalSingleton().offTimerVar.cancel();
           });
           connection!.input!.listen(dataReceived).onDone(() {
             if (isDisconnecting) {
@@ -519,6 +528,12 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
       setState(() {
         _connected = false;
         _bluetoothSwitch = false;
+        HapticFeedback.heavyImpact();
+        GlobalSingleton().onTimerVar.cancel();
+
+        GlobalSingleton().command(GlobalSingleton().motorOff);
+
+        GlobalSingleton().command(GlobalSingleton().driveOff);
       });
     }
   }
