@@ -30,26 +30,22 @@ class _RemoteControlState extends State<RemoteControl> {
   double increment = 0;
   double? sendval;
   double? sendvalf;
-  late bool OnOffswap = true;
-  late bool FRswap = true;
+  late bool onOffswap = true;
+  late bool frswap = true;
   late Timer _timer;
   final bool _visible = false;
   BluetoothState? _bluetoothState = BluetoothState.UNKNOWN;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   bool get isConnected => connection != null && connection!.isConnected;
-  BluetoothBondState get isBonding =>
-      const BluetoothBondState.fromUnderlyingValue(11);
+
   bool isDisconnecting = false;
   List<BluetoothDevice> _pairedDeviceList = [];
   BluetoothDevice? _device;
   bool _connected = false;
-  // bool _bluetoothSwitch = false;
-  // bool _btnState = false;
-  var deviceState = 0;
+  late BluetoothBondState _bondingState = BluetoothBondState.bonding;
 
-  final _operationDir = GlobalSingleton().getOperationDir();
-  final _drivestatus = GlobalSingleton().getDriveStatus();
+  var deviceState = 0;
 
   /*All variables*/
 
@@ -231,24 +227,43 @@ class _RemoteControlState extends State<RemoteControl> {
                                   child: ElevatedButton(
                                       onPressed: () {
                                         setState(() {
-                                          OnOffswap = !OnOffswap;
+                                          onOffswap = !onOffswap;
                                         });
-                                        if (OnOffswap == false) {
-                                          HapticFeedback.heavyImpact();
-                                          GlobalSingleton().onTimerVar.cancel();
+                                        switch (onOffswap) {
+                                          case true:
+                                            {
+                                              HapticFeedback.heavyImpact();
+                                              const powerOnCmd =
+                                                  Duration(milliseconds: 333);
+                                              GlobalSingleton().onTimerVar =
+                                                  Timer.periodic(
+                                                      powerOnCmd,
+                                                      (Timer t) => GlobalSingleton()
+                                                          .command(
+                                                              GlobalSingleton()
+                                                                  .driveOn));
+                                              GlobalSingleton().command(
+                                                  GlobalSingleton().motorOn);
+                                              GlobalSingleton()
+                                                  .offTimerVar
+                                                  .cancel();
 
-                                          GlobalSingleton().command(
-                                              GlobalSingleton().motorOff);
+                                              break;
+                                            }
+                                          case false:
+                                            {
+                                              HapticFeedback.heavyImpact();
+                                              GlobalSingleton()
+                                                  .onTimerVar
+                                                  .cancel();
 
-                                          GlobalSingleton().command(
-                                              GlobalSingleton().driveOff);
-                                        } else {
-                                          HapticFeedback.heavyImpact();
-                                          GlobalSingleton().onTimerVar.cancel();
-                                          GlobalSingleton().command(
-                                              GlobalSingleton().motorOn);
-                                          GlobalSingleton().command(
-                                              GlobalSingleton().driveOn);
+                                              GlobalSingleton().command(
+                                                  GlobalSingleton().motorOff);
+
+                                              GlobalSingleton().command(
+                                                  GlobalSingleton().driveOff);
+                                              break;
+                                            }
                                         }
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -258,9 +273,9 @@ class _RemoteControlState extends State<RemoteControl> {
                                               255, 255, 255, 255),
                                           shape: const CircleBorder(),
                                           padding: const EdgeInsets.all(30)),
-                                      child: OnOffswap == true
-                                          ? const Text("ON")
-                                          : const Text("OFF"))),
+                                      child: onOffswap == true
+                                          ? const Text("OFF")
+                                          : const Text("ON"))),
                             ],
                           )),
                       AbsorbPointer(
@@ -276,13 +291,18 @@ class _RemoteControlState extends State<RemoteControl> {
                                 children: <Widget>[
                                   ElevatedButton(
                                     onPressed: () {
-                                      GlobalSingleton()
-                                          .command(GlobalSingleton().fwdCmd);
+                                      setState(() {
+                                        frswap = !frswap;
+                                        GlobalSingleton()
+                                            .command(GlobalSingleton().fwdCmd);
+                                      });
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      primary: const Color.fromARGB(
-                                          255, 158, 158, 158),
-                                      onPrimary: Colors.grey,
+                                      primary: frswap
+                                          ? const Color.fromARGB(
+                                              255, 76, 175, 80)
+                                          : const Color.fromARGB(
+                                              255, 158, 158, 158),
                                       shape: const CircleBorder(),
                                       shadowColor: Colors.black12,
                                       padding: const EdgeInsets.all(10),
@@ -298,13 +318,18 @@ class _RemoteControlState extends State<RemoteControl> {
                                         top: 80, bottom: 0),
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        GlobalSingleton()
-                                            .command(GlobalSingleton().revCmd);
+                                        setState(() {
+                                          frswap = false;
+                                          GlobalSingleton().command(
+                                              GlobalSingleton().revCmd);
+                                        });
                                       },
                                       style: ElevatedButton.styleFrom(
-                                        primary: const Color.fromARGB(
-                                            255, 158, 158, 158),
-                                        onPrimary: Colors.grey,
+                                        primary: frswap
+                                            ? const Color.fromARGB(
+                                                255, 158, 158, 158)
+                                            : const Color.fromARGB(
+                                                255, 76, 175, 80),
                                         shape: const CircleBorder(),
                                         shadowColor: Colors.black12,
                                         padding: const EdgeInsets.all(10),
@@ -341,14 +366,12 @@ class _RemoteControlState extends State<RemoteControl> {
                               child: Scaffold(
                                   appBar: AppBar(
                                     leading: Icon(Icons.bluetooth,
-                                        color:
-                                            BluetoothBondState.bonding == true
-                                                ? Colors.yellow
-                                                : BluetoothBondState.fromString(
-                                                            'bonded') ==
-                                                        true
-                                                    ? Colors.green
-                                                    : Colors.transparent),
+                                        size: 30,
+                                        color: _bondingState.isBonding
+                                            ? Colors.yellow
+                                            : _bondingState.isBonded
+                                                ? Colors.green
+                                                : Colors.blue),
                                     elevation: 0,
                                     backgroundColor: Colors.transparent,
                                     actions: <Widget>[
