@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:peppermintrc/remoteControl/remoteControl.dart';
+import 'package:peppermintapp/remoteControl/remoteControl.dart';
 
 void main() => runApp(const PeppermintRemote());
 

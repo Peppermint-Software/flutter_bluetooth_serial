@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:peppermintrc/remoteControl/remoteControl.dart';
+import 'package:peppermintapp/remoteControl/remoteControl.dart';
 
 bool get isConnected => connection != null && connection!.isConnected;
 

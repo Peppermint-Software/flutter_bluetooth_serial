@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:peppermintrc/remoteControl/helpers.dart';
+import 'package:peppermintapp/remoteControl/helpers.dart';
 
 import 'remoteControl.dart';
 

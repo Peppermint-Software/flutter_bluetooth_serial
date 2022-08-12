@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
-import 'package:peppermintrc/remoteControl/globals.dart';
-import 'package:peppermintrc/remoteControl/speedLimiter.dart';
+import 'package:peppermintapp/diagnosticsMode/diagnosticsMain.dart';
+import 'package:peppermintapp/remoteControl/globals.dart';
+import 'package:peppermintapp/remoteControl/speedLimiter.dart';
 
 class RemoteControl extends StatefulWidget {
   const RemoteControl({
@@ -25,25 +26,26 @@ BluetoothConnection? connection;
 
 class _RemoteControlState extends State<RemoteControl> {
   /*All variables*/
-
   String disp = "";
   double increment = 0;
   double? sendval;
   double? sendvalf;
-  bool _check = true;
-  bool _checkrun = true;
+  late bool OnOffswap = true;
+  late bool FRswap = true;
   late Timer _timer;
   final bool _visible = false;
   BluetoothState? _bluetoothState = BluetoothState.UNKNOWN;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   bool get isConnected => connection != null && connection!.isConnected;
+  BluetoothBondState get isBonding =>
+      const BluetoothBondState.fromUnderlyingValue(11);
   bool isDisconnecting = false;
   List<BluetoothDevice> _pairedDeviceList = [];
   BluetoothDevice? _device;
   bool _connected = false;
-  bool _bluetoothSwitch = false;
-  bool _btnState = false;
+  // bool _bluetoothSwitch = false;
+  // bool _btnState = false;
   var deviceState = 0;
 
   final _operationDir = GlobalSingleton().getOperationDir();
@@ -72,7 +74,7 @@ class _RemoteControlState extends State<RemoteControl> {
       setState(() {
         _bluetoothState = state;
         if (_bluetoothState == BluetoothState.STATE_OFF) {
-          _bluetoothSwitch = true;
+          // _bluetoothSwitch = true;
         }
         getPairedDeviceList();
       });
@@ -138,6 +140,7 @@ class _RemoteControlState extends State<RemoteControl> {
                         ? _device
                         : null,
                   ),
+
                   // Row(children: [
                   //   Padding(
                   //       padding: const EdgeInsets.all(0),
@@ -191,10 +194,6 @@ class _RemoteControlState extends State<RemoteControl> {
                   // ]),
                   Row(
                     mainAxisSize: MainAxisSize.min,
-/*
-The Speed limiter Button and the peppermint Logo  and 
-the Forward and Reverse gear are place in a Row Within the main column of the app.
- */
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
@@ -228,54 +227,58 @@ the Forward and Reverse gear are place in a Row Within the main column of the ap
                           padding: const EdgeInsets.all(5),
                           child: Column(
                             children: [
-                              ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                      primary: const Color.fromARGB(
-                                          255, 235, 16, 16),
-                                      onPrimary: const Color.fromARGB(
-                                          255, 104, 235, 16),
-                                      shape: const CircleBorder(),
-                                      padding: const EdgeInsets.all(10)),
-                                  child: const Text("ON/OFF")),
+                              Ink(
+                                  child: ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          OnOffswap = !OnOffswap;
+                                        });
+                                        if (OnOffswap == false) {
+                                          HapticFeedback.heavyImpact();
+                                          GlobalSingleton().onTimerVar.cancel();
+
+                                          GlobalSingleton().command(
+                                              GlobalSingleton().motorOff);
+
+                                          GlobalSingleton().command(
+                                              GlobalSingleton().driveOff);
+                                        } else {
+                                          HapticFeedback.heavyImpact();
+                                          GlobalSingleton().onTimerVar.cancel();
+                                          GlobalSingleton().command(
+                                              GlobalSingleton().motorOn);
+                                          GlobalSingleton().command(
+                                              GlobalSingleton().driveOn);
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                          primary: const Color.fromARGB(
+                                              255, 235, 16, 16),
+                                          onPrimary: const Color.fromARGB(
+                                              255, 255, 255, 255),
+                                          shape: const CircleBorder(),
+                                          padding: const EdgeInsets.all(30)),
+                                      child: OnOffswap == true
+                                          ? const Text("ON")
+                                          : const Text("OFF"))),
                             ],
                           )),
                       AbsorbPointer(
-                          absorbing: isConnected &&
-                                  !_bluetoothSwitch &&
-                                  _btnState == true
-                              ? false
-                              : true,
+                          absorbing: isConnected ? false : true,
                           child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 0,
                                 horizontal: 10,
                               ),
-                              child:
-/*
-This part of the code must be replaced by the two forward and reverse button
-*/
-                                  Column(
+                              child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: <Widget>[
-                                  // GestureDetector(
-                                  //   onTap: () {
-                                  //     GlobalSingleton()
-                                  //         .command(GlobalSingleton().fwdCmd);
-                                  //   },
-                                  //   child: Container(
-                                  //     width: 10,
-                                  //     padding:
-                                  //         const EdgeInsets.only(bottom: 10),
-                                  //     decoration: const BoxDecoration(
-                                  //       shape: BoxShape.circle,
-                                  //     ),
-                                  //     child: const Text("F"),
-                                  //   ),
-                                  // ),
                                   ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      GlobalSingleton()
+                                          .command(GlobalSingleton().fwdCmd);
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       primary: const Color.fromARGB(
                                           255, 158, 158, 158),
@@ -287,15 +290,17 @@ This part of the code must be replaced by the two forward and reverse button
                                     child: const Text(
                                       "F",
                                       style: TextStyle(
-                                          color: Colors.white, fontSize: 19),
+                                          color: Colors.white, fontSize: 15),
                                     ),
                                   ),
-
                                   Padding(
                                     padding: const EdgeInsets.only(
-                                        top: 60, bottom: 0),
+                                        top: 80, bottom: 0),
                                     child: ElevatedButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        GlobalSingleton()
+                                            .command(GlobalSingleton().revCmd);
+                                      },
                                       style: ElevatedButton.styleFrom(
                                         primary: const Color.fromARGB(
                                             255, 158, 158, 158),
@@ -307,26 +312,18 @@ This part of the code must be replaced by the two forward and reverse button
                                       child: const Text(
                                         "R",
                                         style: TextStyle(
-                                            color: Colors.white, fontSize: 19),
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontStyle: FontStyle.normal),
                                       ),
                                     ),
                                   )
                                 ],
-                              )
-/*Marker */
-                              ))
+                              )))
                     ],
                   ),
-
-/*
-The Traction power Button at the bottom of the screen
-*/
                 ],
               ),
-/*
-Code of the rigth column of the app.
-It inclurdes the battery status indicator and the Joystick that we use to control the Robot
-*/
               Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -343,6 +340,15 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
                               width: 240,
                               child: Scaffold(
                                   appBar: AppBar(
+                                    leading: Icon(Icons.bluetooth,
+                                        color:
+                                            BluetoothBondState.bonding == true
+                                                ? Colors.yellow
+                                                : BluetoothBondState.fromString(
+                                                            'bonded') ==
+                                                        true
+                                                    ? Colors.green
+                                                    : Colors.transparent),
                                     elevation: 0,
                                     backgroundColor: Colors.transparent,
                                     actions: <Widget>[
@@ -444,17 +450,30 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
             ],
           ),
           Row(
-              mainAxisSize: MainAxisSize.max,
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                ImageIcon(
-                  AssetImage(
-                    "asset/peppermintLogo.png",
-                  ),
-                  color: Colors.green,
-                  size: 70,
-                )
+              children: [
+                Ink(
+                    height: 50,
+                    child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const DiagnosticsMain()));
+                        },
+                        style: ElevatedButton.styleFrom(
+                            primary: const Color.fromARGB(255, 255, 255, 255)),
+                        icon: const ImageIcon(
+                          AssetImage(
+                            "asset/peppermintLogo.png",
+                          ),
+                          color: Colors.green,
+                          size: 70,
+                        ),
+                        label: const Text("")))
               ])
         ]));
   }
@@ -470,27 +489,8 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
             device.name!.contains("TUG")) {
           items.add(DropdownMenuItem(
             alignment: Alignment.center,
-            onTap: _bluetoothSwitch
-                ? null
-                : _connected
-                    ? _disconnect
-                    : _connect,
+            onTap: _connected == false ? _connect : _disconnect,
             child: Text(device.name.toString()),
-            value: device,
-          ));
-        }
-
-        if (device.type == BluetoothDeviceType.le &&
-                device.name!.contains("SD") ||
-            device.name!.contains("TUG")) {
-          items.add(DropdownMenuItem(
-            alignment: Alignment.center,
-            child: Text("${device.name}-BLE"),
-            onTap: _bluetoothSwitch
-                ? null
-                : _connected
-                    ? _disconnect
-                    : _connect,
             value: device,
           ));
         }
@@ -500,9 +500,9 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
   }
 
   void _connect() async {
-    setState(() {
-      _bluetoothSwitch = true;
-    });
+    // setState(() {
+    //   _bluetoothSwitch = true;
+    // });
     if (_device == null) {
     } else {
       if (!isConnected) {
@@ -530,21 +530,21 @@ It inclurdes the battery status indicator and the Joystick that we use to contro
           });
         }).catchError((error) {});
 
-        setState(() => _bluetoothSwitch = false);
+        // setState(() => _bluetoothSwitch = false);
       }
     }
   }
 
   void _disconnect() async {
-    setState(() {
-      _bluetoothSwitch = true;
-    });
+    // setState(() {
+    //   _bluetoothSwitch = true;
+    // });
 
     await connection?.close();
     if (!connection!.isConnected) {
       setState(() {
         _connected = false;
-        _bluetoothSwitch = false;
+        // _bluetoothSwitch = false;
         HapticFeedback.heavyImpact();
         GlobalSingleton().onTimerVar.cancel();
 

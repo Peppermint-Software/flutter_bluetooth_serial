@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:getwidget/components/accordion/gf_accordion.dart';
 import 'package:getwidget/components/appbar/gf_appbar.dart';
 
-void main() => runApp(const DiagnosticsMain());
-
 class DiagnosticsMain extends StatefulWidget {
   const DiagnosticsMain({Key? key}) : super(key: key);
 
