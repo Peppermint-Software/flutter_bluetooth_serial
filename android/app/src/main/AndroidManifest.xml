@@ -5,12 +5,11 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>  
  
 
 
    <application
-        android:label="Remote Control"
+        android:label="Peppermint App"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
