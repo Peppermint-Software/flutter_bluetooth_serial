@@ -8,5 +8,13 @@ class PeppermintRemote extends StatelessWidget {
   const PeppermintRemote({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => const RemoteControl();
+  Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    return const MediaQuery(
+        data: MediaQueryData(),
+        child: MaterialApp(
+          home: RemoteControl(),
+        ));
+  }
 }

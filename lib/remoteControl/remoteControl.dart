@@ -113,414 +113,398 @@ class _RemoteControlState extends State<RemoteControl> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    bool _btnState1 = false;
-    return MaterialApp(
-        home: Scaffold(
-            key: _scaffoldKey,
-            body: Column(mainAxisAlignment: MainAxisAlignment.start, children: <
-                Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
+    return Scaffold(
+        key: _scaffoldKey,
+        body: Column(mainAxisAlignment: MainAxisAlignment.start, children: <
+            Widget>[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  DropdownButton(
+                    autofocus: true,
+                    alignment: Alignment.center,
+                    disabledHint: const Text("Turn On Switch"),
+                    hint: !isConnected
+                        ? const Text(
+                            "Select Robot",
+                            style: TextStyle(color: Colors.black),
+                          )
+                        : const Text("Select Robot"),
+                    isExpanded: false,
+                    items: _getDeviceItems(),
+                    onChanged: (value) =>
+                        {setState(() => _device = value as BluetoothDevice?)},
+                    value: _pairedDeviceList.isNotEmpty && isConnected
+                        ? _device
+                        : null,
+                  ),
+
+                  // Row(children: [
+                  //   Padding(
+                  //       padding: const EdgeInsets.all(0),
+                  //       child: Icon(
+                  //         Icons.bluetooth_disabled,
+                  //         color: !_bluetoothState!.isEnabled
+                  //             ? Colors.red
+                  //             : Colors.transparent,
+                  //       )),
+                  //   Padding(
+                  //       padding: const EdgeInsets.symmetric(horizontal: 20),
+                  //       child: Switch(
+                  //         inactiveTrackColor: Colors.red,
+                  //         activeTrackColor: Colors.green,
+                  //         activeColor: Colors.white,
+                  //         value: _bluetoothState!.isEnabled,
+                  //         onChanged: (bool value) {
+                  //           future() async {
+                  //             if (value) {
+                  //               await FlutterBluetoothSerial.instance
+                  //                   .requestEnable();
+                  //             } else {
+                  //               await FlutterBluetoothSerial.instance
+                  //                   .requestDisable();
+                  //             }
+
+                  //             await getPairedDeviceList();
+                  //             _bluetoothSwitch = false;
+                  //             if (_connected) {
+                  //               _disconnect();
+                  //             }
+                  //           }
+
+                  //           future().then((_) {
+                  //             setState(() {});
+                  //           });
+                  //         },
+                  //       )),
+                  //   Padding(
+                  //       padding: const EdgeInsets.all(0),
+                  //       child: Icon(
+                  //         !isConnected
+                  //             ? Icons.bluetooth_disabled
+                  //             : Icons.bluetooth_audio_rounded,
+                  //         color: _bluetoothState!.isEnabled && !isConnected
+                  //             ? Colors.green
+                  //             : isConnected
+                  //                 ? Colors.green
+                  //                 : Colors.transparent,
+                  //       ))
+                  // ]),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      DropdownButton(
-                        autofocus: true,
-                        alignment: Alignment.center,
-                        disabledHint: const Text("Turn On Switch"),
-                        hint: !isConnected
-                            ? const Text(
-                                "Select Robot",
-                                style: TextStyle(color: Colors.black),
-                              )
-                            : const Text("Select Robot"),
-                        isExpanded: false,
-                        items: _getDeviceItems(),
-                        onChanged: (value) => {
-                          setState(() => _device = value as BluetoothDevice?)
-                        },
-                        value: _pairedDeviceList.isNotEmpty && isConnected
-                            ? _device
-                            : null,
-                      ),
-
-                      // Row(children: [
-                      //   Padding(
-                      //       padding: const EdgeInsets.all(0),
-                      //       child: Icon(
-                      //         Icons.bluetooth_disabled,
-                      //         color: !_bluetoothState!.isEnabled
-                      //             ? Colors.red
-                      //             : Colors.transparent,
-                      //       )),
-                      //   Padding(
-                      //       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      //       child: Switch(
-                      //         inactiveTrackColor: Colors.red,
-                      //         activeTrackColor: Colors.green,
-                      //         activeColor: Colors.white,
-                      //         value: _bluetoothState!.isEnabled,
-                      //         onChanged: (bool value) {
-                      //           future() async {
-                      //             if (value) {
-                      //               await FlutterBluetoothSerial.instance
-                      //                   .requestEnable();
-                      //             } else {
-                      //               await FlutterBluetoothSerial.instance
-                      //                   .requestDisable();
-                      //             }
-
-                      //             await getPairedDeviceList();
-                      //             _bluetoothSwitch = false;
-                      //             if (_connected) {
-                      //               _disconnect();
-                      //             }
-                      //           }
-
-                      //           future().then((_) {
-                      //             setState(() {});
-                      //           });
-                      //         },
-                      //       )),
-                      //   Padding(
-                      //       padding: const EdgeInsets.all(0),
-                      //       child: Icon(
-                      //         !isConnected
-                      //             ? Icons.bluetooth_disabled
-                      //             : Icons.bluetooth_audio_rounded,
-                      //         color: _bluetoothState!.isEnabled && !isConnected
-                      //             ? Colors.green
-                      //             : isConnected
-                      //                 ? Colors.green
-                      //                 : Colors.transparent,
-                      //       ))
-                      // ]),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                  color: Colors.transparent,
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: Column(
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(5)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      AbsorbPointer(
-                                          absorbing: isConnected ? false : true,
-                                          child: const SpeedLimiter()),
-                                    ],
-                                  ),
+                                  AbsorbPointer(
+                                      absorbing: isConnected ? false : true,
+                                      child: const SpeedLimiter()),
                                 ],
                               ),
-                            ),
+                            ],
                           ),
-                          Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: Column(
-                                children: [
-                                  Ink(
-                                      child: ElevatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              onOffswap = !onOffswap;
-                                            });
-                                            switch (onOffswap) {
-                                              case true:
-                                                {
-                                                  HapticFeedback.heavyImpact();
-                                                  const powerOnCmd = Duration(
-                                                      milliseconds: 333);
-                                                  GlobalSingleton().onTimerVar =
-                                                      Timer.periodic(
-                                                          powerOnCmd,
-                                                          (Timer t) => GlobalSingleton()
-                                                              .command(
-                                                                  GlobalSingleton()
-                                                                      .driveOn));
-                                                  GlobalSingleton().command(
-                                                      GlobalSingleton()
-                                                          .motorOn);
-                                                  GlobalSingleton()
-                                                      .offTimerVar
-                                                      .cancel();
-
-                                                  break;
-                                                }
-                                              case false:
-                                                {
-                                                  HapticFeedback.heavyImpact();
-                                                  GlobalSingleton()
-                                                      .onTimerVar
-                                                      .cancel();
-
-                                                  GlobalSingleton().command(
-                                                      GlobalSingleton()
-                                                          .motorOff);
-
-                                                  GlobalSingleton().command(
-                                                      GlobalSingleton()
-                                                          .driveOff);
-                                                  break;
-                                                }
-                                            }
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                              primary: const Color.fromARGB(
-                                                  255, 235, 16, 16),
-                                              onPrimary: const Color.fromARGB(
-                                                  255, 255, 255, 255),
-                                              shape: const CircleBorder(),
-                                              padding:
-                                                  const EdgeInsets.all(30)),
-                                          child: onOffswap == true
-                                              ? const Text("ON")
-                                              : const Text("OFF"))),
-                                ],
-                              )),
-                          AbsorbPointer(
-                              absorbing: isConnected ? false : true,
-                              child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 0,
-                                    horizontal: 10,
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: <Widget>[
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            frswap = true;
-                                            GlobalSingleton().command(
-                                                GlobalSingleton().fwdCmd);
-                                          });
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          primary: frswap
-                                              ? const Color.fromARGB(
-                                                  255, 76, 175, 80)
-                                              : const Color.fromARGB(
-                                                  255, 158, 158, 158),
-                                          shape: const CircleBorder(),
-                                          shadowColor: Colors.black12,
-                                          padding: const EdgeInsets.all(10),
-                                        ),
-                                        child: const Text(
-                                          "F",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 80, bottom: 0),
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              frswap = false;
-                                              GlobalSingleton().command(
-                                                  GlobalSingleton().revCmd);
-                                            });
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            primary: frswap
-                                                ? const Color.fromARGB(
-                                                    255, 158, 158, 158)
-                                                : const Color.fromARGB(
-                                                    255, 76, 175, 80),
-                                            shape: const CircleBorder(),
-                                            shadowColor: Colors.black12,
-                                            padding: const EdgeInsets.all(10),
-                                          ),
-                                          child: const Text(
-                                            "R",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16,
-                                                fontStyle: FontStyle.normal),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  )))
-                        ],
+                        ),
                       ),
+                      Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: Column(
+                            children: [
+                              Ink(
+                                  child: ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          onOffswap = !onOffswap;
+                                        });
+                                        switch (onOffswap) {
+                                          case true:
+                                            {
+                                              HapticFeedback.heavyImpact();
+                                              const powerOnCmd =
+                                                  Duration(milliseconds: 333);
+                                              GlobalSingleton().onTimerVar =
+                                                  Timer.periodic(
+                                                      powerOnCmd,
+                                                      (Timer t) => GlobalSingleton()
+                                                          .command(
+                                                              GlobalSingleton()
+                                                                  .driveOn));
+                                              GlobalSingleton().command(
+                                                  GlobalSingleton().motorOn);
+                                              GlobalSingleton()
+                                                  .offTimerVar
+                                                  .cancel();
+
+                                              break;
+                                            }
+                                          case false:
+                                            {
+                                              HapticFeedback.heavyImpact();
+                                              GlobalSingleton()
+                                                  .onTimerVar
+                                                  .cancel();
+
+                                              GlobalSingleton().command(
+                                                  GlobalSingleton().motorOff);
+
+                                              GlobalSingleton().command(
+                                                  GlobalSingleton().driveOff);
+                                              break;
+                                            }
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                          primary: const Color.fromARGB(
+                                              255, 235, 16, 16),
+                                          onPrimary: const Color.fromARGB(
+                                              255, 255, 255, 255),
+                                          shape: const CircleBorder(),
+                                          padding: const EdgeInsets.all(30)),
+                                      child: onOffswap == true
+                                          ? const Text("ON")
+                                          : const Text("OFF"))),
+                            ],
+                          )),
+                      AbsorbPointer(
+                          absorbing: isConnected ? false : true,
+                          child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 0,
+                                horizontal: 10,
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        frswap = true;
+                                        GlobalSingleton()
+                                            .command(GlobalSingleton().fwdCmd);
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      primary: frswap
+                                          ? const Color.fromARGB(
+                                              255, 76, 175, 80)
+                                          : const Color.fromARGB(
+                                              255, 158, 158, 158),
+                                      shape: const CircleBorder(),
+                                      shadowColor: Colors.black12,
+                                      padding: const EdgeInsets.all(10),
+                                    ),
+                                    child: const Text(
+                                      "F",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 15),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 80, bottom: 0),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          frswap = false;
+                                          GlobalSingleton().command(
+                                              GlobalSingleton().revCmd);
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        primary: frswap
+                                            ? const Color.fromARGB(
+                                                255, 158, 158, 158)
+                                            : const Color.fromARGB(
+                                                255, 76, 175, 80),
+                                        shape: const CircleBorder(),
+                                        shadowColor: Colors.black12,
+                                        padding: const EdgeInsets.all(10),
+                                      ),
+                                      child: const Text(
+                                        "R",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontStyle: FontStyle.normal),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              )))
                     ],
                   ),
-                  Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Container(
-                                  alignment: Alignment.center,
-                                  height: 290,
-                                  width: 240,
-                                  child: Scaffold(
-                                      appBar: AppBar(
-                                        leading: Icon(Icons.bluetooth,
-                                            size: 30,
-                                            color: _bondingState.isBonding
-                                                ? Colors.yellow
-                                                : _bondingState.isBonded
-                                                    ? Colors.green
-                                                    : Colors.blue),
-                                        elevation: 0,
-                                        backgroundColor: Colors.transparent,
-                                        actions: <Widget>[
-                                          Icon(Icons.battery_0_bar,
-                                              color: isConnected
-                                                  ? Colors.green
-                                                  : Colors.transparent),
-                                          isConnected
-                                              ? Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 20),
-                                                  child: Text(
-                                                    "$_btrystat%",
-                                                    textAlign: TextAlign.end,
-                                                    style: const TextStyle(
-                                                        color: Colors.black),
-                                                  ))
-                                              : const Text(''),
-                                          Icon(Icons.speed,
-                                              color: isConnected
-                                                  ? const Color.fromARGB(
-                                                      255, 76, 175, 80)
-                                                  : Colors.transparent),
-                                          isConnected
-                                              ? Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 20),
-                                                  child: Text(
-                                                    _aSpeed,
-                                                    textAlign: TextAlign.end,
-                                                    style: const TextStyle(
-                                                        color: Colors.black),
-                                                  ))
-                                              : const Text(''),
-                                          Icon(Icons.speed_rounded,
-                                              color: isConnected
-                                                  ? Colors.green
-                                                  : Colors.transparent),
-                                          isConnected
-                                              ? Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 20),
-                                                  child: Text(
-                                                    _relSpeed,
-                                                    textAlign: TextAlign.end,
-                                                    style: const TextStyle(
-                                                        color: Colors.black),
-                                                  ))
-                                              : const Text(''),
-                                          Icon(Icons.bus_alert,
-                                              color: isConnected
-                                                  ? Colors.green
-                                                  : Colors.transparent),
-                                          isConnected
-                                              ? Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 20),
-                                                  child: Text(
-                                                    _modbus,
-                                                    textAlign: TextAlign.end,
-                                                    style: const TextStyle(
-                                                        color: Colors.black),
-                                                  ))
-                                              : const Text(''),
-                                        ],
-                                      ),
-                                      body: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 0, horizontal: 0),
-                                        child: SizedBox.expand(
-                                            child: Joystick(onStickDragEnd: () {
-                                          GlobalSingleton().command(
-                                              GlobalSingleton()
-                                                  .joystickStopCmd); //movement stop (by default)
-                                        }, listener: (details) {
-                                          if (isConnected) {
-                                            HapticFeedback.heavyImpact();
-                                            setState(() {
-                                              double _x = 0;
-                                              double _y = 0;
-                                              sendvalf = Model().save();
-
-                                              _x = (sendvalf! * details.x);
-                                              _y = (sendvalf! * details.y);
-
-                                              double degree =
-                                                  atan2(details.y, details.x);
-                                              String text =
-                                                  "MOONS+JSR${GlobalSingleton().offsetJoystickLogic(details.x, details.y, _x, _y, degree)}";
-                                              GlobalSingleton().command(text);
-                                            });
-                                          } else {
-                                            GlobalSingleton().command(
-                                                GlobalSingleton()
-                                                    .joystickStopCmd); //movement stop (by default)
-                                          }
-                                        })),
-                                      ))),
-                            ])
-                      ])
                 ],
               ),
-              Row(
+              Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Ink(
-                        height: 50,
-                        child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const DiagnosticsMain()));
-                            },
-                            style: ElevatedButton.styleFrom(
-                                primary:
-                                    const Color.fromARGB(255, 255, 255, 255)),
-                            icon: const ImageIcon(
-                              AssetImage(
-                                "asset/peppermintLogo.png",
-                              ),
-                              color: Colors.green,
-                              size: 70,
-                            ),
-                            label: const Text("")))
+                    Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Container(
+                              alignment: Alignment.center,
+                              height: 290,
+                              width: 240,
+                              child: Scaffold(
+                                  appBar: AppBar(
+                                    leading: Icon(Icons.bluetooth,
+                                        size: 30,
+                                        color: _bondingState.isBonding
+                                            ? Colors.yellow
+                                            : _bondingState.isBonded
+                                                ? Colors.green
+                                                : Colors.blue),
+                                    elevation: 0,
+                                    backgroundColor: Colors.transparent,
+                                    actions: <Widget>[
+                                      Icon(Icons.battery_0_bar,
+                                          color: isConnected
+                                              ? Colors.green
+                                              : Colors.transparent),
+                                      isConnected
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 20),
+                                              child: Text(
+                                                "$_btrystat%",
+                                                textAlign: TextAlign.end,
+                                                style: const TextStyle(
+                                                    color: Colors.black),
+                                              ))
+                                          : const Text(''),
+                                      Icon(Icons.speed,
+                                          color: isConnected
+                                              ? const Color.fromARGB(
+                                                  255, 76, 175, 80)
+                                              : Colors.transparent),
+                                      isConnected
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 20),
+                                              child: Text(
+                                                _aSpeed,
+                                                textAlign: TextAlign.end,
+                                                style: const TextStyle(
+                                                    color: Colors.black),
+                                              ))
+                                          : const Text(''),
+                                      Icon(Icons.speed_rounded,
+                                          color: isConnected
+                                              ? Colors.green
+                                              : Colors.transparent),
+                                      isConnected
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 20),
+                                              child: Text(
+                                                _relSpeed,
+                                                textAlign: TextAlign.end,
+                                                style: const TextStyle(
+                                                    color: Colors.black),
+                                              ))
+                                          : const Text(''),
+                                      Icon(Icons.bus_alert,
+                                          color: isConnected
+                                              ? Colors.green
+                                              : Colors.transparent),
+                                      isConnected
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 20),
+                                              child: Text(
+                                                _modbus,
+                                                textAlign: TextAlign.end,
+                                                style: const TextStyle(
+                                                    color: Colors.black),
+                                              ))
+                                          : const Text(''),
+                                    ],
+                                  ),
+                                  body: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 0, horizontal: 0),
+                                    child: SizedBox.expand(
+                                        child: Joystick(onStickDragEnd: () {
+                                      GlobalSingleton().command(GlobalSingleton()
+                                          .joystickStopCmd); //movement stop (by default)
+                                    }, listener: (details) {
+                                      if (isConnected) {
+                                        HapticFeedback.heavyImpact();
+                                        setState(() {
+                                          double _x = 0;
+                                          double _y = 0;
+                                          sendvalf = Model().save();
+
+                                          _x = (sendvalf! * details.x);
+                                          _y = (sendvalf! * details.y);
+
+                                          double degree =
+                                              atan2(details.y, details.x);
+                                          String text =
+                                              "MOONS+JSR${GlobalSingleton().offsetJoystickLogic(details.x, details.y, _x, _y, degree)}";
+                                          GlobalSingleton().command(text);
+                                        });
+                                      } else {
+                                        GlobalSingleton().command(GlobalSingleton()
+                                            .joystickStopCmd); //movement stop (by default)
+                                      }
+                                    })),
+                                  ))),
+                        ])
                   ])
-            ])));
+            ],
+          ),
+          Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Ink(
+                    height: 50,
+                    child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const DiagnosticsMain()));
+                        },
+                        style: ElevatedButton.styleFrom(
+                            primary: const Color.fromARGB(255, 255, 255, 255)),
+                        icon: const ImageIcon(
+                          AssetImage(
+                            "asset/peppermintLogo.png",
+                          ),
+                          color: Colors.green,
+                          size: 70,
+                        ),
+                        label: const Text("")))
+              ])
+        ]));
   }
 
   List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
@@ -551,8 +535,12 @@ class _RemoteControlState extends State<RemoteControl> {
   }
 
   void ifisconnected(data) {
+    var something = [];
     if (data != null) {
-      print(data);
+      something = data;
+      print(something);
+    } else {
+      print("data is null");
     }
   }
 
@@ -560,12 +548,10 @@ class _RemoteControlState extends State<RemoteControl> {
     if (_device == null) {
     } else {
       if (!isConnected) {
-        await BluetoothConnection.toAddress(_device!.address).then((_con) {
-          connection = _con;
+        await BluetoothConnection.toAddress(_device!.address).then((con) {
           setState(() {
             _connected = true;
-
-            HapticFeedback.heavyImpact();
+            connection = con;
             const powerOnCmd = Duration(milliseconds: 333);
             GlobalSingleton().onTimerVar = Timer.periodic(
                 powerOnCmd,
