@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -12,10 +13,11 @@ class DataReceiver {
   BluetoothConnection? connection;
 
   void receiver() {
-    connection!.input!.listen(dataReceived).onDone(() {});
+    Stream<Uint8List>? funnel = connection!.input;
+    funnel?.listen(dataReceived).onDone(() {});
   }
 
-  List<String> dataReceived(Uint8List data) {
+  Future<String> dataReceived(Uint8List data) {
     int backspacesCounter = 0;
     String batStatus;
 
@@ -37,22 +39,28 @@ class DataReceiver {
         } else {
           proxy[--proxyIndex] = data[i];
           if (data[i] == 86 && data[i - 1] == 42) {
+            print("Data value ==>" + data.toString());
+
             List<int> batstatus = List<int>.from([
               data[i + 1],
               data[i + 2],
               data[i + 3],
               data[i + 4],
             ]);
-
-            getOperationDir() {
-              return batstatus;
+        String res;
             }
-
-            print(batstatus);
           }
         }
       }
     }
-    return ["Battery Status: "];
+    return Future.value(proxy.toString());
   }
 }
+
+
+ List<int> x = List<int>.from(ascii.encode(command));
+// This part works on a robot [Thumbs up]
+    String result = const AsciiDecoder().convert(x);
+    if (isConnected) {
+      connection!.output.add(ascii.encoder.convert(result));
+      await connection!.output.allSent;}

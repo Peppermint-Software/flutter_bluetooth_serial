@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
+import 'package:peppermintapp/dataReceiver.dart';
 import 'package:peppermintapp/diagnosticsMode/diagnosticsMain.dart';
 import 'package:peppermintapp/remoteControl/globals.dart';
 import 'package:peppermintapp/remoteControl/speedLimiter.dart';
@@ -557,6 +558,7 @@ class _RemoteControlState extends State<RemoteControl> {
       if (!isConnected) {
         await BluetoothConnection.toAddress(_device!.address).then((con) {
           print("Address of the deivce" + "${_device!.address}");
+          DataReceiver;
           setState(() {
             _connected = true;
             connection = con;

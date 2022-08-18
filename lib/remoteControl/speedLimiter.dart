@@ -76,7 +76,7 @@ class _SpeedLimiterState extends State<SpeedLimiter> {
                       }),
                   SaveButton(model.isDirty),
                   IconButton(
-                    color: Color.fromARGB(255, 158, 158, 158),
+                    color: const Color.fromARGB(255, 158, 158, 158),
                     iconSize: 40,
                     icon: const Icon(Icons.remove_circle_sharp),
                     onPressed: () {
