@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:getwidget/components/accordion/gf_accordion.dart';
@@ -54,8 +52,8 @@ class _DiagnosticsMainState extends State<DiagnosticsMain> {
                               Icons.arrow_drop_down_circle_rounded,
                               color: Colors.grey,
                             ),
-                            contentChild: placeholder(context),
-                            showAccordion: true,
+                            contentChild: contentholder(context),
+                            showAccordion: false,
                             contentPadding: const EdgeInsets.all(8),
                             title: titleList[index].toString(),
                           ))),
@@ -64,8 +62,20 @@ class _DiagnosticsMainState extends State<DiagnosticsMain> {
 }
 
 var titleList = {0: "General Info", 1: "Cleaning Data", 2: "Motor Data"};
+List _items = [];
+List _items2 = [];
+List _items3 = [];
+Future<void> readJson() async {
+  final String response = await rootBundle.loadString("asset/dataheaders.json");
+  final data = await json.decode(response);
 
-Widget placeholder(context) {
+  _items = data[0];
+  _items2 = data[1];
+  _items3 = data[2];
+}
+
+Widget contentholder(context) {
+  readJson();
   return Card(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(40), // if you need this
@@ -76,29 +86,78 @@ Widget placeholder(context) {
     ),
     child: Container(
       color: Colors.white,
-      width: 200,
-      height: 200,
+      width: 100,
+      height: 100,
       child: Column(
         children: <Widget>[
-          Text(
-            titleList.toString(),
-          ),
-          const Spacer(),
-          Text(something.toString()),
+          _items.isNotEmpty
+              ? Expanded(
+                  child: ListView.builder(
+                      itemCount: _items.length,
+                      itemBuilder: ((context, index) {
+                        return Card(
+                            child: Stack(
+                          children: [
+                            Text(_items[index]["id"]),
+                          ],
+                        ));
+                      })))
+              : Container(),
         ],
       ),
     ),
   );
 }
 
-List<Map<String, dynamic>> something = [
-  {
-    "Firmware Version": true,
-    "Modbus Connection Status": " Connected",
-    "E Stop Engaged: ": true
-  },
-  {"Placeholder": "Lorem epsum", "Something 1": "Lorem epsum 2"}
-];
+// class JsonfromAsset extends StatefulWidget {
+//   const JsonfromAsset({Key? key}) : super(key: key);
+
+//   @override
+//   State<JsonfromAsset> createState() => _JsonfromAssetState();
+// }
+
+// class _JsonfromAssetState extends State<JsonfromAsset> {
+//   List<String> userlist = [];
+
+//   Future<String> fetchData() async {
+//     String data = await DefaultAssetBundle.of(context)
+//         .loadString("asset/dataheaders.json");
+
+//     final jsonResult = json.decode(data);
+
+//     setState(() {
+//       jsonResult.forEach(
+//           (element) => userlist.add(String.fromJson(User(name, email))));
+//     });
+
+//     return "Success!";
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     fetchData();
+//     return Scaffold(
+//         body: Container(
+//             child: userlist.isNotEmpty
+//                 ? ListView.builder(
+//                     itemCount: userlist == null ? 0 : userlist.length,
+//                     itemBuilder: (context, index) {
+//                       return Container(child: Text(userlist[index]));
+//                     },
+//                   )
+//                 : Center(child: Text('empty'))));
+//   }
+// }
+
+class User {
+  final String name;
+  final String email;
+  User(this.name, this.email);
+  User.fromJson(Map<String, dynamic> json)
+      : name = json['name'],
+        email = json['email'];
+}
+
 String _btrystat = '';
 String _wtrLevel = '';
 String _wtrFlow = '';

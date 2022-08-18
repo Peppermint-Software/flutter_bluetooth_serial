@@ -1,19 +1,58 @@
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:peppermintapp/remoteControl/remoteControl.dart';
-// This File is a trial run in case of the failure of the old method of receiving the data from the robot
+import 'dart:typed_data';
 
-class data_receiver {
-  static data_receiver? _instance;
-  data_receiver._internal() {
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+
+// This File is a trial run in case of the failure of the old method of receiving the data from the robo
+
+class DataReceiver {
+  static DataReceiver? _instance;
+  DataReceiver._internal2() {
     _instance = this;
   }
-  factory data_receiver() => _instance ?? data_receiver();
-  @override
-  void initState() {
-    receiver();
-  }
+  BluetoothConnection? connection;
 
   void receiver() {
-    connection!.input!.listen((event) => print(event));
+    connection!.input!.listen(dataReceived).onDone(() {});
+  }
+
+  List<String> dataReceived(Uint8List data) {
+    int backspacesCounter = 0;
+    String batStatus;
+
+    for (var byte in data) {
+      if (byte == 8 || byte == 127) {
+        backspacesCounter++;
+      }
+    }
+
+    Uint8List proxy = Uint8List(data.length - backspacesCounter);
+    int proxyIndex = proxy.length;
+
+    backspacesCounter = 0;
+    for (int i = data.length - 1; i >= 0; i--) {
+      if (data[i] == 8 || data[i] == 127) {
+        backspacesCounter++;
+      } else {
+        if (backspacesCounter > 0) {
+        } else {
+          proxy[--proxyIndex] = data[i];
+          if (data[i] == 86 && data[i - 1] == 42) {
+            List<int> batstatus = List<int>.from([
+              data[i + 1],
+              data[i + 2],
+              data[i + 3],
+              data[i + 4],
+            ]);
+
+            getOperationDir() {
+              return batstatus;
+            }
+
+            print(batstatus);
+          }
+        }
+      }
+    }
+    return ["Battery Status: "];
   }
 }

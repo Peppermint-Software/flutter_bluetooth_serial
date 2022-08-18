@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -43,7 +42,7 @@ class _RemoteControlState extends State<RemoteControl> {
   List<BluetoothDevice> _pairedDeviceList = [];
   BluetoothDevice? _device;
   bool _connected = false;
-  late BluetoothBondState _bondingState = BluetoothBondState.bonding;
+  late final BluetoothBondState _bondingState = BluetoothBondState.bonding;
 
   var deviceState = 0;
 
@@ -59,8 +58,7 @@ class _RemoteControlState extends State<RemoteControl> {
         _bluetoothState = state;
       });
     });
-    //checking for bluetooth state
-
+    dataReceived;
     GlobalSingleton()
         .enableBluetooth(); //turning the bluetooth on code is in globals.dart
 
@@ -230,58 +228,75 @@ class _RemoteControlState extends State<RemoteControl> {
                           child: Column(
                             children: [
                               Ink(
-                                  child: ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          onOffswap = !onOffswap;
-                                        });
-                                        switch (onOffswap) {
-                                          case true:
-                                            {
-                                              HapticFeedback.heavyImpact();
-                                              const powerOnCmd =
-                                                  Duration(milliseconds: 333);
-                                              GlobalSingleton().onTimerVar =
-                                                  Timer.periodic(
-                                                      powerOnCmd,
-                                                      (Timer t) => GlobalSingleton()
-                                                          .command(
-                                                              GlobalSingleton()
-                                                                  .driveOn));
-                                              GlobalSingleton().command(
-                                                  GlobalSingleton().motorOn);
-                                              GlobalSingleton()
-                                                  .offTimerVar
-                                                  .cancel();
+                                  child: AbsorbPointer(
+                                      absorbing: isConnected ? false : true,
+                                      child: ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              onOffswap = !onOffswap;
+                                            });
+                                            switch (onOffswap) {
+                                              case true:
+                                                {
+                                                  // DataReceiver().receiver();
+                                                  HapticFeedback.heavyImpact();
+                                                  const powerOnCmd = Duration(
+                                                      milliseconds: 333);
+                                                  GlobalSingleton().onTimerVar =
+                                                      Timer.periodic(
+                                                          powerOnCmd,
+                                                          (Timer t) => GlobalSingleton()
+                                                              .command(
+                                                                  GlobalSingleton()
+                                                                      .driveOn));
+                                                  GlobalSingleton().command(
+                                                      GlobalSingleton()
+                                                          .motorOn);
+                                                  GlobalSingleton()
+                                                      .offTimerVar
+                                                      .cancel();
 
-                                              break;
+                                                  break;
+                                                }
+                                              case false:
+                                                {
+                                                  HapticFeedback.heavyImpact();
+                                                  GlobalSingleton()
+                                                      .onTimerVar
+                                                      .cancel();
+
+                                                  GlobalSingleton().command(
+                                                      GlobalSingleton()
+                                                          .motorOff);
+
+                                                  GlobalSingleton().command(
+                                                      GlobalSingleton()
+                                                          .driveOff);
+                                                  break;
+                                                }
                                             }
-                                          case false:
-                                            {
-                                              HapticFeedback.heavyImpact();
-                                              GlobalSingleton()
-                                                  .onTimerVar
-                                                  .cancel();
-
-                                              GlobalSingleton().command(
-                                                  GlobalSingleton().motorOff);
-
-                                              GlobalSingleton().command(
-                                                  GlobalSingleton().driveOff);
-                                              break;
-                                            }
-                                        }
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          primary: const Color.fromARGB(
-                                              255, 235, 16, 16),
-                                          onPrimary: const Color.fromARGB(
-                                              255, 255, 255, 255),
-                                          shape: const CircleBorder(),
-                                          padding: const EdgeInsets.all(30)),
-                                      child: onOffswap == true
-                                          ? const Text("ON")
-                                          : const Text("OFF"))),
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                              primary: const Color.fromARGB(
+                                                  255, 235, 16, 16),
+                                              onPrimary: const Color.fromARGB(
+                                                  255, 255, 255, 255),
+                                              shape: const CircleBorder(),
+                                              padding:
+                                                  const EdgeInsets.all(30)),
+                                          child: onOffswap == true
+                                              ? Icon(
+                                                  Icons
+                                                      .power_settings_new_outlined,
+                                                  color: onOffswap
+                                                      ? Colors.green
+                                                      : Colors.white,
+                                                )
+                                              : const Icon(
+                                                  Icons
+                                                      .power_settings_new_outlined,
+                                                  color: Colors.white,
+                                                )))),
                             ],
                           )),
                       AbsorbPointer(
@@ -373,7 +388,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                   appBar: AppBar(
                                     leading: Icon(Icons.bluetooth,
                                         size: 30,
-                                        color: _bondingState.isBonding
+                                        color: _bondingState.isBondingStatus()
                                             ? Colors.yellow
                                             : _bondingState.isBonded
                                                 ? Colors.green
@@ -406,7 +421,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                               padding: const EdgeInsets.only(
                                                   top: 20),
                                               child: Text(
-                                                _aSpeed,
+                                                _wtrLevel,
                                                 textAlign: TextAlign.end,
                                                 style: const TextStyle(
                                                     color: Colors.black),
@@ -421,7 +436,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                               padding: const EdgeInsets.only(
                                                   top: 20),
                                               child: Text(
-                                                _relSpeed,
+                                                _wtrFlow,
                                                 textAlign: TextAlign.end,
                                                 style: const TextStyle(
                                                     color: Colors.black),
@@ -484,9 +499,11 @@ class _RemoteControlState extends State<RemoteControl> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Ink(
-                    height: 50,
+                    height: 80,
                     child: ElevatedButton.icon(
                         onPressed: () {
+                          readJson();
+
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -534,21 +551,12 @@ class _RemoteControlState extends State<RemoteControl> {
     return items;
   }
 
-  void ifisconnected(data) {
-    var something = [];
-    if (data != null) {
-      something = data;
-      print(something);
-    } else {
-      print("data is null");
-    }
-  }
-
   void connect() async {
     if (_device == null) {
     } else {
       if (!isConnected) {
         await BluetoothConnection.toAddress(_device!.address).then((con) {
+          print("Address of the deivce" + "${_device!.address}");
           setState(() {
             _connected = true;
             connection = con;
@@ -560,7 +568,7 @@ class _RemoteControlState extends State<RemoteControl> {
             GlobalSingleton().command(GlobalSingleton().motorOn);
             GlobalSingleton().offTimerVar.cancel();
           });
-          connection!.input!.listen(/*dataReceived*/ ifisconnected).onDone(() {
+          connection!.input!.listen(dataReceived /*ifisconnected*/).onDone(() {
             if (isDisconnecting) {
             } else {}
             if (mounted) {
@@ -577,7 +585,6 @@ class _RemoteControlState extends State<RemoteControl> {
     if (!connection!.isConnected) {
       setState(() {
         _connected = false;
-        // _bluetoothSwitch = false;
         HapticFeedback.heavyImpact();
         GlobalSingleton().onTimerVar.cancel();
 
@@ -591,8 +598,6 @@ class _RemoteControlState extends State<RemoteControl> {
   String _btrystat = '';
   String _wtrLevel = '';
   String _wtrFlow = '';
-  String _relSpeed = '';
-  String _aSpeed = '';
   final String _modbus = '';
 
   List<String> dataReceived(Uint8List data) {
@@ -613,14 +618,25 @@ class _RemoteControlState extends State<RemoteControl> {
 
     backspacesCounter = 0;
     for (int i = data.length - 1; i >= 0; i--) {
-      print(data[i].toString());
       if (data[i] == 8 || data[i] == 127) {
         backspacesCounter++;
       } else {
         if (backspacesCounter > 0) {
         } else {
           proxy[--proxyIndex] = data[i];
-
+          if (data[i] == 86 && data[i - 1] == 42) {
+            List<int> batstatus = List<int>.from([
+              data[i + 1],
+              data[i + 2],
+              data[i + 3],
+              data[i + 4],
+            ]);
+            String result = const AsciiDecoder().convert(batstatus);
+            setState(() {
+              batStatus = result;
+              _btrystat = batStatus!;
+            });
+          }
           if (data[i] == 86 && data[i - 1] == 42) {
             List<int> wtrlevel = List<int>.from([
               data[i + 1],
@@ -646,38 +662,9 @@ class _RemoteControlState extends State<RemoteControl> {
               _wtrFlow = waterFlow!;
             });
           }
-
-          if (data[i] == 74 && data[i - 1] == 42) {
-            List<int> refSpeed = List<int>.from([
-              data[i + 1],
-              data[i + 2],
-              data[i + 3],
-              data[i + 4],
-            ]);
-            String result = const AsciiDecoder().convert(refSpeed);
-            setState(() {
-              refspeed = result;
-              _relSpeed = refspeed!;
-            });
-          }
-
-          if (data[i] == 73 && data[i - 1] == 42) {
-            List<int> aSpeed = List<int>.from([
-              data[i + 1],
-              data[i + 2],
-              data[i + 3],
-              data[i + 4],
-            ]);
-            String result = const AsciiDecoder().convert(aSpeed);
-            setState(() {
-              speed = result;
-              _aSpeed = speed!;
-            });
-          }
         }
       }
     }
-    print(waterFlow);
-    return [waterFlow.toString(), refspeed.toString(), speed.toString()];
+    return [waterFlow.toString(), waterStat.toString(), batStatus.toString()];
   }
 }

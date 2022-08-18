@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:peppermintapp/remoteControl/helpers.dart';
@@ -67,7 +66,6 @@ The string is converted to a byte array and then sent to the device.
     List<int> x = List<int>.from(ascii.encode(command));
 // This part works on a robot [Thumbs up]
     String result = const AsciiDecoder().convert(x);
-    print(result);
     if (isConnected) {
       connection!.output.add(ascii.encoder.convert(result));
       await connection!.output.allSent;
