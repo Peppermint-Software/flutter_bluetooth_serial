@@ -10,6 +10,7 @@ import 'package:peppermintapp/dataReceiver.dart';
 import 'package:peppermintapp/diagnosticsMode/diagnosticsMain.dart';
 import 'package:peppermintapp/remoteControl/globals.dart';
 import 'package:peppermintapp/remoteControl/speedLimiter.dart';
+import 'package:test/test.dart';
 
 class RemoteControl extends StatefulWidget {
   const RemoteControl({
@@ -38,14 +39,13 @@ class _RemoteControlState extends State<RemoteControl> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
   bool get isConnected => connection != null && connection!.isConnected;
-
   bool isDisconnecting = false;
   List<BluetoothDevice> _pairedDeviceList = [];
   BluetoothDevice? _device;
   bool _connected = false;
   late final BluetoothBondState _bondingState = BluetoothBondState.bonding;
-
   var deviceState = 0;
+  Uint8List bytes = Uint8List.fromList([0, 58, 0, 56, 654, 78]);
 
   /*All variables*/
 
@@ -54,23 +54,21 @@ class _RemoteControlState extends State<RemoteControl> {
     super.initState();
 
     getPairedDeviceList();
+
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
         _bluetoothState = state;
       });
     });
-    dataReceived;
+
     GlobalSingleton()
         .enableBluetooth(); //turning the bluetooth on code is in globals.dart
-
     FlutterBluetoothSerial.instance
         .onStateChanged()
         .listen((BluetoothState state) {
       setState(() {
         _bluetoothState = state;
-        if (_bluetoothState == BluetoothState.STATE_OFF) {
-          // _bluetoothSwitch = true;
-        }
+        if (_bluetoothState == BluetoothState.STATE_OFF) {}
         getPairedDeviceList();
       });
     });
@@ -141,58 +139,6 @@ class _RemoteControlState extends State<RemoteControl> {
                         ? _device
                         : null,
                   ),
-
-                  // Row(children: [
-                  //   Padding(
-                  //       padding: const EdgeInsets.all(0),
-                  //       child: Icon(
-                  //         Icons.bluetooth_disabled,
-                  //         color: !_bluetoothState!.isEnabled
-                  //             ? Colors.red
-                  //             : Colors.transparent,
-                  //       )),
-                  //   Padding(
-                  //       padding: const EdgeInsets.symmetric(horizontal: 20),
-                  //       child: Switch(
-                  //         inactiveTrackColor: Colors.red,
-                  //         activeTrackColor: Colors.green,
-                  //         activeColor: Colors.white,
-                  //         value: _bluetoothState!.isEnabled,
-                  //         onChanged: (bool value) {
-                  //           future() async {
-                  //             if (value) {
-                  //               await FlutterBluetoothSerial.instance
-                  //                   .requestEnable();
-                  //             } else {
-                  //               await FlutterBluetoothSerial.instance
-                  //                   .requestDisable();
-                  //             }
-
-                  //             await getPairedDeviceList();
-                  //             _bluetoothSwitch = false;
-                  //             if (_connected) {
-                  //               _disconnect();
-                  //             }
-                  //           }
-
-                  //           future().then((_) {
-                  //             setState(() {});
-                  //           });
-                  //         },
-                  //       )),
-                  //   Padding(
-                  //       padding: const EdgeInsets.all(0),
-                  //       child: Icon(
-                  //         !isConnected
-                  //             ? Icons.bluetooth_disabled
-                  //             : Icons.bluetooth_audio_rounded,
-                  //         color: _bluetoothState!.isEnabled && !isConnected
-                  //             ? Colors.green
-                  //             : isConnected
-                  //                 ? Colors.green
-                  //                 : Colors.transparent,
-                  //       ))
-                  // ]),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -203,7 +149,7 @@ class _RemoteControlState extends State<RemoteControl> {
                         child: Container(
                           padding: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
-                              color: Colors.transparent,
+                              color: Colors.transparent,0.                                 
                               borderRadius: BorderRadius.circular(5)),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -239,7 +185,6 @@ class _RemoteControlState extends State<RemoteControl> {
                                             switch (onOffswap) {
                                               case true:
                                                 {
-                                                  // DataReceiver().receiver();
                                                   HapticFeedback.heavyImpact();
                                                   const powerOnCmd = Duration(
                                                       milliseconds: 333);
@@ -452,7 +397,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                               padding: const EdgeInsets.only(
                                                   top: 20),
                                               child: Text(
-                                                _modbus,
+                                                _btrystat,
                                                 textAlign: TextAlign.end,
                                                 style: const TextStyle(
                                                     color: Colors.black),
@@ -557,25 +502,23 @@ class _RemoteControlState extends State<RemoteControl> {
     } else {
       if (!isConnected) {
         await BluetoothConnection.toAddress(_device!.address).then((con) {
-          print("Address of the deivce" + "${_device!.address}");
-          DataReceiver;
           setState(() {
             _connected = true;
             connection = con;
             const powerOnCmd = Duration(milliseconds: 333);
+            connection!.input!.listen(dataReceived).onDone(() {
+              if (isDisconnecting) {
+              } else {}
+              if (mounted) {
+                setState(() {});
+              }
+            });
             GlobalSingleton().onTimerVar = Timer.periodic(
                 powerOnCmd,
                 (Timer t) =>
                     GlobalSingleton().command(GlobalSingleton().driveOn));
             GlobalSingleton().command(GlobalSingleton().motorOn);
             GlobalSingleton().offTimerVar.cancel();
-          });
-          connection!.input!.listen(dataReceived /*ifisconnected*/).onDone(() {
-            if (isDisconnecting) {
-            } else {}
-            if (mounted) {
-              setState(() {});
-            }
           });
         }).catchError((error) {});
       }
@@ -597,18 +540,15 @@ class _RemoteControlState extends State<RemoteControl> {
     }
   }
 
-  String _btrystat = '';
-  String _wtrLevel = '';
-  String _wtrFlow = '';
-  final String _modbus = '';
+  late String _btrystat = '';
+  late String _wtrLevel = '';
+  late String _wtrFlow = '';
 
-  List<String> dataReceived(Uint8List data) {
+  Future<String> dataReceived(Uint8List data) async {
     int backspacesCounter = 0;
-    String? batStatus;
-    String? waterStat;
-    String? waterFlow;
-    String? refspeed;
-    String? speed;
+    late String batStatus;
+    late String waterStat;
+    late String waterFlow;
     for (var byte in data) {
       if (byte == 8 || byte == 127) {
         backspacesCounter++;
@@ -623,7 +563,7 @@ class _RemoteControlState extends State<RemoteControl> {
       if (data[i] == 8 || data[i] == 127) {
         backspacesCounter++;
       } else {
-        if (backspacesCounter > 0) {
+        if (backspacesCounter < 0) {
         } else {
           proxy[--proxyIndex] = data[i];
           if (data[i] == 86 && data[i - 1] == 42) {
@@ -636,7 +576,8 @@ class _RemoteControlState extends State<RemoteControl> {
             String result = const AsciiDecoder().convert(batstatus);
             setState(() {
               batStatus = result;
-              _btrystat = batStatus!;
+              _btrystat = batStatus;
+              print(_btrystat);
             });
           }
           if (data[i] == 86 && data[i - 1] == 42) {
@@ -649,7 +590,8 @@ class _RemoteControlState extends State<RemoteControl> {
             String result = const AsciiDecoder().convert(wtrlevel);
             setState(() {
               waterStat = result;
-              _wtrLevel = waterStat!;
+              _wtrLevel = waterStat;
+              print(_wtrLevel);
             });
           }
           if (data[i] == 89 && data[i - 1] == 42) {
@@ -661,12 +603,24 @@ class _RemoteControlState extends State<RemoteControl> {
             String result = const AsciiDecoder().convert(wtrFlow);
             setState(() {
               waterFlow = result;
-              _wtrFlow = waterFlow!;
+              _wtrFlow = waterFlow;
+              print(_wtrFlow);
             });
           }
         }
       }
     }
-    return [waterFlow.toString(), waterStat.toString(), batStatus.toString()];
+    returnsNormally;
   }
 }
+
+
+
+/*
+Pointers of errors (assumptions):
+
+1. listen() operator of the code must have different objet within the code for it to work on different scenario
+2. The data type of the dataReceived function of the code must be specified well,
+3. 
+
+*/
