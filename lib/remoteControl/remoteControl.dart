@@ -124,7 +124,7 @@ class _RemoteControlState extends State<RemoteControl> {
                   DropdownButton(
                     autofocus: true,
                     alignment: Alignment.center,
-                    disabledHint: const Text("Turn On Switch"),
+                    disabledHint: const Text("Enable Bluetooth"),
                     hint: !isConnected
                         ? const Text(
                             "Select Robot",
@@ -149,7 +149,7 @@ class _RemoteControlState extends State<RemoteControl> {
                         child: Container(
                           padding: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
-                              color: Colors.transparent,0.                                 
+                              color: Colors.transparent,
                               borderRadius: BorderRadius.circular(5)),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -357,7 +357,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                                     color: Colors.black),
                                               ))
                                           : const Text(''),
-                                      Icon(Icons.speed,
+                                      Icon(Icons.invert_colors,
                                           color: isConnected
                                               ? const Color.fromARGB(
                                                   255, 76, 175, 80)
@@ -383,21 +383,6 @@ class _RemoteControlState extends State<RemoteControl> {
                                                   top: 20),
                                               child: Text(
                                                 _wtrFlow,
-                                                textAlign: TextAlign.end,
-                                                style: const TextStyle(
-                                                    color: Colors.black),
-                                              ))
-                                          : const Text(''),
-                                      Icon(Icons.bus_alert,
-                                          color: isConnected
-                                              ? Colors.green
-                                              : Colors.transparent),
-                                      isConnected
-                                          ? Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 20),
-                                              child: Text(
-                                                _btrystat,
                                                 textAlign: TextAlign.end,
                                                 style: const TextStyle(
                                                     color: Colors.black),
@@ -544,7 +529,7 @@ class _RemoteControlState extends State<RemoteControl> {
   late String _wtrLevel = '';
   late String _wtrFlow = '';
 
-  Future<String> dataReceived(Uint8List data) async {
+  Future<dynamic> dataReceived(Uint8List data) async {
     int backspacesCounter = 0;
     late String batStatus;
     late String waterStat;
@@ -567,6 +552,7 @@ class _RemoteControlState extends State<RemoteControl> {
         } else {
           proxy[--proxyIndex] = data[i];
           if (data[i] == 86 && data[i - 1] == 42) {
+            //Battery SoC "V"
             List<int> batstatus = List<int>.from([
               data[i + 1],
               data[i + 2],
@@ -577,10 +563,10 @@ class _RemoteControlState extends State<RemoteControl> {
             setState(() {
               batStatus = result;
               _btrystat = batStatus;
-              print(_btrystat);
             });
           }
-          if (data[i] == 86 && data[i - 1] == 42) {
+          if (data[i] == 119 && data[i - 1] == 42) {
+            //Water Level 'w'
             List<int> wtrlevel = List<int>.from([
               data[i + 1],
               data[i + 2],
@@ -591,10 +577,10 @@ class _RemoteControlState extends State<RemoteControl> {
             setState(() {
               waterStat = result;
               _wtrLevel = waterStat;
-              print(_wtrLevel);
             });
           }
-          if (data[i] == 89 && data[i - 1] == 42) {
+          if (data[i] == 73 && data[i - 1] == 42) {
+            //speed left
             List<int> wtrFlow = List<int>.from([
               data[i + 1],
               data[i + 2],
@@ -604,23 +590,10 @@ class _RemoteControlState extends State<RemoteControl> {
             setState(() {
               waterFlow = result;
               _wtrFlow = waterFlow;
-              print(_wtrFlow);
             });
           }
         }
       }
     }
-    returnsNormally;
   }
 }
-
-
-
-/*
-Pointers of errors (assumptions):
-
-1. listen() operator of the code must have different objet within the code for it to work on different scenario
-2. The data type of the dataReceived function of the code must be specified well,
-3. 
-
-*/

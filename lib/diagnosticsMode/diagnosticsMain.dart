@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:getwidget/components/accordion/gf_accordion.dart';
 import 'package:getwidget/components/appbar/gf_appbar.dart';
 import 'package:peppermintapp/remoteControl/helpers.dart';
+import 'package:peppermintapp/remoteControl/remoteControl.dart';
 
 class DiagnosticsMain extends StatefulWidget {
   const DiagnosticsMain({Key? key}) : super(key: key);
@@ -13,6 +16,7 @@ class DiagnosticsMain extends StatefulWidget {
 }
 
 class _DiagnosticsMainState extends State<DiagnosticsMain> {
+  BluetoothConnection? connection;
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
@@ -53,8 +57,9 @@ class _DiagnosticsMainState extends State<DiagnosticsMain> {
                               color: Colors.grey,
                             ),
                             contentChild: contentholder(context),
+                            titleBorderRadius: BorderRadius.circular(40),
                             showAccordion: false,
-                            contentPadding: const EdgeInsets.all(8),
+                            contentPadding: const EdgeInsets.all(12),
                             title: titleList[index].toString(),
                           ))),
             ])));
@@ -63,19 +68,22 @@ class _DiagnosticsMainState extends State<DiagnosticsMain> {
 
 var titleList = {0: "General Info", 1: "Cleaning Data", 2: "Motor Data"};
 List _items = [];
-List _items2 = [];
-List _items3 = [];
+
 Future<void> readJson() async {
   final String response = await rootBundle.loadString("asset/dataheaders.json");
   final data = await json.decode(response);
 
   _items = data[0];
-  _items2 = data[1];
-  _items3 = data[2];
+}
+
+void checkConnection() {
+  connection!.input!.listen(dataReceived2).onDone(() {
+    if (!isConnected) {
+    } else {}
+  });
 }
 
 Widget contentholder(context) {
-  readJson();
   return Card(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(40), // if you need this
@@ -95,10 +103,11 @@ Widget contentholder(context) {
                   child: ListView.builder(
                       itemCount: _items.length,
                       itemBuilder: ((context, index) {
+                        checkConnection();
                         return Card(
                             child: Stack(
                           children: [
-                            Text(_items[index]["id"]),
+                            Text(_items[index].toString()),
                           ],
                         ));
                       })))
@@ -163,87 +172,80 @@ String _wtrLevel = '';
 String _wtrFlow = '';
 String _relSpeed = '';
 String _aSpeed = '';
-final String _modbus = '';
+const String _modbus = '';
 
-// List<String> dataReceived(Uint8List data) {
-//   int backspacesCounter = 0;
-//   String? batStatus;
-//   String? waterStat;
-//   String? waterFlow;
-//   String? refspeed;
-//   String? speed;
-//   for (var byte in data) {
-//     if (byte == 8 || byte == 127) {
-//       backspacesCounter++;
-//     }
-//   }
+Future<dynamic> dataReceived2(Uint8List data) async {
+  int backspacesCounter = 0;
+  late String batStatus;
+  String? waterStat;
+  String? waterFlow;
+  String? refspeed;
+  String? speed;
+  for (var byte in data) {
+    if (byte == 8 || byte == 127) {
+      backspacesCounter++;
+    }
+  }
 
-//   Uint8List proxy = Uint8List(data.length - backspacesCounter);
-//   int proxyIndex = proxy.length;
-//   backspacesCounter = 0;
-//   for (int i = data.length - 1; i >= 0; i--) {
-//     if (data[i] == 8 || data[i] == 127) {
-//       backspacesCounter++;
-//     } else {
-//       if (backspacesCounter > 0) {
-//       } else {
-//         proxy[--proxyIndex] = data[i];
-//         if (data[i] == 86 && data[i - 1] == 42) {
-//           List<int> wtrlevel = List<int>.from([
-//             data[i + 1],
-//             data[i + 2],
-//             data[i + 3],
-//             data[i + 4],
-//           ]);
-//           String result = const AsciiDecoder().convert(wtrlevel);
-//           setState(() {
-//             waterStat = result;
-//             _wtrLevel = waterStat!;
-//           });
-//         }
-//         print(proxy);
-//         if (data[i] == 89 && data[i - 1] == 42) {
-//           List<int> wtrFlow = List<int>.from([
-//             data[i + 1],
-//             data[i + 2],
-//             data[i + 3],
-//           ]);
-//           String result = const AsciiDecoder().convert(wtrFlow);
-//           setState(() {
-//             waterFlow = result;
-//             _wtrFlow = waterFlow!;
-//           });
-//         }
+  Uint8List proxy = Uint8List(data.length - backspacesCounter);
+  int proxyIndex = proxy.length;
+  backspacesCounter = 0;
+  for (int i = data.length - 1; i >= 0; i--) {
+    if (data[i] == 8 || data[i] == 127) {
+      backspacesCounter++;
+    } else {
+      if (backspacesCounter > 0) {
+      } else {
+        proxy[--proxyIndex] = data[i];
+        if (data[i] == 86 && data[i - 1] == 42) {
+          List<int> wtrlevel = List<int>.from([
+            data[i + 1],
+            data[i + 2],
+            data[i + 3],
+            data[i + 4],
+          ]);
+          String result = const AsciiDecoder().convert(wtrlevel);
+          waterStat = result;
+          _wtrLevel = waterStat;
+        }
+        print(proxy);
+        if (data[i] == 89 && data[i - 1] == 42) {
+          List<int> wtrFlow = List<int>.from([
+            data[i + 1],
+            data[i + 2],
+            data[i + 3],
+          ]);
+          String result = const AsciiDecoder().convert(wtrFlow);
 
-//         if (data[i] == 74 && data[i - 1] == 42) {
-//           List<int> refSpeed = List<int>.from([
-//             data[i + 1],
-//             data[i + 2],
-//             data[i + 3],
-//             data[i + 4],
-//           ]);
-//           String result = const AsciiDecoder().convert(refSpeed);
-//           setState(() {
-//             refspeed = result;
-//             _relSpeed = refspeed!;
-//           });
-//         }
+          waterFlow = result;
+          _wtrFlow = waterFlow;
+          print("_wtrflow===" + _wtrFlow);
+        }
 
-//         if (data[i] == 73 && data[i - 1] == 42) {
-//           List<int> aSpeed = List<int>.from([
-//             data[i + 1],
-//             data[i + 2],
-//             data[i + 3],
-//             data[i + 4],
-//           ]);
-//           String result = const AsciiDecoder().convert(aSpeed);
-//           setState(() {
-//             speed = result;
-//             _aSpeed = speed!;
-//           });
-//         }
-//       }
-//     }
-//   }
-//   return [waterFlow.toString(), waterStat.toString(), batStatus.toString()];
-// }
+        if (data[i] == 74 && data[i - 1] == 42) {
+          List<int> refSpeed = List<int>.from([
+            data[i + 1],
+            data[i + 2],
+            data[i + 3],
+            data[i + 4],
+          ]);
+          String result = const AsciiDecoder().convert(refSpeed);
+          refspeed = result;
+          _relSpeed = refspeed;
+        }
+
+        if (data[i] == 73 && data[i - 1] == 42) {
+          List<int> aSpeed = List<int>.from([
+            data[i + 1],
+            data[i + 2],
+            data[i + 3],
+            data[i + 4],
+          ]);
+          String result = const AsciiDecoder().convert(aSpeed);
+          speed = result;
+          _aSpeed = speed;
+        }
+      }
+    }
+  }
+}

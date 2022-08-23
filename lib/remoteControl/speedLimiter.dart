@@ -59,7 +59,7 @@ class _SpeedLimiterState extends State<SpeedLimiter> {
                 children: <Widget>[
                   IconButton(
                     color: Colors.grey,
-                    iconSize: 40,
+                    iconSize: 42,
                     icon: const Icon(Icons.add_circle_sharp),
                     onPressed: () {
                       Actions.invoke(context, ModifyIntent(count += 10));
@@ -74,10 +74,14 @@ class _SpeedLimiterState extends State<SpeedLimiter> {
                               style: Theme.of(context).textTheme.headlineSmall),
                         );
                       }),
-                  SaveButton(model.isDirty),
+                  // SaveButton(model.isDirty),
+                  const Padding(
+                      child: Text("m/sec"),
+                      padding: EdgeInsets.only(top: 12, bottom: 12)),
+
                   IconButton(
                     color: const Color.fromARGB(255, 158, 158, 158),
-                    iconSize: 40,
+                    iconSize: 42,
                     icon: const Icon(Icons.remove_circle_sharp),
                     onPressed: () {
                       Actions.invoke(context, ModifyIntent(count -= 10));
