@@ -19,14 +19,13 @@ class _DiagnosticsMainState extends State<DiagnosticsMain> {
   BluetoothConnection? connection;
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return MaterialApp(
         home: Scaffold(
             appBar: GFAppBar(
               leading: GestureDetector(
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context, const RemoteControl());
                 },
                 child: const Icon(
                   Icons.arrow_back,

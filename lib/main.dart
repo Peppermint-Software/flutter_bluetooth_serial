@@ -9,8 +9,7 @@ class PeppermintRemote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
     return const MediaQuery(
         data: MediaQueryData(),
         child: MaterialApp(

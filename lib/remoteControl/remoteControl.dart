@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
+import 'package:peppermintapp/customButton.dart';
 import 'package:peppermintapp/dataReceiver.dart';
 import 'package:peppermintapp/diagnosticsMode/diagnosticsMain.dart';
 import 'package:peppermintapp/remoteControl/globals.dart';
@@ -107,10 +108,7 @@ class _RemoteControlState extends State<RemoteControl> {
   //Actual widget start
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
     return Scaffold(
         key: _scaffoldKey,
         body: Column(mainAxisAlignment: MainAxisAlignment.start, children: <
@@ -177,73 +175,78 @@ class _RemoteControlState extends State<RemoteControl> {
                             children: [
                               Ink(
                                   child: AbsorbPointer(
-                                      absorbing: isConnected ? false : true,
-                                      child: ElevatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              onOffswap = !onOffswap;
-                                            });
-                                            switch (onOffswap) {
-                                              case true:
-                                                {
-                                                  HapticFeedback.heavyImpact();
-                                                  const powerOnCmd = Duration(
-                                                      milliseconds: 333);
-                                                  GlobalSingleton().onTimerVar =
-                                                      Timer.periodic(
-                                                          powerOnCmd,
-                                                          (Timer t) => GlobalSingleton()
-                                                              .command(
-                                                                  GlobalSingleton()
-                                                                      .driveOn));
-                                                  GlobalSingleton().command(
-                                                      GlobalSingleton()
-                                                          .motorOn);
-                                                  GlobalSingleton()
-                                                      .offTimerVar
-                                                      .cancel();
+                                absorbing: isConnected ? false : true,
+                                child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5),
+                                    child: CustomButton(onPressed: () {})),
+                                // ElevatedButton(
+                                //     onPressed: () {
+                                //       setState(() {
+                                //         onOffswap = !onOffswap;
+                                //       });
+                                //       switch (onOffswap) {
+                                //         case true:
+                                //           {
+                                //             HapticFeedback.heavyImpact();
+                                //             const powerOnCmd = Duration(
+                                //                 milliseconds: 333);
+                                //             GlobalSingleton().onTimerVar =
+                                //                 Timer.periodic(
+                                //                     powerOnCmd,
+                                //                     (Timer t) => GlobalSingleton()
+                                //                         .command(
+                                //                             GlobalSingleton()
+                                //                                 .driveOn));
+                                //             GlobalSingleton().command(
+                                //                 GlobalSingleton()
+                                //                     .motorOn);
+                                //             GlobalSingleton()
+                                //                 .offTimerVar
+                                //                 .cancel();
 
-                                                  break;
-                                                }
-                                              case false:
-                                                {
-                                                  HapticFeedback.heavyImpact();
-                                                  GlobalSingleton()
-                                                      .onTimerVar
-                                                      .cancel();
+                                //             break;
+                                //           }
+                                //         case false:
+                                //           {
+                                //             HapticFeedback.heavyImpact();
+                                //             GlobalSingleton()
+                                //                 .onTimerVar
+                                //                 .cancel();
 
-                                                  GlobalSingleton().command(
-                                                      GlobalSingleton()
-                                                          .motorOff);
+                                //             GlobalSingleton().command(
+                                //                 GlobalSingleton()
+                                //                     .motorOff);
 
-                                                  GlobalSingleton().command(
-                                                      GlobalSingleton()
-                                                          .driveOff);
-                                                  break;
-                                                }
-                                            }
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                              primary: const Color.fromARGB(
-                                                  255, 235, 16, 16),
-                                              onPrimary: const Color.fromARGB(
-                                                  255, 255, 255, 255),
-                                              shape: const CircleBorder(),
-                                              padding:
-                                                  const EdgeInsets.all(30)),
-                                          child: onOffswap == true
-                                              ? Icon(
-                                                  Icons
-                                                      .power_settings_new_outlined,
-                                                  color: onOffswap
-                                                      ? Colors.green
-                                                      : Colors.white,
-                                                )
-                                              : const Icon(
-                                                  Icons
-                                                      .power_settings_new_outlined,
-                                                  color: Colors.white,
-                                                )))),
+                                //             GlobalSingleton().command(
+                                //                 GlobalSingleton()
+                                //                     .driveOff);
+                                //             break;
+                                //           }
+                                //       }
+                                //     },
+                                //     style: ElevatedButton.styleFrom(
+                                //         primary: const Color.fromARGB(
+                                //             255, 235, 16, 16),
+                                //         onPrimary: const Color.fromARGB(
+                                //             255, 255, 255, 255),
+                                //         shape: const CircleBorder(),
+                                //         padding:
+                                //             const EdgeInsets.all(30)),
+                                //     child: onOffswap == true
+                                //         ? Icon(
+                                //             Icons
+                                //                 .power_settings_new_outlined,
+                                //             color: onOffswap
+                                //                 ? Colors.green
+                                //                 : Colors.white,
+                                //           )
+                                //         : const Icon(
+                                //             Icons
+                                //                 .power_settings_new_outlined,
+                                //             color: Colors.white,
+                                //           ))
+                              )),
                             ],
                           )),
                       AbsorbPointer(
@@ -278,7 +281,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                     child: const Text(
                                       "F",
                                       style: TextStyle(
-                                          color: Colors.white, fontSize: 15),
+                                          color: Colors.black, fontSize: 15),
                                     ),
                                   ),
                                   Padding(
@@ -294,8 +297,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                       },
                                       style: ElevatedButton.styleFrom(
                                         primary: frswap
-                                            ? const Color.fromARGB(
-                                                255, 158, 158, 158)
+                                            ? Color.fromARGB(255, 250, 249, 249)
                                             : const Color.fromARGB(
                                                 255, 76, 175, 80),
                                         shape: const CircleBorder(),
@@ -305,7 +307,7 @@ class _RemoteControlState extends State<RemoteControl> {
                                       child: const Text(
                                         "R",
                                         style: TextStyle(
-                                            color: Colors.white,
+                                            color: Colors.black,
                                             fontSize: 16,
                                             fontStyle: FontStyle.normal),
                                       ),
@@ -540,12 +542,17 @@ class _RemoteControlState extends State<RemoteControl> {
         backspacesCounter++;
       }
     }
-    void Uintsort(List data, int n, int hash, int index) {
-      late String varname;
-      if (data[index] == n && data[index] == hash) {
-        List<int> varname = List<int>.from([
-          data[index + 1],
-        ]);
+    void uintsort(
+      int index,
+      List<dynamic> data,
+      int n,
+      int hash,
+    ) {
+      if (data[index] == n && data[index - 1] == hash) {
+        List<int> newlist = data[index + 1];
+        Iterable<int> varname =
+            newlist.where((p) => p < index ? data[index] : null);
+        print("varname ==>" + varname.toString());
       }
     }
 
@@ -560,6 +567,7 @@ class _RemoteControlState extends State<RemoteControl> {
         if (backspacesCounter < 0) {
         } else {
           proxy[--proxyIndex] = data[i];
+          uintsort(86, data, 42, i);
           if (data[i] == 86 && data[i - 1] == 42) {
             //Battery SoC "V"
 
