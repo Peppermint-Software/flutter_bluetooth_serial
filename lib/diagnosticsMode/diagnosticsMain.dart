@@ -158,14 +158,14 @@ Widget contentholder(context) {
 //   }
 // }
 
-class User {
-  final String name;
-  final String email;
-  User(this.name, this.email);
-  User.fromJson(Map<String, dynamic> json)
-      : name = json['name'],
-        email = json['email'];
-}
+// class User {
+//   final String name;
+//   final String email;
+//   User(this.name, this.email);
+//   User.fromJson(Map<String, dynamic> json)
+//       : name = json['name'],
+//         email = json['email'];
+// }
 
 String _btrystat = '';
 String _wtrLevel = '';

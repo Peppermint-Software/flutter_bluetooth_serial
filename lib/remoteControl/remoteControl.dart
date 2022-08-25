@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -539,6 +540,14 @@ class _RemoteControlState extends State<RemoteControl> {
         backspacesCounter++;
       }
     }
+    void Uintsort(List data, int n, int hash, int index) {
+      late String varname;
+      if (data[index] == n && data[index] == hash) {
+        List<int> varname = List<int>.from([
+          data[index + 1],
+        ]);
+      }
+    }
 
     Uint8List proxy = Uint8List(data.length - backspacesCounter);
     int proxyIndex = proxy.length;
@@ -553,6 +562,7 @@ class _RemoteControlState extends State<RemoteControl> {
           proxy[--proxyIndex] = data[i];
           if (data[i] == 86 && data[i - 1] == 42) {
             //Battery SoC "V"
+
             List<int> batstatus = List<int>.from([
               data[i + 1],
               data[i + 2],

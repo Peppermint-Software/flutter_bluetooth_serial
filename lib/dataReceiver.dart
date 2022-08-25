@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
-// This File is a trial run in case of the failure of the old method of receiving the data from the robot
+// This File is  trial run in case of the failure of the old method of receiving the data from the robot
 
 class DataReceiver {
   static DataReceiver? _instance;
